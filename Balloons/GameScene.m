@@ -4,62 +4,86 @@
 
 
 #import "GameScene.h"
+#import "DDHBalloon.h"
+#import "DDHTimeline.h"
 
 @implementation GameScene {
     SKShapeNode *_spinnyNode;
     SKLabelNode *_label;
 }
 
+- (instancetype)init {
+    if (self = [super initWithSize:CGSizeMake(750, 1334)]) {
+        self.anchorPoint = CGPointMake(0.5, 0.5);
+        self.physicsWorld.gravity = CGVectorMake(0, 0);
+    }
+    return self;
+}
+
 - (void)didMoveToView:(SKView *)view {
-    // Setup your scene here
-    
-    // Get label node from scene and store it for use later
-    _label = (SKLabelNode *)[self childNodeWithName:@"//helloLabel"];
-    
-    _label.alpha = 0.0;
-    [_label runAction:[SKAction fadeInWithDuration:2.0]];
-    
-    CGFloat w = (self.size.width + self.size.height) * 0.05;
-    
-    // Create shape node to use during mouse interaction
-    _spinnyNode = [SKShapeNode shapeNodeWithRectOfSize:CGSizeMake(w, w) cornerRadius:w * 0.3];
-    _spinnyNode.lineWidth = 2.5;
-    
-    [_spinnyNode runAction:[SKAction repeatActionForever:[SKAction rotateByAngle:M_PI duration:1]]];
-    [_spinnyNode runAction:[SKAction sequence:@[
-                                                [SKAction waitForDuration:0.5],
-                                                [SKAction fadeOutWithDuration:0.5],
-                                                [SKAction removeFromParent],
-                                                ]]];
+    view.showsNodeCount = YES;
+    view.showsPhysics = YES;
+//    view.showsFields = true;
+
+    self.physicsWorld.gravity = CGVectorMake(0, 0);
+
+    SKFieldNode *upFlow = [SKFieldNode linearGravityFieldWithVector:simd_make_float3(0, 2, 0)];
+    upFlow.categoryBitMask = 1 << 1;
+    [self addChild:upFlow];
+
+    SKFieldNode *drag = [SKFieldNode dragField];
+    drag.strength = 0.2;
+    [self addChild:drag];
+
+    CGFloat y = view.frame.size.height/2 - view.frame.size.height * 0.2;
+    CGFloat x = view.frame.size.width/2 - view.frame.size.height * 0.2;
+    DDHTimeline *timeline = [[DDHTimeline alloc] initWithStartPoint:CGPointMake(-x, -y) andEndPoint:CGPointMake(x, -y)];
+    [self addChild:timeline];
+
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithWidth:50];
+    balloon.position = CGPointMake(-100, -y);
+    balloon.physicsBody.fieldBitMask = 1 << 1;
+    [self addChild:balloon];
+
+    DDHBalloon *anchor = [[DDHBalloon alloc] initWithWidth:1];
+    anchor.position = CGPointMake(-100, -y);
+    anchor.physicsBody.fieldBitMask = 1 << 2;
+    anchor.physicsBody.dynamic = false;
+    [self addChild:anchor];
+
+    SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloon.position anchorB:anchor.position];
+    joint.maxLength = 60;
+    [self.physicsWorld addJoint:joint];
 }
 
 
 - (void)touchDownAtPoint:(CGPoint)pos {
-    SKShapeNode *n = [_spinnyNode copy];
-    n.position = pos;
-    n.strokeColor = [SKColor greenColor];
-    [self addChild:n];
+//    SKShapeNode *n = [_spinnyNode copy];
+//    n.position = pos;
+//    NSLog(@"pos: %lf %lf", pos.x, pos.y);
+//    n.strokeColor = [SKColor greenColor];
+//    [self addChild:n];
 }
 
 - (void)touchMovedToPoint:(CGPoint)pos {
-    SKShapeNode *n = [_spinnyNode copy];
-    n.position = pos;
-    n.strokeColor = [SKColor blueColor];
-    [self addChild:n];
+//    SKShapeNode *n = [_spinnyNode copy];
+//    n.position = pos;
+//    n.strokeColor = [SKColor blueColor];
+//    [self addChild:n];
 }
 
 - (void)touchUpAtPoint:(CGPoint)pos {
-    SKShapeNode *n = [_spinnyNode copy];
-    n.position = pos;
-    n.strokeColor = [SKColor redColor];
-    [self addChild:n];
+//    SKShapeNode *n = [_spinnyNode copy];
+//    n.position = pos;
+//    n.strokeColor = [SKColor redColor];
+//    [self addChild:n];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    // Run 'Pulse' action from 'Actions.sks'
-    [_label runAction:[SKAction actionNamed:@"Pulse"] withKey:@"fadeInOut"];
-    
-    for (UITouch *t in touches) {[self touchDownAtPoint:[t locationInNode:self]];}
+//    // Run 'Pulse' action from 'Actions.sks'
+//    [_label runAction:[SKAction actionNamed:@"Pulse"] withKey:@"fadeInOut"];
+//    
+//    for (UITouch *t in touches) {[self touchDownAtPoint:[t locationInNode:self]];}
 }
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
     for (UITouch *t in touches) {[self touchMovedToPoint:[t locationInNode:self]];}

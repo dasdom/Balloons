@@ -11,9 +11,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    // Load the SKScene from 'GameScene.sks'
-    GameScene *scene = (GameScene *)[SKScene nodeWithFileNamed:@"GameScene"];
-    
+    GameScene *scene = [[GameScene alloc] init];
+
     // Set the scale mode to scale to fit the window
     scene.scaleMode = SKSceneScaleModeAspectFill;
     
@@ -21,9 +20,6 @@
     
     // Present the scene
     [skView presentScene:scene];
-    
-    skView.showsFPS = YES;
-    skView.showsNodeCount = YES;
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {

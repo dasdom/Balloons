@@ -80,7 +80,9 @@
 				F268E87C2CCEDCBC008B84EE /* BalloonsUITests */,
 				F268E8522CCEDCBA008B84EE /* Products */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		F268E8522CCEDCBA008B84EE /* Products */ = {
 			isa = PBXGroup;
