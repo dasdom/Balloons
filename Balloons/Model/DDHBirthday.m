@@ -21,7 +21,12 @@
 
 - (instancetype)initWithContact:(CNContact *)contact {
     if (self = [super init]) {
-        _uuid = [[NSUUID alloc] initWithUUIDString:contact.identifier];
+        NSArray<NSString *> *components = [contact.identifier componentsSeparatedByString:@":"];
+        if (components.firstObject.length < 1) {
+            _uuid = [NSUUID UUID];
+        } else {
+            _uuid = [[NSUUID alloc] initWithUUIDString:components.firstObject];
+        }
         _imageData = contact.thumbnailImageData;
         _daysLeft = [DDHDateHelper daysLeftForDateComponents:contact.birthday];
         _date = [NSCalendar.currentCalendar dateFromComponents:contact.birthday];
@@ -43,6 +48,6 @@
 }
 
 - (NSString *)description {
-    return [@[self.uuid.UUIDString, [NSString stringWithFormat:@"%ld", self.daysLeft], self.personNameComponents.givenName, self.personNameComponents.familyName] componentsJoinedByString:@", "];
+    return [@[self.uuid.UUIDString, [NSString stringWithFormat:@"%ld", self.daysLeft], self.personNameComponents.givenName] componentsJoinedByString:@", "];
 }
 @end

@@ -11,6 +11,7 @@
 #import "DDHBirthday.h"
 #import "DDHBalloonAnchor.h"
 #import "UIImage+Extenstion.h"
+#import <CoreMotion/CoreMotion.h>
 
 @interface GameScene ()
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
@@ -19,6 +20,7 @@
 @property (assign) CGFloat timelineYPosition;
 @property (assign) CGFloat timelineStart;
 @property (assign) NSInteger numberOfShownDays;
+@property (nonatomic, strong) CMMotionManager *motionManager;
 @end
 
 @implementation GameScene
@@ -26,7 +28,8 @@
 - (instancetype)init {
     if (self = [super initWithSize:CGSizeMake(750, 1334)]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
-        self.physicsWorld.gravity = CGVectorMake(0, 0);
+        self.physicsWorld.gravity = CGVectorMake(0, 9);
+        self.motionManager = [[CMMotionManager alloc] init];
     }
     return self;
 }
@@ -36,18 +39,18 @@
     view.showsPhysics = YES;
 //    view.showsFields = true;
 
-    self.physicsWorld.gravity = CGVectorMake(0, 0);
+//    SKFieldNode *upFlow = [SKFieldNode linearGravityFieldWithVector:simd_make_float3(0, 6, 0)];
+//    upFlow.categoryBitMask = 1 << 1;
+//    [self addChild:upFlow];
 
-    SKFieldNode *upFlow = [SKFieldNode linearGravityFieldWithVector:simd_make_float3(0, 6, 0)];
-    upFlow.categoryBitMask = 1 << 1;
-    [self addChild:upFlow];
+    [self.motionManager startAccelerometerUpdates];
 
     SKFieldNode *drag = [SKFieldNode dragField];
     drag.strength = 0.2;
     [self addChild:drag];
 
     CGSize viewSize = view.frame.size;
-    NSInteger numberOfShownDays = 100;
+    NSInteger numberOfShownDays = 120;
     self.numberOfShownDays = numberOfShownDays;
 
     CGFloat timelineYPosition = viewSize.height/2 - viewSize.height * 0.2;
@@ -112,33 +115,38 @@
     for (DDHBirthday *birthday in birthdays) {
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithWidth:50];
-        CGPoint position = CGPointMake(xPos, -self.timelineYPosition);
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithImage:birthday.imageData width:50];
+        CGPoint position = CGPointMake(xPos, -self.timelineYPosition + 10);
         balloon.position = position;
         [self addChild:balloon];
         [balloons addObject:balloon];
+        NSLog(@"add balloon for %@", birthday);
 
-        if (birthday.imageData) {
-            UIImage *image = [UIImage imageWithData:birthday.imageData];
-            UIImage *roundedImage = [image roundedWithColor:[UIColor whiteColor] width:1 targetSize:CGSizeMake(500, 500)];
-            SKTexture *texture = [SKTexture textureWithImage:roundedImage];
-            SKSpriteNode *imageNode = [SKSpriteNode spriteNodeWithTexture:texture];
-            //        imageNode.zRotation = -45 * M_PI / 180;
-            imageNode.anchorPoint = CGPointMake(0, 0);
-            imageNode.size = CGSizeMake(50, 50);
-            imageNode.position = CGPointMake(0, 0);
-            [balloon addChild:imageNode];
-        }
+        SKLabelNode *nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
+        nameLabel.fontSize = 13;
+        nameLabel.fontName = [UIFont systemFontOfSize:13 weight:UIFontWeightHeavy].fontName;
+        nameLabel.position = CGPointMake(0, -nameLabel.frame.size.height/2);
+        nameLabel.fontColor = [UIColor blackColor];
+
+        SKSpriteNode *background = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(nameLabel.frame.size.width, nameLabel.frame.size.height)];
+        background.position = CGPointMake(0, -balloon.size.height/2);
+        [background addChild:nameLabel];
+
+        [balloon addChild:background];
 
         DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNode];
-        anchor.position = position;
+        CGPoint anchorPosition = CGPointMake(xPos, -self.timelineYPosition);
+        anchor.position = anchorPosition;
         [self addChild:anchor];
         [anchors addObject:anchor];
+        NSLog(@"add anchor for %@", birthday);
 
-        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloon.position anchorB:anchor.position];
-        joint.maxLength = arc4random_uniform(200) + 20;
+        CGPoint ballAnchor = CGPointMake(balloon.position.x, balloon.position.y - 20);
+        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:ballAnchor anchorB:anchor.position];
+        joint.maxLength = arc4random_uniform(2 * (self.timelineYPosition - 20)) + 20;
         [self.physicsWorld addJoint:joint];
         [joints addObject:joint];
+        NSLog(@"add joint for %@", birthday);
     }
 
     self.balloons = [balloons copy];
@@ -186,7 +194,14 @@
 
 
 -(void)update:(CFTimeInterval)currentTime {
-    // Called before each frame is rendered
+    CMAccelerometerData *accelerometerData = self.motionManager.accelerometerData;
+    if (accelerometerData) {
+        if (UIDevice.currentDevice.orientation == UIDeviceOrientationLandscapeLeft) {
+            self.physicsWorld.gravity = CGVectorMake(accelerometerData.acceleration.y * 9, -accelerometerData.acceleration.x * 9);
+        } else {
+            self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * 9, accelerometerData.acceleration.x * 9);
+        }
+    }
 }
 
 @end

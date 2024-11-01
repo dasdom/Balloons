@@ -7,8 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DDHBalloon : SKShapeNode
-- (instancetype)initWithWidth:(CGFloat)width;
+@interface DDHBalloon : SKSpriteNode
+- (instancetype)initWithImage:(NSData *)imageData width:(CGFloat)width;
 @end
 
 NS_ASSUME_NONNULL_END

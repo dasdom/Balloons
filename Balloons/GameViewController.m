@@ -59,6 +59,7 @@
 - (void)add:(UIButton *)sender {
     DDHContactsManager *contactsManager = [[DDHContactsManager alloc] init];
     [contactsManager requestContactsAccess:^(BOOL granted) {
+        NSLog(@"requestContactsAccess");
         if (granted) {
             [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
                 NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
