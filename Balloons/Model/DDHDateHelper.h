@@ -7,11 +7,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class DDHSceneMonth;
+@class DDHDisplayMonth;
 
 @interface DDHDateHelper : NSObject
 + (NSInteger)daysLeftForDateComponents:(NSDateComponents *)components;
-+ (NSArray<DDHSceneMonth *> *)sceneMonths;
++ (NSArray<DDHDisplayMonth *> *)displayMonths;
 @end
 
 NS_ASSUME_NONNULL_END

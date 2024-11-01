@@ -5,6 +5,8 @@
 
 #import <SpriteKit/SpriteKit.h>
 
-@interface GameScene : SKScene
+@class DDHBirthday;
 
+@interface GameScene : SKScene
+- (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 @end

@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DDHSceneMonth : NSObject
+@interface DDHDisplayMonth : NSObject
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, assign) NSInteger start;
 @property (nonatomic, assign) NSInteger end;

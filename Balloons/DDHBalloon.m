@@ -16,6 +16,7 @@
 
         self.physicsBody = [SKPhysicsBody bodyWithPolygonFromPath:path];
         self.physicsBody.angularDamping = 0.9;
+        self.physicsBody.fieldBitMask = 1 << 1;
     }
     return self;
 }

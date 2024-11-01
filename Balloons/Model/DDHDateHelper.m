@@ -4,7 +4,7 @@
 
 
 #import "DDHDateHelper.h"
-#import "DDHSceneMonth.h"
+#import "DDHDisplayMonth.h"
 
 @implementation DDHDateHelper
 + (NSCalendar *)calendar {
@@ -30,13 +30,13 @@
     return daysLeft;
 }
 
-+ (NSArray<DDHSceneMonth *> *)sceneMonths {
++ (NSArray<DDHDisplayMonth *> *)displayMonths {
     NSDate *dateOfStartOfToday = [self.calendar startOfDayForDate:[NSDate now]];
     
     unsigned unitFlags = NSCalendarUnitMonth;
     
     NSDateComponents *dateComponents = [[self calendar] components:unitFlags fromDate:dateOfStartOfToday];
-    NSMutableArray<DDHSceneMonth *> *sceneMonths = [[NSMutableArray alloc] init];
+    NSMutableArray<DDHDisplayMonth *> *sceneMonths = [[NSMutableArray alloc] init];
     
     NSInteger startMonth = dateComponents.month-1;
     for (NSInteger i = 0; i < 12; i++) {
@@ -61,7 +61,7 @@
         NSLog(@"--");
         //    NSLog(@"number of days: %ld", end - start);
         
-        DDHSceneMonth *sceneMonth = [[DDHSceneMonth alloc] initWithName:name start:start end:end];
+        DDHDisplayMonth *sceneMonth = [[DDHDisplayMonth alloc] initWithName:name start:start end:end];
         [sceneMonths addObject:sceneMonth];
     }
     return sceneMonths;
