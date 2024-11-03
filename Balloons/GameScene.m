@@ -10,8 +10,9 @@
 #import "DDHDisplayMonth.h"
 #import "DDHBirthday.h"
 #import "DDHBalloonAnchor.h"
-#import "UIImage+Extenstion.h"
+//#import "UIImage+Extenstion.h"
 #import <CoreMotion/CoreMotion.h>
+#import "DDHRope.h"
 
 @interface GameScene ()
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
@@ -21,6 +22,8 @@
 @property (assign) CGFloat timelineStart;
 @property (assign) NSInteger numberOfShownDays;
 @property (nonatomic, strong) CMMotionManager *motionManager;
+@property (assign) UIDeviceOrientation lastLandscapeOrientation;
+@property (assign) CGFloat gravityFactor;
 @end
 
 @implementation GameScene
@@ -28,7 +31,8 @@
 - (instancetype)init {
     if (self = [super initWithSize:CGSizeMake(750, 1334)]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
-        self.physicsWorld.gravity = CGVectorMake(0, 9);
+        self.gravityFactor = 7;
+        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
         self.motionManager = [[CMMotionManager alloc] init];
     }
     return self;
@@ -36,7 +40,7 @@
 
 - (void)didMoveToView:(SKView *)view {
     view.showsNodeCount = YES;
-    view.showsPhysics = YES;
+//    view.showsPhysics = YES;
 //    view.showsFields = true;
 
 //    SKFieldNode *upFlow = [SKFieldNode linearGravityFieldWithVector:simd_make_float3(0, 6, 0)];
@@ -50,7 +54,7 @@
     [self addChild:drag];
 
     CGSize viewSize = view.frame.size;
-    NSInteger numberOfShownDays = 120;
+    NSInteger numberOfShownDays = 280;
     self.numberOfShownDays = numberOfShownDays;
 
     CGFloat timelineYPosition = viewSize.height/2 - viewSize.height * 0.2;
@@ -58,7 +62,7 @@
     self.timelineYPosition = timelineYPosition;
     self.timelineStart = timelineStart;
 
-    DDHTimeline *timeline = [[DDHTimeline alloc] initWithStartPoint:CGPointMake(-timelineStart, -timelineYPosition) andEndPoint:CGPointMake(timelineStart, -timelineYPosition)];
+    DDHTimeline *timeline = [[DDHTimeline alloc] initWithStartPoint:CGPointMake(-timelineStart, -timelineYPosition) andEndPoint:CGPointMake(timelineStart * 1.5, -timelineYPosition)];
     [self addChild:timeline];
 
     NSArray<DDHDisplayMonth *> *displayMonths = [DDHDateHelper displayMonths];
@@ -68,34 +72,7 @@
         label.position = CGPointMake(lableX, -timelineYPosition - 30);
         [self addChild:label];
     }
-
-//    DDHBalloon *balloon = [[DDHBalloon alloc] initWithWidth:50];
-//    balloon.position = CGPointMake(-100, -timelineYPosition);
-//    [self addChild:balloon];
-//
-//    DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNode];
-//    anchor.position = CGPointMake(-100, -timelineYPosition);
-//    [self addChild:anchor];
-//
-//    SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloon.position anchorB:anchor.position];
-//    joint.maxLength = 50;
-//    [self.physicsWorld addJoint:joint];
 }
-
-//- (void)add:(UIButton *)sender {
-//    DDHContactsManager *contactsManager = [[DDHContactsManager alloc] init];
-//    [contactsManager requestContactsAccess:^(BOOL granted) {
-//        if (granted) {
-//            [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
-//                NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
-//                self.birthdays = [self.birthdays arrayByAddingObjectsFromArray:birthdays];
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    [self updateForBirthdays:self.birthdays];
-//                });
-//            }];
-//        }
-//    }];
-//}
 
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays {
     for (SKPhysicsJoint *joint in self.balloonJoints) {
@@ -116,9 +93,25 @@
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
         DDHBalloon *balloon = [[DDHBalloon alloc] initWithImage:birthday.imageData width:50];
-        CGPoint position = CGPointMake(xPos, -self.timelineYPosition + 10);
+        CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20); //arc4random_uniform(2 * (self.timelineYPosition - 40)) + 40;
+        CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
+        balloon.zPosition = 2;
         [self addChild:balloon];
+
+        for (DDHBalloon *otherBalloon in balloons) {
+            CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
+            if (intersectionSize.width > 1 || intersectionSize.height > 1) {
+                NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
+                CGFloat correctedYPos = otherBalloon.position.y + 60 + arc4random_uniform(40);
+                if (correctedYPos > 2 * (self.timelineYPosition - 20)) {
+                    correctedYPos = -self.timelineYPosition + 60 + arc4random_uniform(40);
+                }
+                CGPoint position = CGPointMake(xPos, otherBalloon.position.y + 60);
+                balloon.position = position;
+            }
+        }
+
         [balloons addObject:balloon];
         NSLog(@"add balloon for %@", birthday);
 
@@ -137,16 +130,21 @@
         DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNode];
         CGPoint anchorPosition = CGPointMake(xPos, -self.timelineYPosition);
         anchor.position = anchorPosition;
+        anchor.zPosition = 1;
         [self addChild:anchor];
         [anchors addObject:anchor];
         NSLog(@"add anchor for %@", birthday);
 
-        CGPoint ballAnchor = CGPointMake(balloon.position.x, balloon.position.y - 20);
-        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:ballAnchor anchorB:anchor.position];
-        joint.maxLength = arc4random_uniform(2 * (self.timelineYPosition - 20)) + 20;
-        [self.physicsWorld addJoint:joint];
-        [joints addObject:joint];
-        NSLog(@"add joint for %@", birthday);
+        CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - 20);
+//        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:ballAnchor anchorB:anchor.position];
+//        joint.maxLength = arc4random_uniform(2 * (self.timelineYPosition - 20)) + 20;
+//        [self.physicsWorld addJoint:joint];
+//        [joints addObject:joint];
+//        NSLog(@"add joint for %@", birthday);
+        DDHRope *rope = [[DDHRope alloc] init];
+        rope.zPosition = 0;
+        [self addChild:rope];
+        [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
     }
 
     self.balloons = [balloons copy];
@@ -193,14 +191,26 @@
 }
 
 
--(void)update:(CFTimeInterval)currentTime {
+- (void)update:(CFTimeInterval)currentTime {
     CMAccelerometerData *accelerometerData = self.motionManager.accelerometerData;
     if (accelerometerData) {
-        if (UIDevice.currentDevice.orientation == UIDeviceOrientationLandscapeLeft) {
-            self.physicsWorld.gravity = CGVectorMake(accelerometerData.acceleration.y * 9, -accelerometerData.acceleration.x * 9);
+        if (UIDeviceOrientationIsLandscape(UIDevice.currentDevice.orientation)) {
+            [self updateGravityWithOrientation:UIDevice.currentDevice.orientation accelerometerData:accelerometerData];
         } else {
-            self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * 9, accelerometerData.acceleration.x * 9);
+            [self updateGravityWithOrientation:self.lastLandscapeOrientation accelerometerData:accelerometerData];
         }
+    }
+}
+
+- (void)updateGravityWithOrientation:(UIDeviceOrientation)orientation accelerometerData:(CMAccelerometerData *)accelerometerData {
+    if (orientation == UIDeviceOrientationLandscapeLeft) {
+        self.lastLandscapeOrientation = orientation;
+        self.physicsWorld.gravity = CGVectorMake(accelerometerData.acceleration.y * self.gravityFactor, -accelerometerData.acceleration.x * self.gravityFactor);
+    } else if (orientation == UIDeviceOrientationLandscapeRight) {
+        self.lastLandscapeOrientation = orientation;
+        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * self.gravityFactor, accelerometerData.acceleration.x * self.gravityFactor);
+    } else {
+        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
     }
 }
 

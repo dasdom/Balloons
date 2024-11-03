@@ -50,7 +50,7 @@
         }
         NSLog(@"start: %ld", start);
         
-        NSString *name = [self calendar].monthSymbols[(dateComponents.month - 1) % 12];
+        NSString *name = [self calendar].shortMonthSymbols[(dateComponents.month - 1) % 12];
         NSLog(@"name: %@", name);
         
         dateComponents.month = (startMonth + i + 1) % 12 + 1;
