@@ -30,7 +30,7 @@
     return daysLeft;
 }
 
-+ (NSArray<DDHDisplayMonth *> *)displayMonths {
++ (NSArray<DDHDisplayMonth *> *)displayMonthsUseVeryShort:(BOOL)veryShort {
     NSDate *dateOfStartOfToday = [self.calendar startOfDayForDate:[NSDate now]];
     
     unsigned unitFlags = NSCalendarUnitMonth;
@@ -50,7 +50,12 @@
         }
         NSLog(@"start: %ld", start);
         
-        NSString *name = [self calendar].shortMonthSymbols[(dateComponents.month - 1) % 12];
+        NSString *name;
+        if (veryShort) {
+            name = [self calendar].veryShortMonthSymbols[(dateComponents.month - 1) % 12];
+        } else {
+            name = [self calendar].shortMonthSymbols[(dateComponents.month - 1) % 12];
+        }
         NSLog(@"name: %@", name);
         
         dateComponents.month = (startMonth + i + 1) % 12 + 1;

@@ -6,9 +6,10 @@
 #import "DDHBalloonAnchor.h"
 
 @implementation DDHBalloonAnchor
-+ (instancetype)anchorNode {
++ (instancetype)anchorNodeWithDaysLeft:(NSInteger)daysLeft {
     CGSize size = CGSizeMake(5, 5);
     DDHBalloonAnchor *node = [super shapeNodeWithEllipseOfSize:size];
+    node.daysLeft = daysLeft;
     node.fillColor = [UIColor whiteColor];
 
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:size];

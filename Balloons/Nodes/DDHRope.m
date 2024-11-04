@@ -70,4 +70,17 @@
 
     self.joints = [joints copy];
 }
+
+- (void)removeFromParentWithScene:(SKScene *)scene {
+    for (SKPhysicsJoint *joint in self.joints) {
+        [scene.physicsWorld removeJoint:joint];
+    }
+
+    for (SKNode *node in self.segments) {
+        [node removeFromParent];
+    }
+
+    [super removeFromParent];
+}
+
 @end

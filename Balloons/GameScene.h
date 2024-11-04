@@ -9,4 +9,5 @@
 
 @interface GameScene : SKScene
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (void)updateWithSize:(CGSize)size;
 @end

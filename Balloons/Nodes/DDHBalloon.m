@@ -8,7 +8,7 @@
 
 @implementation DDHBalloon
 
-- (instancetype)initWithImage:(NSData *)imageData width:(CGFloat)width {
+- (instancetype)initWithImage:(NSData *)imageData width:(CGFloat)width daysLeft:(NSInteger)daysLeft {
     if (self = [super init]) {
         UIImage *image = [UIImage imageWithData:imageData];
         UIImage *roundedImage = [image roundedWithColor:[UIColor whiteColor] width:1 targetSize:CGSizeMake(300, 300)];
@@ -22,6 +22,8 @@
         self.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:width/2];
         self.physicsBody.angularDamping = 0.9;
         self.physicsBody.fieldBitMask = 1 << 1;
+
+        self.daysLeft = daysLeft;
     }
     return self;
 }

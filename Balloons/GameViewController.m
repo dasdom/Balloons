@@ -19,7 +19,7 @@
 
     _birthdays = [[NSArray alloc] init];
 
-    _scene = [[GameScene alloc] init];
+    _scene = [[GameScene alloc] initWithSize:self.view.frame.size];
 
     // Set the scale mode to scale to fit the window
     _scene.scaleMode = SKSceneScaleModeAspectFill;
@@ -50,6 +50,11 @@
     } else {
         return UIInterfaceOrientationMaskAll;
     }
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.scene updateWithSize:size];
+    [self.scene updateForBirthdays:self.birthdays];
 }
 
 - (BOOL)prefersStatusBarHidden {

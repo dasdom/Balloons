@@ -8,7 +8,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHBalloonAnchor : SKShapeNode
-+ (instancetype)anchorNode;
+@property (assign) NSInteger daysLeft;
++ (instancetype)anchorNodeWithDaysLeft:(NSInteger)daysLeft;
 @end
 
 NS_ASSUME_NONNULL_END

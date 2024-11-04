@@ -21,4 +21,12 @@
     return self;
 }
 
+- (void)updateWithStartPoint:(CGPoint)start andEndPoint:(CGPoint)end {
+    UIBezierPath *path = [[UIBezierPath alloc] init];
+    [path moveToPoint:start];
+    [path addLineToPoint:end];
+
+    self.path = [path CGPath];
+}
+
 @end
