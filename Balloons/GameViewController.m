@@ -62,14 +62,26 @@
 }
 
 - (void)add:(UIButton *)sender {
+
+    UIButtonConfiguration *buttonConfig = sender.configuration;
+    buttonConfig.showsActivityIndicator = YES;
+    sender.configuration = buttonConfig;
+
     DDHContactsManager *contactsManager = [[DDHContactsManager alloc] init];
     [contactsManager requestContactsAccess:^(BOOL granted) {
         NSLog(@"requestContactsAccess");
         if (granted) {
             [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
+                
                 NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
                 self.birthdays = [self.birthdays arrayByAddingObjectsFromArray:birthdays];
+
                 dispatch_async(dispatch_get_main_queue(), ^{
+
+                    NSLog(@"self.scene updateForBirthdays:self.birthdays");
+                    UIButtonConfiguration *buttonConfig = sender.configuration;
+                    buttonConfig.showsActivityIndicator = NO;
+                    sender.configuration = buttonConfig;
                     [self.scene updateForBirthdays:self.birthdays];
                 });
             }];

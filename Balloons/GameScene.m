@@ -137,7 +137,6 @@
         }
 
         [balloons addObject:balloon];
-        NSLog(@"add balloon for %@", birthday);
 
         SKLabelNode *nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
         nameLabel.fontSize = 13;
@@ -157,7 +156,6 @@
         anchor.zPosition = 1;
         [self addChild:anchor];
         [anchors addObject:anchor];
-        NSLog(@"add anchor for %@", birthday);
 
         CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - 20);
         DDHRope *rope = [[DDHRope alloc] init];
@@ -165,12 +163,6 @@
         [self addChild:rope];
         [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
         [ropes addObject:rope];
-
-//        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
-//        joint.maxLength = balloon.position.y - 20 + self.timelineYPosition;
-//        [self.physicsWorld addJoint:joint];
-//        [joints addObject:joint];
-//        NSLog(@"add joint for %@", birthday);
     }
 
     self.balloons = [balloons copy];
@@ -220,11 +212,11 @@
 - (void)update:(CFTimeInterval)currentTime {
     CMAccelerometerData *accelerometerData = self.motionManager.accelerometerData;
     if (accelerometerData) {
-        if (UIDeviceOrientationIsLandscape(UIDevice.currentDevice.orientation) || UIDevice.currentDevice.orientation == UIDeviceOrientationPortrait) {
+//        if (UIDeviceOrientationIsLandscape(UIDevice.currentDevice.orientation) || UIDevice.currentDevice.orientation == UIDeviceOrientationPortrait) {
             [self updateGravityWithOrientation:UIDevice.currentDevice.orientation accelerometerData:accelerometerData];
-        } else {
-            [self updateGravityWithOrientation:self.lastLandscapeOrientation accelerometerData:accelerometerData];
-        }
+//        } else {
+//            [self updateGravityWithOrientation:self.lastLandscapeOrientation accelerometerData:accelerometerData];
+//        }
     }
 }
 
@@ -237,7 +229,7 @@
         self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * self.gravityFactor, accelerometerData.acceleration.x * self.gravityFactor);
     } else if (orientation == UIDeviceOrientationPortrait) {
         self.lastLandscapeOrientation = orientation;
-        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * self.gravityFactor, -accelerometerData.acceleration.x * self.gravityFactor);
+        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.x * self.gravityFactor, -accelerometerData.acceleration.y * self.gravityFactor);
     } else {
         self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
     }

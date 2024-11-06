@@ -55,7 +55,6 @@
     NSMutableArray<DDHBirthday *> *birthdays = [NSMutableArray arrayWithCapacity:[contacts count]];
 
     for (CNContact *contact in contacts) {
-        NSLog(@"contact %@", contact);
         DDHBirthday *birthday = [[DDHBirthday alloc] initWithContact:contact];
         [birthdays addObject:birthday];
     }
