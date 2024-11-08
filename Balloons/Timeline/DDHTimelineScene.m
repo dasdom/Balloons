@@ -19,6 +19,7 @@
 @property (nonatomic, strong) NSArray<DDHBalloon *> *balloons;
 @property (nonatomic, strong) NSArray<DDHBalloonAnchor *> *anchors;
 @property (nonatomic, strong) NSArray<SKLabelNode *> *monthNamesNodes;
+@property (nonatomic, strong) NSArray<SKShapeNode *> *lineNodes;
 @property (nonatomic, strong) NSArray<DDHRope *> *ropes;
 @property (assign) CGFloat timelineYPosition;
 @property (assign) CGFloat timelineStart;
@@ -30,6 +31,8 @@
 @property (nonatomic, strong) DDHBalloon *detailBalloon;
 @property (nonatomic, strong) DDHBalloon *selectedBalloon;
 @property (assign) CGPoint positionOfSelectedBalloon;
+@property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
 @end
 
 @implementation DDHTimelineScene
@@ -45,6 +48,13 @@
         self.scaleMode = SKSceneScaleModeResizeFill;
 
         self.touchHandler = touchHandler;
+
+        _nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
+        _nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
+
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
+        _dateFormatter.timeStyle = NSDateFormatterNoStyle;
     }
     return self;
 }
@@ -84,19 +94,40 @@
     for (SKNode *node in self.monthNamesNodes) {
         [node removeFromParent];
     }
+    for (SKNode *node in self.lineNodes) {
+        [node removeFromParent];
+    }
 
     BOOL useVeryShort = self.size.width < self.size.height;
     NSArray<DDHDisplayMonth *> *displayMonths = [DDHDateHelper displayMonthsUseVeryShort:useVeryShort];
 
     NSMutableArray<SKLabelNode *> *monthNamesNodes = [[NSMutableArray alloc] initWithCapacity:displayMonths.count];
+    NSMutableArray<SKShapeNode *> *lineNodes = [[NSMutableArray alloc] initWithCapacity:displayMonths.count];
+
     for (DDHDisplayMonth *displayMonth in displayMonths) {
         SKLabelNode *label = [SKLabelNode labelNodeWithText:displayMonth.name];
         CGFloat lableX = self.timelineStart * 2 * (displayMonth.start + displayMonth.end)/2 / self.numberOfShownDays - self.timelineStart;
         label.position = CGPointMake(lableX, -self.timelineYPosition - 30);
         [monthNamesNodes addObject:label];
         [self addChild:label];
+
+        CGFloat startX = self.timelineStart * 2 * displayMonth.start / self.numberOfShownDays - self.timelineStart;
+        UIBezierPath *path = [[UIBezierPath alloc] init];
+        CGPoint start = CGPointMake(startX, -2 * self.timelineYPosition);
+        [path moveToPoint:start];
+        CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
+        [path addLineToPoint:end];
+
+        SKShapeNode *lineNode = [SKShapeNode shapeNodeWithPath:[path CGPath]];
+
+        lineNode.strokeColor = [UIColor colorWithWhite:0.3 alpha:1];
+        lineNode.lineWidth = 1;
+        [lineNodes addObject:lineNode];
+
+        [self addChild:lineNode];
     }
     self.monthNamesNodes = [monthNamesNodes copy];
+    self.lineNodes = [lineNodes copy];
 }
 
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays {
@@ -121,7 +152,7 @@
     for (DDHBirthday *birthday in birthdays) {
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithImage:birthday.imageData width:50 birthdayId:birthday.uuid];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -142,18 +173,6 @@
         }
 
         [balloons addObject:balloon];
-
-        SKLabelNode *nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
-        nameLabel.fontSize = 13;
-        nameLabel.fontName = [UIFont systemFontOfSize:13 weight:UIFontWeightHeavy].fontName;
-        nameLabel.position = CGPointMake(0, -nameLabel.frame.size.height/2);
-        nameLabel.fontColor = [UIColor blackColor];
-
-        SKSpriteNode *background = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(nameLabel.frame.size.width, nameLabel.frame.size.height)];
-        background.position = CGPointMake(0, -balloon.size.height/2);
-        [background addChild:nameLabel];
-
-        [balloon addChild:background];
 
         DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft];
         CGPoint anchorPosition = CGPointMake(xPos, -self.timelineYPosition);
@@ -199,17 +218,20 @@
 
     SKNode *node = [self nodeAtPoint:pos];
     if ([node isKindOfClass:[DDHBalloon class]] &&
-        node != self.detailBalloon) {
+        nil == self.detailBalloon) {
 
         DDHBalloon *balloon = (DDHBalloon *)node;
         self.selectedBalloon = balloon;
         self.positionOfSelectedBalloon = balloon.position;
         balloon.hidden = YES;
-//        [self.touchHandler didTouchBirthdayWithId:balloon.birthdayId];
 
         DDHBalloon *detailBalloon = [balloon balloonCopy];
-        detailBalloon.physicsBody.affectedByGravity = NO;
         detailBalloon.position = balloon.position;
+        detailBalloon.physicsBody.allowsRotation = NO;
+        detailBalloon.physicsBody.affectedByGravity = NO;
+        detailBalloon.physicsBody.categoryBitMask = 1 << 2;
+        detailBalloon.physicsBody.collisionBitMask = 1 << 2;
+        [detailBalloon showLabel:NO animated:NO];
         [self addChild:detailBalloon];
         self.detailBalloon = detailBalloon;
 
@@ -220,15 +242,20 @@
             [SKAction resizeToWidth:200 height:200 duration:0.5],
             [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
         ]];
-        [detailBalloon runAction:animation];
+        [detailBalloon runAction:animation completion:^{
+            [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
+        }];
 
         for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
             [monthNameNode runAction:[SKAction fadeOutWithDuration:0.5]];
         }
+        for (SKShapeNode *lineNodes in self.lineNodes) {
+            [lineNodes runAction:[SKAction fadeOutWithDuration:0.5]];
+        }
     } else if (self.detailBalloon) {
         SKAction *animation = [SKAction group:@[
-            [SKAction resizeToWidth:50 height:50 duration:2],
-//            [SKAction fadeAlphaTo:0 duration:0.2],
+            [SKAction resizeToWidth:50 height:50 duration:0.5],
+            [SKAction fadeOutWithDuration:0.5],
         ]];
 
         self.detailBalloon.physicsBody.affectedByGravity = YES;
@@ -241,6 +268,9 @@
 
         for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
             [monthNameNode runAction:[SKAction fadeInWithDuration:0.5]];
+        }
+        for (SKLabelNode *lineNode in self.lineNodes) {
+            [lineNode runAction:[SKAction fadeInWithDuration:0.5]];
         }
 
         self.selectedBalloon.hidden = NO;

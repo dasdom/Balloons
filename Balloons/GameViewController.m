@@ -7,7 +7,6 @@
 #import "DDHTimelineScene.h"
 #import "DDHContactsManager.h"
 #import "DDHBirthday.h"
-#import "DDHPersonScene.h"
 
 @interface GameViewController () <DDHTimelineSceneTouchHandler>
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
@@ -91,21 +90,21 @@
     }];
 }
 
-// MARK: - GameSceneTouchHandler
-- (void)didTouchBirthdayWithId:(NSUUID *)birthdayId {
-    NSLog(@"birthdayId: %@", birthdayId);
-    DDHBirthday *selectedBirthday;
-    for (DDHBirthday *birthday in self.birthdays) {
-        if (birthday.uuid == birthdayId) {
-            selectedBirthday = birthday;
-            break;
-        }
-    }
-    NSLog(@"selectedBirthday: %@", selectedBirthday);
-
-    DDHPersonScene *personScene = [[DDHPersonScene alloc] initWithSize:self.view.frame.size birthday:selectedBirthday];
-    SKView *skView = (SKView *)self.view;
-    [skView presentScene:personScene transition:[SKTransition revealWithDirection:SKTransitionDirectionLeft duration:0.5]];
-}
+//// MARK: - GameSceneTouchHandler
+//- (void)didTouchBirthdayWithId:(NSUUID *)birthdayId {
+//    NSLog(@"birthdayId: %@", birthdayId);
+//    DDHBirthday *selectedBirthday;
+//    for (DDHBirthday *birthday in self.birthdays) {
+//        if (birthday.uuid == birthdayId) {
+//            selectedBirthday = birthday;
+//            break;
+//        }
+//    }
+//    NSLog(@"selectedBirthday: %@", selectedBirthday);
+//
+//    DDHPersonScene *personScene = [[DDHPersonScene alloc] initWithSize:self.view.frame.size birthday:selectedBirthday];
+//    SKView *skView = (SKView *)self.view;
+//    [skView presentScene:personScene transition:[SKTransition revealWithDirection:SKTransitionDirectionle duration:0.5]];
+//}
 
 @end
