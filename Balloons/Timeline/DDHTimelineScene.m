@@ -3,18 +3,18 @@
 //
 
 
-#import "GameScene.h"
+#import "DDHTimelineScene.h"
 #import "DDHBalloon.h"
 #import "DDHTimeline.h"
 #import "DDHDateHelper.h"
 #import "DDHDisplayMonth.h"
 #import "DDHBirthday.h"
 #import "DDHBalloonAnchor.h"
-//#import "UIImage+Extenstion.h"
 #import <CoreMotion/CoreMotion.h>
 #import "DDHRope.h"
 
-@interface GameScene ()
+@interface DDHTimelineScene ()
+@property (nonatomic, strong) id<DDHTimelineSceneTouchHandler> touchHandler;
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
 @property (nonatomic, strong) NSArray<DDHBalloon *> *balloons;
 @property (nonatomic, strong) NSArray<DDHBalloonAnchor *> *anchors;
@@ -27,11 +27,14 @@
 @property (assign) UIDeviceOrientation lastLandscapeOrientation;
 @property (assign) CGFloat gravityFactor;
 @property (nonatomic, strong) DDHTimeline *timeline;
+@property (nonatomic, strong) DDHBalloon *detailBalloon;
+@property (nonatomic, strong) DDHBalloon *selectedBalloon;
+@property (assign) CGPoint positionOfSelectedBalloon;
 @end
 
-@implementation GameScene
+@implementation DDHTimelineScene
 
-- (instancetype)initWithSize:(CGSize)size {
+- (instancetype)initWithSize:(CGSize)size touchHandler:(id<DDHTimelineSceneTouchHandler>)touchHandler {
 //    if (self = [super initWithSize:CGSizeMake(1334, 750)]) {
     if (self = [super initWithSize:size]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
@@ -40,6 +43,8 @@
         self.motionManager = [[CMMotionManager alloc] init];
 
         self.scaleMode = SKSceneScaleModeResizeFill;
+
+        self.touchHandler = touchHandler;
     }
     return self;
 }
@@ -116,8 +121,8 @@
     for (DDHBirthday *birthday in birthdays) {
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithImage:birthday.imageData width:50 daysLeft:birthday.daysLeft];
-        CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20); //arc4random_uniform(2 * (self.timelineYPosition - 40)) + 40;
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithImage:birthday.imageData width:50 birthdayId:birthday.uuid];
+        CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
         balloon.zPosition = 2;
@@ -191,6 +196,58 @@
 //    n.position = pos;
 //    n.strokeColor = [SKColor redColor];
 //    [self addChild:n];
+
+    SKNode *node = [self nodeAtPoint:pos];
+    if ([node isKindOfClass:[DDHBalloon class]] &&
+        node != self.detailBalloon) {
+
+        DDHBalloon *balloon = (DDHBalloon *)node;
+        self.selectedBalloon = balloon;
+        self.positionOfSelectedBalloon = balloon.position;
+        balloon.hidden = YES;
+//        [self.touchHandler didTouchBirthdayWithId:balloon.birthdayId];
+
+        DDHBalloon *detailBalloon = [balloon balloonCopy];
+        detailBalloon.physicsBody.affectedByGravity = NO;
+        detailBalloon.position = balloon.position;
+        [self addChild:detailBalloon];
+        self.detailBalloon = detailBalloon;
+
+        self.gravityFactor = -7;
+        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
+
+        SKAction *animation = [SKAction group:@[
+            [SKAction resizeToWidth:200 height:200 duration:0.5],
+            [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
+        ]];
+        [detailBalloon runAction:animation];
+
+        for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
+            [monthNameNode runAction:[SKAction fadeOutWithDuration:0.5]];
+        }
+    } else if (self.detailBalloon) {
+        SKAction *animation = [SKAction group:@[
+            [SKAction resizeToWidth:50 height:50 duration:2],
+//            [SKAction fadeAlphaTo:0 duration:0.2],
+        ]];
+
+        self.detailBalloon.physicsBody.affectedByGravity = YES;
+
+        [self.detailBalloon runAction:animation completion:^{
+            [self.detailBalloon removeFromParent];
+            self.detailBalloon = nil;
+            self.selectedBalloon = nil;
+        }];
+
+        for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
+            [monthNameNode runAction:[SKAction fadeInWithDuration:0.5]];
+        }
+
+        self.selectedBalloon.hidden = NO;
+
+        self.gravityFactor = 7;
+        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -203,7 +260,9 @@
     for (UITouch *t in touches) {[self touchMovedToPoint:[t locationInNode:self]];}
 }
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    for (UITouch *t in touches) {[self touchUpAtPoint:[t locationInNode:self]];}
+    for (UITouch *t in touches) {
+        [self touchUpAtPoint:[t locationInNode:self]];
+    }
 }
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     for (UITouch *t in touches) {[self touchUpAtPoint:[t locationInNode:self]];}

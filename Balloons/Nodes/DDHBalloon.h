@@ -8,8 +8,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHBalloon : SKSpriteNode
-@property (assign) NSInteger daysLeft;
-- (instancetype)initWithImage:(NSData *)imageData width:(CGFloat)width daysLeft:(NSInteger)daysLeft;
+@property (nonatomic, strong) NSUUID *birthdayId;
+- (instancetype)initWithImage:(NSData *)imageData width:(CGFloat)width birthdayId:(NSUUID *)birthdayId;
+- (DDHBalloon *)balloonCopy;
 @end
 
 NS_ASSUME_NONNULL_END
