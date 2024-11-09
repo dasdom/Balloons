@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface DDHBalloon : SKSpriteNode
 @property (nonatomic, strong) NSUUID *birthdayId;
 - (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width;
-- (DDHBalloon *)balloonCopy;
+- (DDHBalloon *)balloonCopyForDetail;
 - (void)showLabel:(BOOL)show animated:(BOOL)animated;
 - (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatter:(NSDateFormatter *)dateFormatter;
 @end

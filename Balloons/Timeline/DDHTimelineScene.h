@@ -7,12 +7,8 @@
 
 @class DDHBirthday;
 
-@protocol DDHTimelineSceneTouchHandler <NSObject>
-- (void)didTouchBirthdayWithId:(NSUUID *)birthdayId;
-@end
-
 @interface DDHTimelineScene : SKScene
-- (instancetype)initWithSize:(CGSize)size touchHandler:(id<DDHTimelineSceneTouchHandler>)touchHandler;
+- (instancetype)initWithSize:(CGSize)size;
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 - (void)updateWithSize:(CGSize)size;
 @end

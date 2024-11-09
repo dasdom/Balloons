@@ -14,7 +14,6 @@
 #import "DDHRope.h"
 
 @interface DDHTimelineScene ()
-@property (nonatomic, strong) id<DDHTimelineSceneTouchHandler> touchHandler;
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
 @property (nonatomic, strong) NSArray<DDHBalloon *> *balloons;
 @property (nonatomic, strong) NSArray<DDHBalloonAnchor *> *anchors;
@@ -26,7 +25,7 @@
 @property (assign) NSInteger numberOfShownDays;
 @property (nonatomic, strong) CMMotionManager *motionManager;
 @property (assign) UIDeviceOrientation lastLandscapeOrientation;
-@property (assign) CGFloat gravityFactor;
+@property (nonatomic, assign) CGFloat gravityFactor;
 @property (nonatomic, strong) DDHTimeline *timeline;
 @property (nonatomic, strong) DDHBalloon *detailBalloon;
 @property (nonatomic, strong) DDHBalloon *selectedBalloon;
@@ -37,7 +36,7 @@
 
 @implementation DDHTimelineScene
 
-- (instancetype)initWithSize:(CGSize)size touchHandler:(id<DDHTimelineSceneTouchHandler>)touchHandler {
+- (instancetype)initWithSize:(CGSize)size {
 //    if (self = [super initWithSize:CGSizeMake(1334, 750)]) {
     if (self = [super initWithSize:size]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
@@ -46,8 +45,6 @@
         self.motionManager = [[CMMotionManager alloc] init];
 
         self.scaleMode = SKSceneScaleModeResizeFill;
-
-        self.touchHandler = touchHandler;
 
         _nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
         _nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
@@ -59,14 +56,15 @@
     return self;
 }
 
+- (void)setGravityFactor:(CGFloat)gravityFactor {
+    _gravityFactor = gravityFactor;
+    self.physicsWorld.gravity = CGVectorMake(0, gravityFactor);
+}
+
 - (void)didMoveToView:(SKView *)view {
     view.showsNodeCount = YES;
 //    view.showsPhysics = YES;
 //    view.showsFields = true;
-
-//    SKFieldNode *upFlow = [SKFieldNode linearGravityFieldWithVector:simd_make_float3(0, 6, 0)];
-//    upFlow.categoryBitMask = 1 << 1;
-//    [self addChild:upFlow];
 
     [self.motionManager startAccelerometerUpdates];
 
@@ -78,7 +76,7 @@
     self.numberOfShownDays = numberOfShownDays;
 
     CGSize viewSize = view.frame.size;
-    CGFloat timelineYPosition = viewSize.height/2 - viewSize.height * 0.2;
+    CGFloat timelineYPosition = viewSize.height/2 - viewSize.height * 0.15;
     CGFloat timelineStart = viewSize.width/2 - viewSize.width * 0.05;
     self.timelineYPosition = timelineYPosition;
     self.timelineStart = timelineStart;
@@ -91,6 +89,10 @@
 }
 
 - (void)updateMonthNamesNodes {
+    if (self.numberOfShownDays < 1) {
+        return;
+    }
+
     for (SKNode *node in self.monthNamesNodes) {
         [node removeFromParent];
     }
@@ -106,25 +108,27 @@
 
     for (DDHDisplayMonth *displayMonth in displayMonths) {
         SKLabelNode *label = [SKLabelNode labelNodeWithText:displayMonth.name];
-        CGFloat lableX = self.timelineStart * 2 * (displayMonth.start + displayMonth.end)/2 / self.numberOfShownDays - self.timelineStart;
-        label.position = CGPointMake(lableX, -self.timelineYPosition - 30);
+        CGFloat labelX = self.timelineStart * 2 * (displayMonth.start + displayMonth.end)/2 / self.numberOfShownDays - self.timelineStart;
+        label.position = CGPointMake(labelX, -self.timelineYPosition - 30);
         [monthNamesNodes addObject:label];
         [self addChild:label];
 
         CGFloat startX = self.timelineStart * 2 * displayMonth.start / self.numberOfShownDays - self.timelineStart;
-        UIBezierPath *path = [[UIBezierPath alloc] init];
-        CGPoint start = CGPointMake(startX, -2 * self.timelineYPosition);
-        [path moveToPoint:start];
-        CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
-        [path addLineToPoint:end];
+        if (startX > -self.timelineStart) {
+            UIBezierPath *path = [[UIBezierPath alloc] init];
+            CGPoint start = CGPointMake(startX, -self.timelineYPosition - 30);
+            [path moveToPoint:start];
+            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
+            [path addLineToPoint:end];
 
-        SKShapeNode *lineNode = [SKShapeNode shapeNodeWithPath:[path CGPath]];
+            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithPath:[path CGPath]];
 
-        lineNode.strokeColor = [UIColor colorWithWhite:0.3 alpha:1];
-        lineNode.lineWidth = 1;
-        [lineNodes addObject:lineNode];
+            lineNode.strokeColor = [UIColor colorWithWhite:0.3 alpha:1];
+            lineNode.lineWidth = 1;
+            [lineNodes addObject:lineNode];
 
-        [self addChild:lineNode];
+            [self addChild:lineNode];
+        }
     }
     self.monthNamesNodes = [monthNamesNodes copy];
     self.lineNodes = [lineNodes copy];
@@ -225,18 +229,9 @@
         self.positionOfSelectedBalloon = balloon.position;
         balloon.hidden = YES;
 
-        DDHBalloon *detailBalloon = [balloon balloonCopy];
-        detailBalloon.position = balloon.position;
-        detailBalloon.physicsBody.allowsRotation = NO;
-        detailBalloon.physicsBody.affectedByGravity = NO;
-        detailBalloon.physicsBody.categoryBitMask = 1 << 2;
-        detailBalloon.physicsBody.collisionBitMask = 1 << 2;
-        [detailBalloon showLabel:NO animated:NO];
+        DDHBalloon *detailBalloon = [balloon balloonCopyForDetail];
         [self addChild:detailBalloon];
         self.detailBalloon = detailBalloon;
-
-        self.gravityFactor = -7;
-        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
 
         SKAction *animation = [SKAction group:@[
             [SKAction resizeToWidth:200 height:200 duration:0.5],
@@ -246,12 +241,10 @@
             [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
         }];
 
-        for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
-            [monthNameNode runAction:[SKAction fadeOutWithDuration:0.5]];
-        }
-        for (SKShapeNode *lineNodes in self.lineNodes) {
-            [lineNodes runAction:[SKAction fadeOutWithDuration:0.5]];
-        }
+        [self fadeOutMonthIndicators];
+
+        self.gravityFactor = -7;
+
     } else if (self.detailBalloon) {
         SKAction *animation = [SKAction group:@[
             [SKAction resizeToWidth:50 height:50 duration:0.5],
@@ -266,17 +259,29 @@
             self.selectedBalloon = nil;
         }];
 
-        for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
-            [monthNameNode runAction:[SKAction fadeInWithDuration:0.5]];
-        }
-        for (SKLabelNode *lineNode in self.lineNodes) {
-            [lineNode runAction:[SKAction fadeInWithDuration:0.5]];
-        }
+        [self fadeInMonthIndicators];
 
         self.selectedBalloon.hidden = NO;
 
         self.gravityFactor = 7;
-        self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
+    }
+}
+
+- (void)fadeOutMonthIndicators {
+    for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
+        [monthNameNode runAction:[SKAction fadeOutWithDuration:0.5]];
+    }
+    for (SKShapeNode *lineNodes in self.lineNodes) {
+        [lineNodes runAction:[SKAction fadeOutWithDuration:0.5]];
+    }
+}
+
+- (void)fadeInMonthIndicators {
+    for (SKLabelNode *monthNameNode in self.monthNamesNodes) {
+        [monthNameNode runAction:[SKAction fadeInWithDuration:0.5]];
+    }
+    for (SKLabelNode *lineNode in self.lineNodes) {
+        [lineNode runAction:[SKAction fadeInWithDuration:0.5]];
     }
 }
 
@@ -286,14 +291,17 @@
 //    
 //    for (UITouch *t in touches) {[self touchDownAtPoint:[t locationInNode:self]];}
 }
+
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
     for (UITouch *t in touches) {[self touchMovedToPoint:[t locationInNode:self]];}
 }
+
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     for (UITouch *t in touches) {
         [self touchUpAtPoint:[t locationInNode:self]];
     }
 }
+
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     for (UITouch *t in touches) {[self touchUpAtPoint:[t locationInNode:self]];}
 }
@@ -325,20 +333,12 @@
 }
 
 - (void)updateWithSize:(CGSize)size {
-//    CGFloat timelineYPosition = size.height/2 - size.height * 0.2;
-//    CGFloat timelineStart = size.width/2 - size.width * 0.05;
-//    self.timelineYPosition = timelineYPosition;
-//    self.timelineStart = timelineStart;
-//
-//    CGPoint startPoint = CGPointMake(-timelineStart, -timelineYPosition);
-//    CGPoint endPoint = CGPointMake(timelineStart * 1.5, -timelineYPosition);
-//    [self.timeline updateWithStartPoint:startPoint andEndPoint:endPoint];
     self.size = size;
 }
 
 - (void)didChangeSize:(CGSize)oldSize {
     CGSize size = self.size;
-    CGFloat timelineYPosition = size.height/2 - size.height * 0.2;
+    CGFloat timelineYPosition = size.height/2 - size.height * 0.15;
     CGFloat timelineStart = size.width/2 - size.width * 0.05;
     self.timelineYPosition = timelineYPosition;
     self.timelineStart = timelineStart;

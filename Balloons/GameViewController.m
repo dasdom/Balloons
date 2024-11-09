@@ -8,7 +8,7 @@
 #import "DDHContactsManager.h"
 #import "DDHBirthday.h"
 
-@interface GameViewController () <DDHTimelineSceneTouchHandler>
+@interface GameViewController ()
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @end
@@ -20,7 +20,7 @@
 
     _birthdays = [[NSArray alloc] init];
 
-    _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size touchHandler:self];
+    _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size];
 
     // Set the scale mode to scale to fit the window
     _scene.scaleMode = SKSceneScaleModeAspectFill;

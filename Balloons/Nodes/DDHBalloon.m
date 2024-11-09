@@ -29,10 +29,10 @@
         _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
         _nameLabel.numberOfLines = 0;
         _nameLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeCenter;
-        _nameLabel.fontSize = 13;
-        _nameLabel.fontName = [UIFont systemFontOfSize:13 weight:UIFontWeightHeavy].fontName;
-        _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
+        _nameLabel.fontSize = 14;
+        _nameLabel.fontName = [UIFont systemFontOfSize:14 weight:UIFontWeightHeavy].fontName;
         _nameLabel.fontColor = [UIColor blackColor];
+        _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
 
         _background = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 6, _nameLabel.frame.size.height)];
         _background.position = CGPointMake(0, -self.size.height/2);
@@ -48,8 +48,15 @@
     return self;
 }
 
-- (DDHBalloon *)balloonCopy {
-    return [[DDHBalloon alloc] initWithBirthday:self.birthday width:self.size.width];
+- (DDHBalloon *)balloonCopyForDetail {
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:self.birthday width:self.size.width];
+    balloon.position = self.position;
+    balloon.physicsBody.allowsRotation = NO;
+    balloon.physicsBody.affectedByGravity = NO;
+    balloon.physicsBody.categoryBitMask = 1 << 2;
+    balloon.physicsBody.collisionBitMask = 1 << 2;
+    [balloon showLabel:NO animated:NO];
+    return balloon;
 }
 
 - (void)showLabel:(BOOL)show animated:(BOOL)animated {

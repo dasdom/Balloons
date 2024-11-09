@@ -7,10 +7,24 @@
 
 @implementation DDHBalloonAnchor
 + (instancetype)anchorNodeWithDaysLeft:(NSInteger)daysLeft {
-    CGSize size = CGSizeMake(5, 5);
+    CGSize size;
+//    if (daysLeft < 100) {
+//        size = CGSizeMake(16, 16);
+//    } else {
+        size = CGSizeMake(5, 5);
+//    }
     DDHBalloonAnchor *node = [super shapeNodeWithEllipseOfSize:size];
     node.daysLeft = daysLeft;
     node.fillColor = [UIColor whiteColor];
+
+//    if (daysLeft < 100) {
+//        SKLabelNode *label = [SKLabelNode labelNodeWithText:[NSString stringWithFormat:@"%ld", daysLeft]];
+//        label.fontSize = 13;
+//        label.fontName = [UIFont systemFontOfSize:13 weight:UIFontWeightHeavy].fontName;
+//        label.fontColor = [UIColor blackColor];
+//        label.position = CGPointMake(0, -label.frame.size.height/2);
+//        [node addChild:label];
+//    }
 
     node.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:size];
     node.physicsBody.affectedByGravity = NO;
