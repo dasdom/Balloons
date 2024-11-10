@@ -126,6 +126,7 @@
             lineNode.strokeColor = [UIColor colorWithWhite:0.3 alpha:1];
             lineNode.lineWidth = 1;
             [lineNodes addObject:lineNode];
+            lineNode.zPosition = 0;
 
             [self addChild:lineNode];
         }
@@ -160,7 +161,6 @@
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
-        balloon.zPosition = 2;
         [self addChild:balloon];
 
         for (DDHBalloon *otherBalloon in balloons) {

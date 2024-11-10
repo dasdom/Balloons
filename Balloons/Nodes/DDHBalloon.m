@@ -6,6 +6,7 @@
 #import "DDHBalloon.h"
 #import "UIImage+Extenstion.h"
 #import "DDHBirthday.h"
+#import "DDHDateHelper.h"
 
 @interface DDHBalloon ()
 @property (nonatomic, strong) DDHBirthday *birthday;
@@ -25,6 +26,7 @@
         self.texture = texture;
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.size = CGSizeMake(width, width);
+        self.zPosition = 500 - birthday.daysLeft;
 
         _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
         _nameLabel.numberOfLines = 0;
@@ -70,7 +72,12 @@
 
 - (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatter:(NSDateFormatter *)dateFormatter {
     nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
-    self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@", [nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents], [dateFormatter stringFromDate:self.birthday.date]];
+    self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days", [
+        nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents],
+                           [dateFormatter stringFromDate:self.birthday.date],
+                           [DDHDateHelper ageForDateComponents:self.birthday.date] + 1,
+                           self.birthday.daysLeft
+    ];
     self.nameLabel.fontSize = 15;
     self.nameLabel.fontName = [UIFont systemFontOfSize:15 weight:UIFontWeightHeavy].fontName;
     self.nameLabel.position = CGPointMake(0, -self.nameLabel.frame.size.height/2);

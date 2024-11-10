@@ -16,6 +16,7 @@
     DDHBalloonAnchor *node = [super shapeNodeWithEllipseOfSize:size];
     node.daysLeft = daysLeft;
     node.fillColor = [UIColor whiteColor];
+    node.zPosition = 2;
 
 //    if (daysLeft < 100) {
 //        SKLabelNode *label = [SKLabelNode labelNodeWithText:[NSString stringWithFormat:@"%ld", daysLeft]];

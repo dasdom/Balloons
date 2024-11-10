@@ -30,6 +30,11 @@
     return daysLeft;
 }
 
++ (NSInteger)ageForDateComponents:(NSDate *)date {
+    NSDateComponents *ageComponents = [self.calendar components:NSCalendarUnitYear fromDate:date toDate:[NSDate now] options:NSCalendarMatchPreviousTimePreservingSmallerUnits];
+    return ageComponents.year;
+}
+
 + (NSArray<DDHDisplayMonth *> *)displayMonthsUseVeryShort:(BOOL)veryShort {
     NSDate *dateOfStartOfToday = [self.calendar startOfDayForDate:[NSDate now]];
     

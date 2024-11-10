@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface DDHDateHelper : NSObject
 + (NSInteger)daysLeftForDateComponents:(NSDateComponents *)components;
 + (NSArray<DDHDisplayMonth *> *)displayMonthsUseVeryShort:(BOOL)veryShort;
++ (NSInteger)ageForDateComponents:(NSDate *)date;
 @end
 
 NS_ASSUME_NONNULL_END

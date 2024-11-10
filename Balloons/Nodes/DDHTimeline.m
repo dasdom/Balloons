@@ -17,6 +17,7 @@
 
         self.strokeColor = UIColor.whiteColor;
         self.lineWidth = 2;
+        self.zPosition = 1;
     }
     return self;
 }
