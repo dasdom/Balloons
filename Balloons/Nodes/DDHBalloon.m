@@ -4,7 +4,7 @@
 
 
 #import "DDHBalloon.h"
-#import "UIImage+Extenstion.h"
+#import "UIImage+Extension.h"
 #import "DDHBirthday.h"
 #import "DDHDateHelper.h"
 
@@ -20,8 +20,13 @@
     if (self = [super init]) {
         self.birthday = birthday;
 
-        UIImage *image = [UIImage imageWithData:birthday.imageData];
-        UIImage *roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(500, 500)];
+        UIImage *roundedImage;
+        if (birthday.imageData) {
+            UIImage *image = [UIImage imageWithData:birthday.imageData];
+            roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(500, 500)];
+        } else {
+            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents];
+        }
         SKTexture *texture = [SKTexture textureWithImage:roundedImage];
         self.texture = texture;
         self.anchorPoint = CGPointMake(0.5, 0.5);

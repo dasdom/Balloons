@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIImage (Extenstion)
 - (UIImage *)roundedWithColor:(UIColor *)color width:(CGFloat)width targetSize:(CGSize)targetSize;
++ (UIImage *)initialsImageWithPersonNameComponents:(NSPersonNameComponents *)nameComponents;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -3,9 +3,9 @@
 //
 
 
-#import "UIImage+Extenstion.h"
+#import "UIImage+Extension.h"
 
-@implementation UIImage (Extenstion)
+@implementation UIImage (Extension)
 // https://stackoverflow.com/a/34985608/498796
 // https://stackoverflow.com/a/40867644/498796
 - (UIImage *)roundedWithColor:(UIColor *)color width:(CGFloat)width targetSize:(CGSize)targetSize {
@@ -31,5 +31,28 @@
     }];
 
     return roundedImage;
+}
+
++ (UIImage *)initialsImageWithPersonNameComponents:(NSPersonNameComponents *)nameComponents {
+
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    label.textColor = [UIColor yellowColor];
+    label.textAlignment = NSTextAlignmentCenter;
+//    label.font = [UIFont boldSystemFontOfSize:26];
+//    label.layer.cornerRadius = 25;
+    
+    NSPersonNameComponentsFormatter *nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
+    nameFormatter.style = NSPersonNameComponentsFormatterStyleAbbreviated;
+    label.text = [nameFormatter stringFromPersonNameComponents:nameComponents];
+
+    UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
+    UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        [[UIColor brownColor] setFill];
+        CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
+
+        [label drawTextInRect:label.frame];
+    }];
+
+    return image;
 }
 @end
