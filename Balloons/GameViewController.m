@@ -7,10 +7,12 @@
 #import "DDHTimelineScene.h"
 #import "DDHContactsManager.h"
 #import "DDHBirthday.h"
+#import "DDHStorage.h"
 
 @interface GameViewController ()
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) DDHTimelineScene *scene;
+@property (nonatomic, strong) DDHStorage *storage;
 @end
 
 @implementation GameViewController
@@ -18,7 +20,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    _birthdays = [[NSArray alloc] init];
+    _storage = [[DDHStorage alloc] init];
+    [_storage createDatabaseIfNeeded];
+
+    _birthdays = [_storage birthdays];
 
     _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size];
 
@@ -53,6 +58,12 @@
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    [self.scene updateForBirthdays:self.birthdays];
+}
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self.scene updateWithSize:size];
     [self.scene updateForBirthdays:self.birthdays];
@@ -75,7 +86,9 @@
             [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
                 
                 NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
-                self.birthdays = [self.birthdays arrayByAddingObjectsFromArray:birthdays];
+                [self.storage insertBirthdays:birthdays];
+
+                self.birthdays = [self.storage birthdays];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
 

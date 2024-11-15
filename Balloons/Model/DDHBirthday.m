@@ -6,13 +6,14 @@
 #import "DDHBirthday.h"
 #import <Contacts/Contacts.h>
 #import "DDHDateHelper.h"
+#import "NSFileManager+Extension.h"
 
 @implementation DDHBirthday
-- (instancetype)initWithUUID:(NSUUID *)uuid imageData:(NSData *)imageData daysLeft:(NSInteger)daysLeft date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents {
+- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents {
     if (self = [super init]) {
         _uuid = uuid;
-        _imageData = imageData;
-        _daysLeft = daysLeft;
+        _imageData = [self imageDataForPersonUUID:uuid];
+        _daysLeft = [DDHDateHelper daysLeftForDate:date];
         _date = date;
         _personNameComponents = personNameComponents;
     }
@@ -27,7 +28,10 @@
         } else {
             _uuid = [[NSUUID alloc] initWithUUIDString:components.firstObject];
         }
+
         _imageData = contact.thumbnailImageData;
+        [self saveImageData:_imageData personUUID:_uuid];
+
         _daysLeft = [DDHDateHelper daysLeftForDateComponents:contact.birthday];
         _date = [NSCalendar.currentCalendar dateFromComponents:contact.birthday];
 
@@ -37,6 +41,21 @@
         _personNameComponents = personNameComponents;
     }
     return self;
+}
+
+- (void)saveImageData:(NSData *)imageData personUUID:(NSUUID *)uuid {
+    NSURL *imageURL = [[NSFileManager defaultManager] imageURLWithPersonUUID:uuid];
+    NSError *error;
+    [imageData writeToFile:[imageURL path] options:0 error:&error];
+
+    if (error) {
+        NSLog(@"error: %@", error);
+    }
+}
+
+- (NSData *)imageDataForPersonUUID:(NSUUID *)uuid {
+    NSURL *imageURL = [[NSFileManager defaultManager] imageURLWithPersonUUID:uuid];
+    return [NSData dataWithContentsOfFile:[imageURL path]];
 }
 
 - (Boolean)yearUnknown {
@@ -50,4 +69,7 @@
 - (NSString *)description {
     return [@[self.uuid.UUIDString, [NSString stringWithFormat:@"%ld", self.daysLeft], self.personNameComponents.givenName] componentsJoinedByString:@", "];
 }
+
+
+
 @end

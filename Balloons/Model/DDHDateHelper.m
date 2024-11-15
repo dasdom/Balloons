@@ -30,6 +30,15 @@
     return daysLeft;
 }
 
++ (NSInteger)daysLeftForDate:(NSDate *)date {
+    NSDateComponents *components = [self dateComponentsForDate:date];
+    return [self daysLeftForDateComponents:components];
+}
+
++ (NSDateComponents *)dateComponentsForDate:(NSDate *)date {
+    return [self.calendar components:NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay fromDate:date];
+}
+
 + (NSInteger)ageForDateComponents:(NSDate *)date {
     NSDateComponents *ageComponents = [self.calendar components:NSCalendarUnitYear fromDate:date toDate:[NSDate now] options:NSCalendarMatchPreviousTimePreservingSmallerUnits];
     return ageComponents.year;
