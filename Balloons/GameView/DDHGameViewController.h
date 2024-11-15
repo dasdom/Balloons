@@ -7,6 +7,6 @@
 #import <SpriteKit/SpriteKit.h>
 #import <GameplayKit/GameplayKit.h>
 
-@interface GameViewController : UIViewController
+@interface DDHGameViewController : UIViewController
 
 @end

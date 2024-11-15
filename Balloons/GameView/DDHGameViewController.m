@@ -3,19 +3,28 @@
 //
 
 
-#import "GameViewController.h"
+#import "DDHGameViewController.h"
 #import "DDHTimelineScene.h"
 #import "DDHContactsManager.h"
 #import "DDHBirthday.h"
 #import "DDHStorage.h"
+#import "DDHGameView.h"
 
-@interface GameViewController ()
+@interface DDHGameViewController ()
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @property (nonatomic, strong) DDHStorage *storage;
 @end
 
-@implementation GameViewController
+@implementation DDHGameViewController
+
+- (void)loadView {
+    self.view = [[DDHGameView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+}
+
+- (DDHGameView *)contentView {
+    return (DDHGameView *)self.view;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -30,24 +39,12 @@
     // Set the scale mode to scale to fit the window
     _scene.scaleMode = SKSceneScaleModeAspectFill;
 
-    SKView *skView = (SKView *)self.view;
-    
+//    SKView *skView = (SKView *)self.view;
+
     // Present the scene
-    [skView presentScene:_scene];
+    [self.contentView.skView presentScene:_scene];
 
-    UIButtonConfiguration *addButtonConfiguration = [UIButtonConfiguration plainButtonConfiguration];
-    addButtonConfiguration.image = [UIImage systemImageNamed:@"plus"];
-    UIButton *addButton = [UIButton buttonWithConfiguration:addButtonConfiguration primaryAction:nil];
-    addButton.translatesAutoresizingMaskIntoConstraints = NO;
-
-    [self.view addSubview:addButton];
-
-    [NSLayoutConstraint activateConstraints:@[
-        [addButton.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:16],
-        [addButton.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-16],
-    ]];
-
-    [addButton addTarget:self action:@selector(add:) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.addButton addTarget:self action:@selector(add:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
@@ -102,22 +99,5 @@
         }
     }];
 }
-
-//// MARK: - GameSceneTouchHandler
-//- (void)didTouchBirthdayWithId:(NSUUID *)birthdayId {
-//    NSLog(@"birthdayId: %@", birthdayId);
-//    DDHBirthday *selectedBirthday;
-//    for (DDHBirthday *birthday in self.birthdays) {
-//        if (birthday.uuid == birthdayId) {
-//            selectedBirthday = birthday;
-//            break;
-//        }
-//    }
-//    NSLog(@"selectedBirthday: %@", selectedBirthday);
-//
-//    DDHPersonScene *personScene = [[DDHPersonScene alloc] initWithSize:self.view.frame.size birthday:selectedBirthday];
-//    SKView *skView = (SKView *)self.view;
-//    [skView presentScene:personScene transition:[SKTransition revealWithDirection:SKTransitionDirectionle duration:0.5]];
-//}
 
 @end
