@@ -11,7 +11,7 @@
 //    if (daysLeft < 100) {
 //        size = CGSizeMake(16, 16);
 //    } else {
-        size = CGSizeMake(5, 5);
+        size = CGSizeMake(8, 8);
 //    }
     DDHBalloonAnchor *node = [super shapeNodeWithEllipseOfSize:size];
     node.daysLeft = daysLeft;

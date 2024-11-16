@@ -156,7 +156,7 @@
     for (DDHBirthday *birthday in birthdays) {
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:60];
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -166,7 +166,7 @@
             CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
             if (intersectionSize.width > 1 || intersectionSize.height > 1) {
                 NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
-                CGFloat correctedYPos = otherBalloon.position.y + 60 + arc4random_uniform(40);
+                CGFloat correctedYPos = otherBalloon.position.y + otherBalloon.size.height + arc4random_uniform(40);
                 if (correctedYPos > 2 * (self.timelineYPosition - 20)) {
                     correctedYPos = -self.timelineYPosition + 60 + arc4random_uniform(40);
                 }
