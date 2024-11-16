@@ -19,9 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents;
 //- (instancetype)initWithUUID:(NSUUID *)uuid imageData:(NSData *)imageData daysLeft:(NSInteger)daysLeft date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents;
 - (instancetype)initWithContact:(CNContact *)contact;
-
-- (instancetype)initWithDictionary:(NSDictionary *)foo;
-- (NSDictionary *)dictionary;
 @end
 
 NS_ASSUME_NONNULL_END
