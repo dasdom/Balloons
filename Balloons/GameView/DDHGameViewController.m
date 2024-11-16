@@ -36,15 +36,12 @@
 
     _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size];
 
-    // Set the scale mode to scale to fit the window
     _scene.scaleMode = SKSceneScaleModeAspectFill;
 
-//    SKView *skView = (SKView *)self.view;
-
-    // Present the scene
     [self.contentView.skView presentScene:_scene];
 
     [self.contentView.addButton addTarget:self action:@selector(add:) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView.settingsButton addTarget:self action:@selector(settings:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
@@ -70,8 +67,8 @@
     return YES;
 }
 
+// MARK: - Actions
 - (void)add:(UIButton *)sender {
-
     UIButtonConfiguration *buttonConfig = sender.configuration;
     buttonConfig.showsActivityIndicator = YES;
     sender.configuration = buttonConfig;
@@ -98,6 +95,10 @@
             }];
         }
     }];
+}
+
+- (void)settings:(UIButton *)sender {
+    
 }
 
 @end

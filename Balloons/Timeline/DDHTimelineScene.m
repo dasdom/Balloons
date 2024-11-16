@@ -37,7 +37,6 @@
 @implementation DDHTimelineScene
 
 - (instancetype)initWithSize:(CGSize)size {
-//    if (self = [super initWithSize:CGSizeMake(1334, 750)]) {
     if (self = [super initWithSize:size]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.gravityFactor = 7;
@@ -215,56 +214,60 @@
 }
 
 - (void)touchUpAtPoint:(CGPoint)pos {
-//    SKShapeNode *n = [_spinnyNode copy];
-//    n.position = pos;
-//    n.strokeColor = [SKColor redColor];
-//    [self addChild:n];
-
     SKNode *node = [self nodeAtPoint:pos];
     if ([node isKindOfClass:[DDHBalloon class]] &&
         nil == self.detailBalloon) {
 
         DDHBalloon *balloon = (DDHBalloon *)node;
-        self.selectedBalloon = balloon;
-        self.positionOfSelectedBalloon = balloon.position;
-        balloon.hidden = YES;
-
-        DDHBalloon *detailBalloon = [balloon balloonCopyForDetail];
-        [self addChild:detailBalloon];
-        self.detailBalloon = detailBalloon;
-
-        SKAction *animation = [SKAction group:@[
-            [SKAction resizeToWidth:200 height:200 duration:0.5],
-            [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
-        ]];
-        [detailBalloon runAction:animation completion:^{
-            [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
-        }];
-
-        [self fadeOutMonthIndicators];
-
-        self.gravityFactor = -7;
+        [self showBalloon:balloon];
 
     } else if (self.detailBalloon) {
-        SKAction *animation = [SKAction group:@[
-            [SKAction resizeToWidth:50 height:50 duration:0.5],
-            [SKAction fadeOutWithDuration:0.5],
-        ]];
 
-        self.detailBalloon.physicsBody.affectedByGravity = YES;
-
-        [self.detailBalloon runAction:animation completion:^{
-            [self.detailBalloon removeFromParent];
-            self.detailBalloon = nil;
-            self.selectedBalloon = nil;
-        }];
-
-        [self fadeInMonthIndicators];
-
-        self.selectedBalloon.hidden = NO;
-
-        self.gravityFactor = 7;
+        [self hideDetailBalloon];
     }
+}
+
+- (void)showBalloon:(DDHBalloon *)balloon {
+    self.selectedBalloon = balloon;
+    self.positionOfSelectedBalloon = balloon.position;
+    balloon.hidden = YES;
+
+    DDHBalloon *detailBalloon = [balloon balloonCopyForDetail];
+    [self addChild:detailBalloon];
+    self.detailBalloon = detailBalloon;
+
+    SKAction *animation = [SKAction group:@[
+        [SKAction resizeToWidth:200 height:200 duration:0.5],
+        [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
+    ]];
+    [detailBalloon runAction:animation completion:^{
+        [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
+    }];
+
+    [self fadeOutMonthIndicators];
+
+    self.gravityFactor = -7;
+}
+
+- (void)hideDetailBalloon {
+    SKAction *animation = [SKAction group:@[
+        [SKAction resizeToWidth:50 height:50 duration:0.5],
+        [SKAction fadeOutWithDuration:0.5],
+    ]];
+
+    self.detailBalloon.physicsBody.affectedByGravity = YES;
+
+    [self.detailBalloon runAction:animation completion:^{
+        [self.detailBalloon removeFromParent];
+        self.detailBalloon = nil;
+        self.selectedBalloon = nil;
+    }];
+
+    [self fadeInMonthIndicators];
+
+    self.selectedBalloon.hidden = NO;
+
+    self.gravityFactor = 7;
 }
 
 - (void)fadeOutMonthIndicators {
@@ -309,24 +312,23 @@
 - (void)update:(CFTimeInterval)currentTime {
     CMAccelerometerData *accelerometerData = self.motionManager.accelerometerData;
     if (accelerometerData) {
-//        if (UIDeviceOrientationIsLandscape(UIDevice.currentDevice.orientation) || UIDevice.currentDevice.orientation == UIDeviceOrientationPortrait) {
-            [self updateGravityWithOrientation:UIDevice.currentDevice.orientation accelerometerData:accelerometerData];
-//        } else {
-//            [self updateGravityWithOrientation:self.lastLandscapeOrientation accelerometerData:accelerometerData];
-//        }
+        [self updateGravityWithOrientation:UIDevice.currentDevice.orientation accelerometerData:accelerometerData];
     }
 }
 
 - (void)updateGravityWithOrientation:(UIDeviceOrientation)orientation accelerometerData:(CMAccelerometerData *)accelerometerData {
     if (orientation == UIDeviceOrientationLandscapeLeft) {
         self.lastLandscapeOrientation = orientation;
-        self.physicsWorld.gravity = CGVectorMake(accelerometerData.acceleration.y * self.gravityFactor, -accelerometerData.acceleration.x * self.gravityFactor);
+        self.physicsWorld.gravity = CGVectorMake(accelerometerData.acceleration.y * self.gravityFactor,
+                                                 -accelerometerData.acceleration.x * self.gravityFactor);
     } else if (orientation == UIDeviceOrientationLandscapeRight) {
         self.lastLandscapeOrientation = orientation;
-        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * self.gravityFactor, accelerometerData.acceleration.x * self.gravityFactor);
+        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.y * self.gravityFactor,
+                                                 accelerometerData.acceleration.x * self.gravityFactor);
     } else if (orientation == UIDeviceOrientationPortrait) {
         self.lastLandscapeOrientation = orientation;
-        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.x * self.gravityFactor, -accelerometerData.acceleration.y * self.gravityFactor);
+        self.physicsWorld.gravity = CGVectorMake(-accelerometerData.acceleration.x * self.gravityFactor,
+                                                 -accelerometerData.acceleration.y * self.gravityFactor);
     } else {
         self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
     }

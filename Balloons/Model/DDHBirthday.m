@@ -47,7 +47,6 @@
     NSURL *imageURL = [[NSFileManager defaultManager] imageURLWithPersonUUID:uuid];
     NSError *error;
     [imageData writeToFile:[imageURL path] options:0 error:&error];
-
     if (error) {
         NSLog(@"error: %@", error);
     }
