@@ -156,7 +156,7 @@
     for (DDHBirthday *birthday in birthdays) {
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:60];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -240,6 +240,7 @@
         [SKAction resizeToWidth:200 height:200 duration:0.5],
         [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
     ]];
+    animation.timingMode = SKActionTimingEaseInEaseOut;
     [detailBalloon runAction:animation completion:^{
         [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
     }];
@@ -252,12 +253,15 @@
 - (void)hideDetailBalloon {
     SKAction *animation = [SKAction group:@[
         [SKAction resizeToWidth:50 height:50 duration:0.5],
-        [SKAction fadeOutWithDuration:0.5],
+        [SKAction moveTo:self.positionOfSelectedBalloon duration:0.5],
+//        [SKAction fadeOutWithDuration:0.5],
     ]];
+    animation.timingMode = SKActionTimingEaseInEaseOut;
 
-    self.detailBalloon.physicsBody.affectedByGravity = YES;
+//    self.detailBalloon.physicsBody.affectedByGravity = YES;
 
     [self.detailBalloon runAction:animation completion:^{
+        self.selectedBalloon.hidden = NO;
         [self.detailBalloon removeFromParent];
         self.detailBalloon = nil;
         self.selectedBalloon = nil;
@@ -265,7 +269,6 @@
 
     [self fadeInMonthIndicators];
 
-    self.selectedBalloon.hidden = NO;
 
     self.gravityFactor = 7;
 }

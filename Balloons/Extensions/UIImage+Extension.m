@@ -17,16 +17,19 @@
     UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:bleedRect.size format:imageRendererFormat];
     UIImage *roundedImage = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
 
-//        UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, bleedRect.size.width, bleedRect.size.height)];
-//        [path addClip];
-
-        UIBezierPath *path = [[UIBezierPath alloc] init];
-        [path moveToPoint:CGPointMake(targetSize.width/2 + 30, targetSize.height)];
-        [path addCurveToPoint:CGPointMake(targetSize.width/2 - 20, targetSize.height)
-                controlPoint1:CGPointMake(targetSize.width/2 + 1.4 * targetSize.width, -targetSize.height/3)
-                controlPoint2:CGPointMake(targetSize.width/2 - 1.4 *targetSize.width, -targetSize.height/3)];
-//        [path addLineToPoint:CGPointMake(1000, 1000)];
-        [path addClip];
+        UIBezierPath *path;
+//        if (rand() % 2 == 0) {
+            path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, bleedRect.size.width, bleedRect.size.height)];
+            [path addClip];
+//        } else {
+//            path = [[UIBezierPath alloc] init];
+//            [path moveToPoint:CGPointMake(targetSize.width/2 - targetSize.width * 0.06, targetSize.height)];
+//            [path addCurveToPoint:CGPointMake(targetSize.width/2 + targetSize.width * 0.1, targetSize.height)
+//                    controlPoint1:CGPointMake(targetSize.width/2 + 1.6 * targetSize.width, -0.33 * targetSize.height)
+//                    controlPoint2:CGPointMake(targetSize.width/2 - 1.6 * targetSize.width, -0.33 * targetSize.height)];
+//            [path closePath];
+//            [path addClip];
+//        }
 
         CGRect strokeRect = CGRectInset(breadthRect, -width/2, -width/2);
         strokeRect = CGRectMake(width/2, width/2, strokeRect.size.width, strokeRect.size.height);
@@ -58,6 +61,14 @@
     UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
         [[UIColor brownColor] setFill];
         CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
+
+//        UIBezierPath *path = [[UIBezierPath alloc] init];
+//        [path moveToPoint:CGPointMake(size.width/2 - size.width * 0.1, size.height)];
+//        [path addCurveToPoint:CGPointMake(size.width/2 + size.width * 0.1, size.height)
+//                controlPoint1:CGPointMake(size.width/2 + 1.4 * size.width, -size.height/3)
+//                controlPoint2:CGPointMake(size.width/2 - 1.4 * size.width, -size.height/3)];
+//
+//        [path fill];
 
         [label drawTextInRect:label.frame];
     }];
