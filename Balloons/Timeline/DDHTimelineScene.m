@@ -12,6 +12,7 @@
 #import "DDHBalloonAnchor.h"
 #import <CoreMotion/CoreMotion.h>
 #import "DDHRope.h"
+#import "NSUserDefaults+Extension.h"
 
 @interface DDHTimelineScene ()
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
@@ -22,7 +23,7 @@
 @property (nonatomic, strong) NSArray<DDHRope *> *ropes;
 @property (assign) CGFloat timelineYPosition;
 @property (assign) CGFloat timelineStart;
-@property (assign) NSInteger numberOfShownDays;
+@property (nonatomic, assign) NSInteger numberOfShownDays;
 @property (nonatomic, strong) CMMotionManager *motionManager;
 @property (assign) UIDeviceOrientation lastLandscapeOrientation;
 @property (nonatomic, assign) CGFloat gravityFactor;
@@ -51,6 +52,8 @@
         _dateFormatter = [[NSDateFormatter alloc] init];
         _dateFormatter.dateStyle = NSDateFormatterShortStyle;
         _dateFormatter.timeStyle = NSDateFormatterNoStyle;
+
+        _numberOfShownDays = [[NSUserDefaults standardUserDefaults] numberOfShownDays];
     }
     return self;
 }
@@ -58,6 +61,33 @@
 - (void)setGravityFactor:(CGFloat)gravityFactor {
     _gravityFactor = gravityFactor;
     self.physicsWorld.gravity = CGVectorMake(0, gravityFactor);
+}
+
+- (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
+    _numberOfShownDays = numberOfShownDays;
+
+//    [self updateMonthNamesNodes];
+
+    for (DDHBalloonAnchor *anchor in self.anchors) {
+        CGFloat xPos = self.timelineStart * 2 * anchor.daysLeft / self.numberOfShownDays - self.timelineStart;
+        SKAction *move = [SKAction moveToX:xPos duration:1];
+        move.timingMode = SKActionTimingEaseInEaseOut;
+        [anchor runAction:move];
+    }
+
+    for (SKLabelNode *label in self.monthNamesNodes) {
+        CGFloat labelX = self.timelineStart * 2 * label.name.integerValue / numberOfShownDays - self.timelineStart;
+        SKAction *move = [SKAction moveToX:labelX duration:1];
+        move.timingMode = SKActionTimingEaseInEaseOut;
+        [label runAction:move];
+    }
+
+    for (SKShapeNode *line in self.lineNodes) {
+        CGFloat startX = self.timelineStart * 2 * line.name.integerValue / self.numberOfShownDays - self.timelineStart;
+        SKAction *move = [SKAction moveToX:startX duration:1];
+        move.timingMode = SKActionTimingEaseInEaseOut;
+        [line runAction:move];
+    }
 }
 
 - (void)didMoveToView:(SKView *)view {
@@ -109,20 +139,23 @@
         SKLabelNode *label = [SKLabelNode labelNodeWithText:displayMonth.name];
         CGFloat labelX = self.timelineStart * 2 * (displayMonth.start + displayMonth.end)/2 / self.numberOfShownDays - self.timelineStart;
         label.position = CGPointMake(labelX, -self.timelineYPosition - 30);
+        label.name = [NSString stringWithFormat:@"%ld", (long)((displayMonth.start + displayMonth.end)/2)];
         [monthNamesNodes addObject:label];
         [self addChild:label];
 
         CGFloat startX = self.timelineStart * 2 * displayMonth.start / self.numberOfShownDays - self.timelineStart;
         if (startX > -self.timelineStart) {
-            UIBezierPath *path = [[UIBezierPath alloc] init];
-            CGPoint start = CGPointMake(startX, -self.timelineYPosition - 30);
-            [path moveToPoint:start];
-            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
-            [path addLineToPoint:end];
+//            UIBezierPath *path = [[UIBezierPath alloc] init];
+//            CGPoint start = CGPointMake(startX, -self.timelineYPosition - 30);
+//            [path moveToPoint:start];
+//            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
+//            [path addLineToPoint:end];
 
-            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithPath:[path CGPath]];
-
-            lineNode.strokeColor = [UIColor colorWithWhite:0.3 alpha:1];
+            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 3 * self.timelineYPosition)];
+            lineNode.name = [NSString stringWithFormat:@"%ld", (long)displayMonth.start];
+            lineNode.strokeColor = [UIColor clearColor];
+            lineNode.fillColor = [UIColor colorWithWhite:0.3 alpha:1];
+            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 30);
             lineNode.lineWidth = 1;
             [lineNodes addObject:lineNode];
             lineNode.zPosition = 0;
@@ -184,12 +217,19 @@
         [self addChild:anchor];
         [anchors addObject:anchor];
 
-        CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - 20);
+        SKConstraint *constraint = [SKConstraint distance:[SKRange rangeWithUpperLimit:balloon.position.y - anchor.position.y] toNode:anchor];
+        balloon.constraints = @[constraint];
+
+        CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - balloon.size.height/2);
         DDHRope *rope = [[DDHRope alloc] init];
         rope.zPosition = 0;
         [self addChild:rope];
         [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
         [ropes addObject:rope];
+
+        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
+        [self.physicsWorld addJoint:joint];
+        [joints addObject:joint];
     }
 
     self.balloons = [balloons copy];
@@ -237,7 +277,7 @@
     self.detailBalloon = detailBalloon;
 
     SKAction *animation = [SKAction group:@[
-        [SKAction resizeToWidth:200 height:200 duration:0.5],
+        [SKAction resizeToWidth:200 height:200 duration:1],
         [SKAction moveTo:CGPointMake(0, 70) duration:0.5],
     ]];
     animation.timingMode = SKActionTimingEaseInEaseOut;
@@ -252,13 +292,15 @@
 
 - (void)hideDetailBalloon {
     SKAction *animation = [SKAction group:@[
-        [SKAction resizeToWidth:50 height:50 duration:0.5],
+        [SKAction resizeToWidth:50 height:50 duration:0.8],
         [SKAction moveTo:self.positionOfSelectedBalloon duration:0.5],
 //        [SKAction fadeOutWithDuration:0.5],
     ]];
     animation.timingMode = SKActionTimingEaseInEaseOut;
 
 //    self.detailBalloon.physicsBody.affectedByGravity = YES;
+
+    [self.detailBalloon showLabel:false animated:true];
 
     [self.detailBalloon runAction:animation completion:^{
         self.selectedBalloon.hidden = NO;
@@ -268,7 +310,6 @@
     }];
 
     [self fadeInMonthIndicators];
-
 
     self.gravityFactor = 7;
 }
@@ -353,6 +394,31 @@
     [self.timeline updateWithStartPoint:startPoint andEndPoint:endPoint];
 
     [self updateMonthNamesNodes];
+}
+
+//- (void)didSimulatePhysics {
+//    for (DDHRope *rope in self.ropes) {
+//        [rope adjustRingPositions];
+//    }
+//}
+
+- (void)toggleGravityDirection {
+    self.gravityFactor = -self.gravityFactor;
+    if (self.gravityFactor < 0) {
+        [self fadeOutMonthIndicators];
+    } else {
+        [self fadeInMonthIndicators];
+    }
+}
+
+- (void)pointGravityDown {
+    self.gravityFactor = -fabs(self.gravityFactor);
+//    [self fadeOutMonthIndicators];
+}
+
+- (void)pointGravityUp {
+    self.gravityFactor = fabs(self.gravityFactor);
+//    [self fadeInMonthIndicators];
 }
 
 @end

@@ -9,14 +9,23 @@
 #import "DDHBirthday.h"
 #import "DDHStorage.h"
 #import "DDHGameView.h"
+#import "DDHSettingsViewController.h"
 
 @interface DDHGameViewController ()
+@property (nonatomic, strong) id<DDHGameViewControllerDelegate> delegate;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @property (nonatomic, strong) DDHStorage *storage;
 @end
 
 @implementation DDHGameViewController
+
+- (instancetype)initWithDelegate:(id<DDHGameViewControllerDelegate>)delegate {
+    if (self = [super initWithNibName:nil bundle:nil]) {
+        _delegate = delegate;
+    }
+    return self;
+}
 
 - (void)loadView {
     self.view = [[DDHGameView alloc] initWithFrame:[UIScreen mainScreen].bounds];
@@ -98,7 +107,20 @@
 }
 
 - (void)settings:(UIButton *)sender {
-    
+    [self.delegate didSelectSettingsInViewController:self];
+}
+
+- (void)pointGravityDown {
+    [self.scene pointGravityDown];
+}
+
+- (void)pointGravityUp {
+    [self.scene pointGravityUp];
+}
+
+- (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
+    [self.scene setNumberOfShownDays:numberOfShownDays];
+//    [self.scene updateForBirthdays:self.birthdays];
 }
 
 @end

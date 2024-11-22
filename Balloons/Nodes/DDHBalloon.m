@@ -11,7 +11,7 @@
 @interface DDHBalloon ()
 @property (nonatomic, strong) DDHBirthday *birthday;
 @property (nonatomic, strong) SKLabelNode *nameLabel;
-@property (nonatomic, strong) SKSpriteNode *background;
+@property (nonatomic, strong) SKSpriteNode *labelBackground;
 @end
 
 @implementation DDHBalloon
@@ -41,14 +41,15 @@
         _nameLabel.fontColor = [UIColor blackColor];
         _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
 
-        _background = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 6, _nameLabel.frame.size.height)];
-        _background.position = CGPointMake(0, -self.size.height/2);
-        [_background addChild:_nameLabel];
+        _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 6, _nameLabel.frame.size.height)];
+        _labelBackground.position = CGPointMake(0, -self.size.height/2);
+        [_labelBackground addChild:_nameLabel];
 
-        [self addChild:_background];
+        [self addChild:_labelBackground];
 
         self.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:width/2];
         self.physicsBody.angularDamping = 0.9;
+        self.physicsBody.linearDamping = 0.9;
         self.physicsBody.categoryBitMask = 1 << 1;
         self.physicsBody.collisionBitMask = 1 << 1;
     }
@@ -69,9 +70,9 @@
 - (void)showLabel:(BOOL)show animated:(BOOL)animated {
     if (animated) {
         CGFloat alpha = show ? 1 : 0;
-        [self.background runAction:[SKAction fadeAlphaTo:alpha duration:0.3]];
+        [self.labelBackground runAction:[SKAction fadeAlphaTo:alpha duration:0.3]];
     } else {
-        self.background.alpha = show ? 1 : 0;
+        self.labelBackground.alpha = show ? 1 : 0;
     }
 }
 
@@ -87,8 +88,8 @@
     self.nameLabel.fontName = [UIFont systemFontOfSize:15 weight:UIFontWeightHeavy].fontName;
     self.nameLabel.position = CGPointMake(0, -self.nameLabel.frame.size.height/2);
 
-    self.background.position = CGPointMake(0, -self.size.height/2);
-    self.background.size = CGSizeMake(self.nameLabel.frame.size.width + 16, self.nameLabel.frame.size.height + 4);
+    self.labelBackground.position = CGPointMake(0, -self.size.height/2);
+    self.labelBackground.size = CGSizeMake(self.nameLabel.frame.size.width + 16, self.nameLabel.frame.size.height + 4);
     [self showLabel:YES animated:YES];
 }
 

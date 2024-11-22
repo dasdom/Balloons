@@ -11,4 +11,8 @@
 - (instancetype)initWithSize:(CGSize)size;
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 - (void)updateWithSize:(CGSize)size;
+- (void)toggleGravityDirection;
+- (void)pointGravityDown;
+- (void)pointGravityUp;
+- (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 @end

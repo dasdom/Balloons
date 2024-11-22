@@ -7,6 +7,13 @@
 #import <SpriteKit/SpriteKit.h>
 #import <GameplayKit/GameplayKit.h>
 
-@interface DDHGameViewController : UIViewController
+@protocol DDHGameViewControllerDelegate <NSObject>
+- (void)didSelectSettingsInViewController:(UIViewController *)viewController;
+@end
 
+@interface DDHGameViewController : UIViewController
+- (instancetype)initWithDelegate:(id<DDHGameViewControllerDelegate>)delegate;
+- (void)pointGravityDown;
+- (void)pointGravityUp;
+- (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 @end
