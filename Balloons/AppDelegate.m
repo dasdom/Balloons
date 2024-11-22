@@ -5,6 +5,7 @@
 
 #import "AppDelegate.h"
 #import "DDHAppCoordinator.h"
+#import "NSUserDefaults+Extension.h"
 
 @interface AppDelegate ()
 @property (nonatomic, strong) DDHAppCoordinator *appCoordinator;
@@ -14,6 +15,8 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    [[NSUserDefaults standardUserDefaults] setup];
 
     _window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     _appCoordinator = [[DDHAppCoordinator alloc] init];

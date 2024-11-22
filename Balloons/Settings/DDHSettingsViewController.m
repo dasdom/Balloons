@@ -11,6 +11,12 @@
 @property (nonatomic, strong) id<DDHSettingsViewControllerDelegate> delegate;
 @end
 
+const NSInteger DDHIndexForDays[] = {
+    [DDHNumberOfShownDaysThirty] = 0,
+    [DDHNumberOfShownDaysNinety] = 1,
+    [DDHNumberOfShownDaysTwoHundredEighty] = 2
+};
+
 @implementation DDHSettingsViewController
 
 - (instancetype)initWithDelegate:(id<DDHSettingsViewControllerDelegate>)delegate {
@@ -31,6 +37,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    [self.contentView.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysThirty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysThirty] animated:NO];
+    [self.contentView.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysNinety] atIndex:DDHIndexForDays[DDHNumberOfShownDaysNinety] animated:NO];
+    [self.contentView.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysTwoHundredEighty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty] animated:NO];
+
     UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"xmark"] style:UIBarButtonItemStylePlain target:self action:@selector(close:)];
     self.navigationItem.rightBarButtonItem = closeButton;
 
@@ -38,14 +48,14 @@
 
     NSInteger numberOfShownDays = [[NSUserDefaults standardUserDefaults] numberOfShownDays];
     switch (numberOfShownDays) {
-        case 30:
-            self.contentView.daysSegmentedControl.selectedSegmentIndex = 0;
+        case DDHNumberOfShownDaysThirty:
+            self.contentView.daysSegmentedControl.selectedSegmentIndex = DDHIndexForDays[DDHNumberOfShownDaysThirty];
             break;
-        case 90:
-            self.contentView.daysSegmentedControl.selectedSegmentIndex = 1;
+        case DDHNumberOfShownDaysNinety:
+            self.contentView.daysSegmentedControl.selectedSegmentIndex = DDHIndexForDays[DDHNumberOfShownDaysNinety];
             break;
-        default:
-            self.contentView.daysSegmentedControl.selectedSegmentIndex = 2;
+        case DDHNumberOfShownDaysTwoHundredEighty:
+            self.contentView.daysSegmentedControl.selectedSegmentIndex = DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty];
             break;
     }
 }
@@ -58,14 +68,17 @@
 - (void)changeDays:(UISegmentedControl *)sender {
     NSInteger numberOfShownDays;
     switch (sender.selectedSegmentIndex) {
-        case 0:
-            numberOfShownDays = 30;
+        case DDHIndexForDays[DDHNumberOfShownDaysThirty]:
+            numberOfShownDays = DDHNumberOfShownDaysThirty;
             break;
-        case 1:
-            numberOfShownDays = 90;
+        case DDHIndexForDays[DDHNumberOfShownDaysNinety]:
+            numberOfShownDays = DDHNumberOfShownDaysNinety;
+            break;
+        case DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty]:
+            numberOfShownDays = DDHNumberOfShownDaysTwoHundredEighty;
             break;
         default:
-            numberOfShownDays = 280;
+            numberOfShownDays = DDHNumberOfShownDaysTwoHundredEighty;
             break;
     }
     [[NSUserDefaults standardUserDefaults] setNumberOfShownDays:numberOfShownDays];

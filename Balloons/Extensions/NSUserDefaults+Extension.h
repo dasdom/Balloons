@@ -8,6 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NSUserDefaults (Extension)
+- (void)setup;
 - (NSInteger)numberOfShownDays;
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 @end

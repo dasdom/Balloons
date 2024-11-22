@@ -101,9 +101,6 @@
     drag.strength = 0.2;
     [self addChild:drag];
 
-    NSInteger numberOfShownDays = 280;
-    self.numberOfShownDays = numberOfShownDays;
-
     CGSize viewSize = view.frame.size;
     CGFloat timelineYPosition = viewSize.height/2 - viewSize.height * 0.15;
     CGFloat timelineStart = viewSize.width/2 - viewSize.width * 0.05;

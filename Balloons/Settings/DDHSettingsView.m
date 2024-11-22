@@ -9,7 +9,7 @@
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
-        _daysSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"30 days", @"90 days", @"280 days"]];
+        _daysSegmentedControl = [[UISegmentedControl alloc] init];
         _daysSegmentedControl.selectedSegmentIndex = 2;
         _daysSegmentedControl.selectedSegmentTintColor = [UIColor systemOrangeColor];
         [_daysSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor systemOrangeColor]} forState:UIControlStateNormal];
