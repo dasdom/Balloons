@@ -7,8 +7,10 @@
 #import <SpriteKit/SpriteKit.h>
 #import <GameplayKit/GameplayKit.h>
 
+@class DDHBirthday;
+
 @protocol DDHGameViewControllerDelegate <NSObject>
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController;
+- (void)didSelectSettingsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays;
 @end
 
 @interface DDHGameViewController : UIViewController

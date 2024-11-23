@@ -9,21 +9,19 @@
 
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
-        _daysSegmentedControl = [[UISegmentedControl alloc] init];
-        _daysSegmentedControl.selectedSegmentIndex = 2;
-        _daysSegmentedControl.selectedSegmentTintColor = [UIColor systemOrangeColor];
-        [_daysSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor systemOrangeColor]} forState:UIControlStateNormal];
-        [_daysSegmentedControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor blackColor]} forState:UIControlStateSelected];
-        _daysSegmentedControl.translatesAutoresizingMaskIntoConstraints = NO;
+        _tableView = [[UITableView alloc] init];
+        _tableView.translatesAutoresizingMaskIntoConstraints = NO;
+        _tableView.backgroundColor = [UIColor clearColor];
 
-        self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.4];
 
-        [self addSubview:_daysSegmentedControl];
+        [self addSubview:_tableView];
 
         [NSLayoutConstraint activateConstraints:@[
-            [_daysSegmentedControl.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor constant:20],
-            [_daysSegmentedControl.leadingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.leadingAnchor constant:20],
-            [_daysSegmentedControl.trailingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.trailingAnchor constant:-20],
+            [_tableView.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor],
+            [_tableView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+            [_tableView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+            [_tableView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
         ]];
     }
     return self;

@@ -7,6 +7,7 @@
 #import "DDHNumberOfShownDays.h"
 
 NSString * const numberOfShownDaysKey = @"de.dasdom.numberOfShownDaysKey";
+NSString * const notificationsActiveKey = @"de.dasdom.notificationsKey";
 
 @implementation NSUserDefaults (Extension)
 
@@ -20,6 +21,14 @@ NSString * const numberOfShownDaysKey = @"de.dasdom.numberOfShownDaysKey";
 
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
     [self setInteger:numberOfShownDays forKey:numberOfShownDaysKey];
+}
+
+- (BOOL)notificationsActive {
+    return [self boolForKey:notificationsActiveKey];
+}
+
+- (void)setNotificationsActive:(BOOL)notificationsActive {
+    [self setBool:notificationsActive forKey:notificationsActiveKey];
 }
 
 @end

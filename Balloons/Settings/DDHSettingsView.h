@@ -8,9 +8,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-
 @interface DDHSettingsView : UIView
-@property (nonatomic, strong) UISegmentedControl *daysSegmentedControl;
+@property (nonatomic, strong) UITableView *tableView;
 @end
 
 NS_ASSUME_NONNULL_END

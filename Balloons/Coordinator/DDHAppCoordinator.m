@@ -17,12 +17,12 @@
     return self.gameViewController;
 }
 
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController {
+- (void)didSelectSettingsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays {
 //    if ([viewController isKindOfClass:[DDHGameViewController class]]) {
 //        [(DDHGameViewController *)viewController pointGravityDown];
 //    }
 
-    DDHSettingsViewController *next = [[DDHSettingsViewController alloc] initWithDelegate:self];
+    DDHSettingsViewController *next = [[DDHSettingsViewController alloc] initWithDelegate:self birthdays:birthdays];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
     [viewController presentViewController:navigationController animated:YES completion:nil];
 }
