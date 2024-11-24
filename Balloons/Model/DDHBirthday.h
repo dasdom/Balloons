@@ -7,6 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @class CNContact;
+@class UNNotificationRequest;
 
 @interface DDHBirthday : NSObject
 @property (nonatomic, strong) NSUUID *uuid;
@@ -14,10 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger daysLeft;
 @property (nonatomic, strong) NSDate *date;
 @property (nonatomic, strong) NSPersonNameComponents *personNameComponents;
-@property (nonatomic, readonly) Boolean yearUnknown;
+@property (assign) Boolean yearUnknown;
 
-- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents;
+- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents yearUnknown:(BOOL)yearUnknown;
 - (instancetype)initWithContact:(CNContact *)contact;
+- (void)updateDaysLeft;
+- (UNNotificationRequest *)notificationRequest;
 @end
 
 NS_ASSUME_NONNULL_END

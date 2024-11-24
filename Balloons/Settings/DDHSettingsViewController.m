@@ -144,28 +144,12 @@ const NSInteger DDHIndexForDays[] = {
         [center requestAuthorizationWithOptions:UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge completionHandler:^(BOOL granted, NSError * _Nullable error) {
             if (granted) {
 
-                NSCalendar * calendar = NSCalendar.currentCalendar;
-
                 for (DDHBirthday *birthday in self.birthdays) {
-                    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-                    content.title = [NSString localizedUserNotificationStringForKey:@"%@s birthday" arguments:@[birthday.personNameComponents.givenName]];
-                    content.body = [NSString localizedUserNotificationStringForKey:@"%@s birthday is in 7 days!"
-                                                                         arguments:@[birthday.personNameComponents.givenName]];
-                    content.sound = [UNNotificationSound defaultSound];
+                    UNNotificationRequest* request = [birthday notificationRequest];
 
-                    NSDate *notificationDate = [calendar dateByAddingUnit:NSCalendarUnitDay value:-7 toDate:birthday.date options:0];
-
-                    NSDateComponents *dateComponents = [calendar components:NSCalendarUnitDay | NSCalendarUnitMonth fromDate:notificationDate];
-                    UNCalendarNotificationTrigger *trigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents repeats:YES];
-
-                    UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:birthday.uuid.UUIDString
-                                                                                          content:content trigger:trigger];
-
-                    // Schedule the notification.
                     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
                     [center addNotificationRequest:request withCompletionHandler:nil];
                 }
-
             }
         }];
     } else {

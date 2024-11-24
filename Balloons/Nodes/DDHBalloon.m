@@ -76,14 +76,25 @@
     }
 }
 
-- (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatter:(NSDateFormatter *)dateFormatter {
+- (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatterWithYear:(NSDateFormatter *)dateFormatterWithYear dateFormatterWithoutYear:(NSDateFormatter *)dateFormatterWithoutYear {
     nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
-    self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days", [
-        nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents],
-                           [dateFormatter stringFromDate:self.birthday.date],
-                           [DDHDateHelper ageForDateComponents:self.birthday.date] + 1,
-                           self.birthday.daysLeft
-    ];
+    NSString *nameString = [nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents];
+    if (self.birthday.yearUnknown) {
+        NSString *dateString = [dateFormatterWithoutYear stringFromDate:self.birthday.date];
+        self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nin %ld days",
+                               nameString,
+                               dateString,
+                               self.birthday.daysLeft
+        ];
+    } else {
+        NSString *dateString = [dateFormatterWithYear stringFromDate:self.birthday.date];
+        self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days",
+                               nameString,
+                               dateString,
+                               [DDHDateHelper ageForDateComponents:self.birthday.date] + 1,
+                               self.birthday.daysLeft
+        ];
+    }
     self.nameLabel.fontSize = 15;
     self.nameLabel.fontName = [UIFont systemFontOfSize:15 weight:UIFontWeightHeavy].fontName;
     self.nameLabel.position = CGPointMake(0, -self.nameLabel.frame.size.height/2);

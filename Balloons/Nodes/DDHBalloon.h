@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width;
 - (DDHBalloon *)balloonCopyForDetail;
 - (void)showLabel:(BOOL)show animated:(BOOL)animated;
-- (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatter:(NSDateFormatter *)dateFormatter;
+- (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatterWithYear:(NSDateFormatter *)dateFormatterWithYear dateFormatterWithoutYear:(NSDateFormatter *)dateFormatterWithoutYear;
 @end
 
 NS_ASSUME_NONNULL_END

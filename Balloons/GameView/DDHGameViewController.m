@@ -10,6 +10,8 @@
 #import "DDHStorage.h"
 #import "DDHGameView.h"
 #import "DDHSettingsViewController.h"
+#import <UserNotifications/UserNotifications.h>
+#import "NSUserDefaults+Extension.h"
 
 @interface DDHGameViewController ()
 @property (nonatomic, strong) id<DDHGameViewControllerDelegate> delegate;
@@ -92,6 +94,15 @@
                 [self.storage insertBirthdays:birthdays];
 
                 self.birthdays = [self.storage birthdays];
+
+                if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
+                    for (DDHBirthday *birthday in self.birthdays) {
+                        UNNotificationRequest* request = [birthday notificationRequest];
+
+                        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+                        [center addNotificationRequest:request withCompletionHandler:nil];
+                    }
+                }
 
                 dispatch_async(dispatch_get_main_queue(), ^{
 

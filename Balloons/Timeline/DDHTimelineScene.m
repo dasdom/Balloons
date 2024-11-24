@@ -32,7 +32,8 @@
 @property (nonatomic, strong) DDHBalloon *selectedBalloon;
 @property (assign) CGPoint positionOfSelectedBalloon;
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
-@property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@property (nonatomic, strong) NSDateFormatter *dateFormatterWithYear;
+@property (nonatomic, strong) NSDateFormatter *dateFormatterWithoutYear;
 @end
 
 @implementation DDHTimelineScene
@@ -49,9 +50,12 @@
         _nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
         _nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
 
-        _dateFormatter = [[NSDateFormatter alloc] init];
-        _dateFormatter.dateStyle = NSDateFormatterShortStyle;
-        _dateFormatter.timeStyle = NSDateFormatterNoStyle;
+        _dateFormatterWithYear = [[NSDateFormatter alloc] init];
+        _dateFormatterWithYear.dateStyle = NSDateFormatterShortStyle;
+        _dateFormatterWithYear.timeStyle = NSDateFormatterNoStyle;
+
+        _dateFormatterWithoutYear = [[NSDateFormatter alloc] init];
+        _dateFormatterWithoutYear.dateFormat = [NSDateFormatter dateFormatFromTemplate:@"MMdd" options:0 locale:[NSLocale currentLocale]];
 
         _numberOfShownDays = [[NSUserDefaults standardUserDefaults] numberOfShownDays];
     }
@@ -279,7 +283,7 @@
     ]];
     animation.timingMode = SKActionTimingEaseInEaseOut;
     [detailBalloon runAction:animation completion:^{
-        [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatter:self.dateFormatter];
+        [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatterWithYear:self.dateFormatterWithYear dateFormatterWithoutYear:self.dateFormatterWithoutYear];
     }];
 
     [self fadeOutMonthIndicators];
