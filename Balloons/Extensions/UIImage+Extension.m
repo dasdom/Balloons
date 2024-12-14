@@ -48,7 +48,7 @@
 + (UIImage *)initialsImageWithPersonNameComponents:(NSPersonNameComponents *)nameComponents {
 
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
-    label.textColor = [UIColor blackColor];
+    label.textColor = [UIColor labelColor];
     label.textAlignment = NSTextAlignmentCenter;
 //    label.font = [UIFont boldSystemFontOfSize:26];
 //    label.layer.cornerRadius = 25;
@@ -59,7 +59,7 @@
 
     UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
     UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-        [[UIColor systemOrangeColor] setFill];
+        [[UIColor systemPinkColor] setFill];
         CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
 
 //        UIBezierPath *path = [[UIBezierPath alloc] init];

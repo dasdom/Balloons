@@ -13,12 +13,16 @@
     return url;
 }
 
+- (NSURL *)sharedURL {
+    return [self containerURLForSecurityApplicationGroupIdentifier:@"group.dasdom.balloons"];
+}
+
 - (NSURL *)databaseURL {
-    return [[self documentsURL] URLByAppendingPathComponent:@"birthdays"];
+    return [[self sharedURL] URLByAppendingPathComponent:@"birthdays"];
 }
 
 - (NSURL *)imageURLWithPersonUUID:(NSUUID *)uuid {
-    NSURL *imageDirectory = [[self documentsURL] URLByAppendingPathComponent:@"images"];
+    NSURL *imageDirectory = [[self sharedURL] URLByAppendingPathComponent:@"images"];
     if (NO == [self fileExistsAtPath:[imageDirectory path]]) {
         NSError *error;
         [self createDirectoryAtPath:[imageDirectory path] withIntermediateDirectories:YES attributes:nil error:&error];

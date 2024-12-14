@@ -96,12 +96,23 @@
                 self.birthdays = [self.storage birthdays];
 
                 if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
-                    for (DDHBirthday *birthday in self.birthdays) {
-                        UNNotificationRequest* request = [birthday notificationRequest];
+                    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+                    // Fetch the pending notification requests and only add a request if it is not already added.
+                    [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
 
-                        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-                        [center addNotificationRequest:request withCompletionHandler:nil];
-                    }
+                        NSMutableArray<NSString *> *requestIds = [[NSMutableArray alloc] init];
+                        for (UNNotificationRequest *request in requests) {
+                            [requestIds addObject:request.identifier];
+                        }
+
+                        for (DDHBirthday *birthday in self.birthdays) {
+
+                            UNNotificationRequest* request = [birthday notificationRequest];
+                            if (NO == [requestIds containsObject:request.identifier]) {
+                                [center addNotificationRequest:request withCompletionHandler:nil];
+                            }
+                        }
+                    }];
                 }
 
                 dispatch_async(dispatch_get_main_queue(), ^{

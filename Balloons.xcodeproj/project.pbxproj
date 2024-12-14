@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F2F7E6AE2CF66987003ACD55 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2F7E6AD2CF66987003ACD55 /* WidgetKit.framework */; };
+		F2F7E6B02CF66987003ACD55 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2F7E6AF2CF66987003ACD55 /* SwiftUI.framework */; };
+		F2F7E6BB2CF66988003ACD55 /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F2F7E6AB2CF66987003ACD55 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F268E8702CCEDCBC008B84EE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +27,66 @@
 			remoteGlobalIDString = F268E8502CCEDCBA008B84EE;
 			remoteInfo = Balloons;
 		};
+		F2F7E6B92CF66988003ACD55 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F268E8492CCEDCBA008B84EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F2F7E6AA2CF66987003ACD55;
+			remoteInfo = WidgetsExtension;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F2F7E6C02CF66988003ACD55 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F2F7E6BB2CF66988003ACD55 /* WidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		F260F7BA2CF78B0F0015A0B8 /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = "<group>"; };
 		F268E8512CCEDCBA008B84EE /* Balloons.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Balloons.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F268E86F2CCEDCBC008B84EE /* BalloonsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BalloonsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F268E8792CCEDCBC008B84EE /* BalloonsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BalloonsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F7E6AB2CF66987003ACD55 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2F7E6AD2CF66987003ACD55 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F2F7E6AF2CF66987003ACD55 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F260F7BC2CF78C4F0015A0B8 /* Exceptions for "Balloons" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DDHStorage.m,
+				"Extensions/NSFileManager+Extension.m",
+				Model/DDHBirthday.m,
+				Model/DDHDateHelper.m,
+				Model/DDHDisplayMonth.m,
+			);
+			target = F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */;
+		};
+		F2F7E6BC2CF66988003ACD55 /* Exceptions for "Widgets" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F268E8532CCEDCBA008B84EE /* Balloons */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F260F7BC2CF78C4F0015A0B8 /* Exceptions for "Balloons" folder in "WidgetsExtension" target */,
+			);
 			path = Balloons;
 			sourceTree = "<group>";
 		};
@@ -43,6 +98,14 @@
 		F268E87C2CCEDCBC008B84EE /* BalloonsUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BalloonsUITests;
+			sourceTree = "<group>";
+		};
+		F2F7E6B12CF66987003ACD55 /* Widgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F2F7E6BC2CF66988003ACD55 /* Exceptions for "Widgets" folder in "WidgetsExtension" target */,
+			);
+			path = Widgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,15 +132,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F2F7E6A82CF66987003ACD55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2F7E6B02CF66987003ACD55 /* SwiftUI.framework in Frameworks */,
+				F2F7E6AE2CF66987003ACD55 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		F268E8482CCEDCBA008B84EE = {
 			isa = PBXGroup;
 			children = (
+				F260F7BA2CF78B0F0015A0B8 /* WidgetsExtension.entitlements */,
 				F268E8532CCEDCBA008B84EE /* Balloons */,
 				F268E8722CCEDCBC008B84EE /* BalloonsTests */,
 				F268E87C2CCEDCBC008B84EE /* BalloonsUITests */,
+				F2F7E6B12CF66987003ACD55 /* Widgets */,
+				F2F7E6AC2CF66987003ACD55 /* Frameworks */,
 				F268E8522CCEDCBA008B84EE /* Products */,
 			);
 			indentWidth = 4;
@@ -90,8 +165,18 @@
 				F268E8512CCEDCBA008B84EE /* Balloons.app */,
 				F268E86F2CCEDCBC008B84EE /* BalloonsTests.xctest */,
 				F268E8792CCEDCBC008B84EE /* BalloonsUITests.xctest */,
+				F2F7E6AB2CF66987003ACD55 /* WidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F2F7E6AC2CF66987003ACD55 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F2F7E6AD2CF66987003ACD55 /* WidgetKit.framework */,
+				F2F7E6AF2CF66987003ACD55 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -104,10 +189,12 @@
 				F268E84D2CCEDCBA008B84EE /* Sources */,
 				F268E84E2CCEDCBA008B84EE /* Frameworks */,
 				F268E84F2CCEDCBA008B84EE /* Resources */,
+				F2F7E6C02CF66988003ACD55 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F2F7E6BA2CF66988003ACD55 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F268E8532CCEDCBA008B84EE /* Balloons */,
@@ -165,6 +252,28 @@
 			productReference = F268E8792CCEDCBC008B84EE /* BalloonsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F2F7E6BD2CF66988003ACD55 /* Build configuration list for PBXNativeTarget "WidgetsExtension" */;
+			buildPhases = (
+				F2F7E6A72CF66987003ACD55 /* Sources */,
+				F2F7E6A82CF66987003ACD55 /* Frameworks */,
+				F2F7E6A92CF66987003ACD55 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F2F7E6B12CF66987003ACD55 /* Widgets */,
+			);
+			name = WidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = WidgetsExtension;
+			productReference = F2F7E6AB2CF66987003ACD55 /* WidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -172,6 +281,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					F268E8502CCEDCBA008B84EE = {
@@ -184,6 +294,9 @@
 					F268E8782CCEDCBC008B84EE = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = F268E8502CCEDCBA008B84EE;
+					};
+					F2F7E6AA2CF66987003ACD55 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -204,6 +317,7 @@
 				F268E8502CCEDCBA008B84EE /* Balloons */,
 				F268E86E2CCEDCBC008B84EE /* BalloonsTests */,
 				F268E8782CCEDCBC008B84EE /* BalloonsUITests */,
+				F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -224,6 +338,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F268E8772CCEDCBC008B84EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F2F7E6A92CF66987003ACD55 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -254,6 +375,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F2F7E6A72CF66987003ACD55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -266,6 +394,11 @@
 			isa = PBXTargetDependency;
 			target = F268E8502CCEDCBA008B84EE /* Balloons */;
 			targetProxy = F268E87A2CCEDCBC008B84EE /* PBXContainerItemProxy */;
+		};
+		F2F7E6BA2CF66988003ACD55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */;
+			targetProxy = F2F7E6B92CF66988003ACD55 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -391,6 +524,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Balloons/Balloons.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6PD97MRX4;
@@ -419,6 +553,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Balloons/Balloons.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q6PD97MRX4;
@@ -510,6 +645,67 @@
 			};
 			name = Release;
 		};
+		F2F7E6BE2CF66988003ACD55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.dasdom.Balloons.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Balloons/Widgets-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F2F7E6BF2CF66988003ACD55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q6PD97MRX4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.dasdom.Balloons.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Balloons/Widgets-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -545,6 +741,15 @@
 			buildConfigurations = (
 				F268E88A2CCEDCBD008B84EE /* Debug */,
 				F268E88B2CCEDCBD008B84EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F2F7E6BD2CF66988003ACD55 /* Build configuration list for PBXNativeTarget "WidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F2F7E6BE2CF66988003ACD55 /* Debug */,
+				F2F7E6BF2CF66988003ACD55 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

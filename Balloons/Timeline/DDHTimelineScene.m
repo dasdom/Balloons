@@ -152,11 +152,11 @@
 //            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
 //            [path addLineToPoint:end];
 
-            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 3 * self.timelineYPosition)];
+            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 20)];
             lineNode.name = [NSString stringWithFormat:@"%ld", (long)displayMonth.start];
             lineNode.strokeColor = [UIColor clearColor];
-            lineNode.fillColor = [UIColor colorWithWhite:0.3 alpha:1];
-            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 30);
+            lineNode.fillColor = [UIColor whiteColor];
+            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 20);
             lineNode.lineWidth = 1;
             [lineNodes addObject:lineNode];
             lineNode.zPosition = 0;
