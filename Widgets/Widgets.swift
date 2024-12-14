@@ -7,6 +7,8 @@ import WidgetKit
 import SwiftUI
 
 struct Provider: TimelineProvider {
+    let calendar = Calendar.current
+
     func placeholder(in context: Context) -> BirthdaysEntry {
         BirthdaysEntry(date: .now, birthdays: [])
     }
@@ -26,7 +28,9 @@ struct Provider: TimelineProvider {
         // Generate a timeline consisting of five entries an hour apart, starting from the current date.
         entries.append(BirthdaysEntry(date: .now, birthdays: birthdays))
 
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+        let beginningOfToday = calendar.startOfDay(for: .now)
+        let reloadDate = calendar.date(byAdding: .day, value: 1, to: beginningOfToday) ?? Date(timeIntervalSinceNow: 12 * 60 * 60)
+        let timeline = Timeline(entries: entries, policy: .after(reloadDate))
         completion(timeline)
     }
 
@@ -41,10 +45,10 @@ struct Widgets: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             if #available(iOS 17.0, *) {
-                BirthdaysEntryView(entry: entry)
+                BirthdayBalloonsEntryView(entry: entry)
                     .containerBackground(.fill.tertiary, for: .widget)
             } else {
-                BirthdaysEntryView(entry: entry)
+                BirthdayBalloonsEntryView(entry: entry)
                     .padding()
                     .background()
             }
