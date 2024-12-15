@@ -12,12 +12,14 @@
 #import "DDHSettingsViewController.h"
 #import <UserNotifications/UserNotifications.h>
 #import "NSUserDefaults+Extension.h"
+#import "DDHTimelineSceneProtocol.h"
 
-@interface DDHGameViewController ()
+@interface DDHGameViewController () <DDHTimelineSceneProtocol>
 @property (nonatomic, strong) id<DDHGameViewControllerDelegate> delegate;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @property (nonatomic, strong) DDHStorage *storage;
+@property (nonatomic, strong) UISelectionFeedbackGenerator *feedbackGenerator;
 @end
 
 @implementation DDHGameViewController
@@ -40,12 +42,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    _feedbackGenerator = [UISelectionFeedbackGenerator feedbackGeneratorForView:self.view];
+
     _storage = [[DDHStorage alloc] init];
     [_storage createDatabaseIfNeeded];
 
     _birthdays = [_storage birthdays];
 
-    _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size];
+    _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size timelineDelegate:self];
 
     _scene.scaleMode = SKSceneScaleModeAspectFill;
 
@@ -143,6 +147,15 @@
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
     [self.scene setNumberOfShownDays:numberOfShownDays];
 //    [self.scene updateForBirthdays:self.birthdays];
+}
+
+// MARK: - DDHTimelineSceneProtocol
+- (void)didSelectBalloon {
+    [self.feedbackGenerator selectionChanged];
+}
+
+- (void)didDeselectBalloon {
+    [self.feedbackGenerator selectionChanged];
 }
 
 @end

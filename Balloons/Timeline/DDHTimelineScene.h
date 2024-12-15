@@ -4,11 +4,12 @@
 
 
 #import <SpriteKit/SpriteKit.h>
+#import "DDHTimelineSceneProtocol.h"
 
 @class DDHBirthday;
 
 @interface DDHTimelineScene : SKScene
-- (instancetype)initWithSize:(CGSize)size;
+- (instancetype)initWithSize:(CGSize)size timelineDelegate:(id<DDHTimelineSceneProtocol>)timelineDelegate;
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 - (void)updateWithSize:(CGSize)size;
 - (void)toggleGravityDirection;

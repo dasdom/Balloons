@@ -15,6 +15,7 @@
 #import "NSUserDefaults+Extension.h"
 
 @interface DDHTimelineScene ()
+@property (nonatomic, weak) id<DDHTimelineSceneProtocol> timelineDelegate;
 @property (nonatomic, strong) NSArray<SKPhysicsJoint *> *balloonJoints;
 @property (nonatomic, strong) NSArray<DDHBalloon *> *balloons;
 @property (nonatomic, strong) NSArray<DDHBalloonAnchor *> *anchors;
@@ -38,12 +39,14 @@
 
 @implementation DDHTimelineScene
 
-- (instancetype)initWithSize:(CGSize)size {
+- (instancetype)initWithSize:(CGSize)size timelineDelegate:(id<DDHTimelineSceneProtocol>)timelineDelegate {
     if (self = [super initWithSize:size]) {
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.gravityFactor = 7;
         self.physicsWorld.gravity = CGVectorMake(0, self.gravityFactor);
         self.motionManager = [[CMMotionManager alloc] init];
+
+        self.timelineDelegate = timelineDelegate;
 
         self.scaleMode = SKSceneScaleModeResizeFill;
 
@@ -152,11 +155,11 @@
 //            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
 //            [path addLineToPoint:end];
 
-            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 20)];
+            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 10)];
             lineNode.name = [NSString stringWithFormat:@"%ld", (long)displayMonth.start];
             lineNode.strokeColor = [UIColor clearColor];
             lineNode.fillColor = [UIColor whiteColor];
-            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 20);
+            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 10);
             lineNode.lineWidth = 1;
             [lineNodes addObject:lineNode];
             lineNode.zPosition = 0;
@@ -262,9 +265,13 @@
         DDHBalloon *balloon = (DDHBalloon *)node;
         [self showBalloon:balloon];
 
+        [self.timelineDelegate didSelectBalloon];
+
     } else if (self.detailBalloon) {
 
         [self hideDetailBalloon];
+
+        [self.timelineDelegate didDeselectBalloon];
     }
 }
 

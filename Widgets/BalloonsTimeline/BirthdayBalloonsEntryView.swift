@@ -34,7 +34,7 @@ struct BirthdayBalloonsEntryView : View {
                             Text("\(birthday.givenName?.first ?? ".")\(birthday.familyName?.first ?? ".")")
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 40, height: 40)
-                                .background(Color(uiColor: .systemPink))
+                                .background(Color(uiColor: .systemOrange))
                                 .foregroundColor(Color(uiColor: .label))
                                 .clipShape(Circle())
                         }

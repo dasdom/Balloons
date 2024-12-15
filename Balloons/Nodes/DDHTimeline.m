@@ -10,7 +10,9 @@
 - (instancetype)initWithStartPoint:(CGPoint)start andEndPoint:(CGPoint)end {
     if (self = [super init]) {
         UIBezierPath *path = [[UIBezierPath alloc] init];
-        [path moveToPoint:start];
+        CGPoint startWithYOffset = CGPointMake(start.x, start.y + 5);
+        [path moveToPoint:startWithYOffset];
+        [path addLineToPoint:start];
         [path addLineToPoint:end];
 
         self.path = [path CGPath];

@@ -59,7 +59,7 @@
 
     UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
     UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-        [[UIColor systemPinkColor] setFill];
+        [[UIColor systemOrangeColor] setFill];
         CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
 
 //        UIBezierPath *path = [[UIBezierPath alloc] init];
