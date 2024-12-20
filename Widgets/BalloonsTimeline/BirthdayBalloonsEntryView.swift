@@ -12,16 +12,29 @@ struct BirthdayBalloonsEntryView : View {
         return formatter
     }()
     var birthdays: [CodableBirthday] {
-        entry.birthdays.map({ .init(birthday: $0) })
+        entry.birthdays.map({ .init(birthday: $0) }).sorted {
+            $0.daysLeft > $1.daysLeft
+        }
     }
 
     var body: some View {
         GeometryReader { proxy in
+            var minY: CGFloat = 20
+            var maxY: CGFloat = 90
             ForEach(birthdays, id: \.self) { birthday in
-                let y = CGFloat.random(in: 10..<80)
+                let y = CGFloat.random(in: minY..<maxY)
                 let x = PositionCalculator.balloonX(for: birthday.daysLeft, canvasWidth: proxy.size.width)
 
-                VStack {
+                if y < 70 { 
+                    minY = y+15
+                    maxY = 90
+                } else {
+                    minY = 20
+                    maxY = max(y, 90)
+                }
+                let _ = print("\(x), \(y)")
+
+                return VStack {
                     VStack(spacing: 0) {
                         if let imageData = birthday.imageData,
                            let uiImage = UIImage(data: imageData) {
@@ -38,8 +51,11 @@ struct BirthdayBalloonsEntryView : View {
                                 .foregroundColor(Color(uiColor: .label))
                                 .clipShape(Circle())
                         }
-                        Text(birthday.givenName ?? "None")
+                        Text(birthday.givenName ?? "")
                             .font(.footnote)
+                            .padding(.horizontal, 2)
+                            .background(Color(uiColor: UIColor.systemBackground))
+                            .cornerRadius(5)
                     }
                     .position(x: x, y: y)
 

@@ -13,7 +13,7 @@ struct BalloonsTimelineView: View {
     var body: some View {
         ForEach(displayMonths, id: \.self) { displayMonth in
             Rectangle()
-                .fill(Color.white)
+//                .fill(Color.white)
                 .frame(width: 1, height: 14)
                 .position(x: PositionCalculator.lineX(for: displayMonth, canvasWidth: size.width),
                           y: size.height - 3)

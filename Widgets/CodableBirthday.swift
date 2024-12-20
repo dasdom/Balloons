@@ -8,6 +8,13 @@ struct CodableBirthday: Codable, Hashable {
     let imageData: Data?
     let daysLeft: Int
 
+    init(givenName: String, familyName: String, imageData: Data?, daysLeft: Int) {
+        self.givenName = givenName
+        self.familyName = familyName
+        self.imageData = imageData
+        self.daysLeft = daysLeft
+    }
+
     init(birthday: DDHBirthday) {
         self.givenName = birthday.personNameComponents.givenName
         self.familyName = birthday.personNameComponents.familyName

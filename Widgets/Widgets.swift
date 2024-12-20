@@ -61,5 +61,9 @@ struct Widgets: Widget {
 #Preview(as: .systemSmall) {
     Widgets()
 } timeline: {
-    BirthdaysEntry(date: .now, birthdays: [])
+    BirthdaysEntry(date: .now, birthdays: [
+        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_000_000), personNameComponents: try! PersonNameComponents("Dominik Hauser"), yearUnknown: false),
+        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_800_000), personNameComponents: try! PersonNameComponents("Kartoffelpüh Reh"), yearUnknown: false)
+
+    ])
 }
