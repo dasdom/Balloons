@@ -11,6 +11,7 @@
 
 @protocol DDHGameViewControllerDelegate <NSObject>
 - (void)didSelectSettingsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (void)didSelectAddInViewController:(UIViewController *)viewController;
 @end
 
 @interface DDHGameViewController : UIViewController
@@ -18,4 +19,5 @@
 - (void)pointGravityDown;
 - (void)pointGravityUp;
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
+- (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 @end

@@ -20,6 +20,7 @@
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @property (nonatomic, strong) DDHStorage *storage;
 @property (nonatomic, strong) UISelectionFeedbackGenerator *feedbackGenerator;
+@property (nonatomic, weak) DDHGameView *contentView;
 @end
 
 @implementation DDHGameViewController
@@ -82,39 +83,56 @@
     return YES;
 }
 
+- (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays {
+    [self.storage insertBirthdays:birthdays];
+
+    self.birthdays = [self.storage birthdays];
+
+    [self setupNotificationsIfNeededWithCompletion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.scene updateForBirthdays:self.birthdays];
+
+            UIButton *addButton = self.contentView.addButton;
+            UIButtonConfiguration *buttonConfig = addButton.configuration;
+            buttonConfig.showsActivityIndicator = NO;
+            addButton.configuration = buttonConfig;
+        });
+    }];
+}
+
 // MARK: - Actions
 - (void)add:(UIButton *)sender {
     UIButtonConfiguration *buttonConfig = sender.configuration;
     buttonConfig.showsActivityIndicator = YES;
     sender.configuration = buttonConfig;
 
-    DDHContactsManager *contactsManager = [[DDHContactsManager alloc] init];
-    [contactsManager requestContactsAccess:^(BOOL granted) {
-        NSLog(@"requestContactsAccess");
-        if (granted) {
-            [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
-                
-                NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
-                [self.storage insertBirthdays:birthdays];
-
-                self.birthdays = [self.storage birthdays];
-
-                [self setupNotificationsIfNeeded];
-
-                dispatch_async(dispatch_get_main_queue(), ^{
-
-                    NSLog(@"self.scene updateForBirthdays:self.birthdays");
-                    buttonConfig.showsActivityIndicator = NO;
-                    sender.configuration = buttonConfig;
-
-                    [self.scene updateForBirthdays:self.birthdays];
-                });
-            }];
-        }
-    }];
+    [self.delegate didSelectAddInViewController:self];
 }
 
-- (void)setupNotificationsIfNeeded {
+//- (void)importFromContacts {
+//    DDHContactsManager *contactsManager = [[DDHContactsManager alloc] init];
+//    [contactsManager requestContactsAccess:^(BOOL granted) {
+//        NSLog(@"requestContactsAccess");
+//        if (granted) {
+//            [contactsManager fetchImportableContactsIgnoringExitingIds:@[] completionHandler:^(NSArray<CNContact *> * _Nonnull contacts) {
+//
+//                NSArray<DDHBirthday *> *birthdays = [contactsManager birthdaysFromContacts:contacts];
+//                [self.storage insertBirthdays:birthdays];
+//
+//                self.birthdays = [self.storage birthdays];
+//
+//                [self setupNotificationsIfNeededWithCompletion:^{
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        [self.scene updateForBirthdays:self.birthdays];
+//                    });
+//                }];
+//
+//            }];
+//        }
+//    }];
+//}
+
+- (void)setupNotificationsIfNeededWithCompletion:(void (^)(void))completionHandler {
     if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
         UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
         // Fetch the pending notification requests and only add a request if it is not already added.
@@ -132,7 +150,10 @@
                     [center addNotificationRequest:request withCompletionHandler:nil];
                 }
             }
+            completionHandler();
         }];
+    } else {
+        completionHandler();
     }
 }
 
