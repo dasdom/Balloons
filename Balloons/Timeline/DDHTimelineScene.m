@@ -75,8 +75,16 @@
 
 //    [self updateMonthNamesNodes];
 
+    for (DDHRope *rope in self.ropes) {
+        [rope runAction:[SKAction sequence:@[
+            [SKAction fadeOutWithDuration:0.1],
+            [SKAction waitForDuration:2],
+            [SKAction fadeInWithDuration:0.1]
+        ]]];
+    }
+
     for (DDHBalloonAnchor *anchor in self.anchors) {
-        CGFloat xPos = self.timelineStart * 2 * anchor.daysLeft / self.numberOfShownDays - self.timelineStart;
+        CGFloat xPos = self.timelineStart * 2 * anchor.daysLeft / numberOfShownDays - self.timelineStart;
         SKAction *move = [SKAction moveToX:xPos duration:1];
         move.timingMode = SKActionTimingEaseInEaseOut;
         [anchor runAction:move];
@@ -90,7 +98,7 @@
     }
 
     for (SKShapeNode *line in self.lineNodes) {
-        CGFloat startX = self.timelineStart * 2 * line.name.integerValue / self.numberOfShownDays - self.timelineStart;
+        CGFloat startX = self.timelineStart * 2 * line.name.integerValue / numberOfShownDays - self.timelineStart;
         SKAction *move = [SKAction moveToX:startX duration:1];
         move.timingMode = SKActionTimingEaseInEaseOut;
         [line runAction:move];

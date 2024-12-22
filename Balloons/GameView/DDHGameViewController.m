@@ -99,37 +99,41 @@
 
                 self.birthdays = [self.storage birthdays];
 
-                if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
-                    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-                    // Fetch the pending notification requests and only add a request if it is not already added.
-                    [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
-
-                        NSMutableArray<NSString *> *requestIds = [[NSMutableArray alloc] init];
-                        for (UNNotificationRequest *request in requests) {
-                            [requestIds addObject:request.identifier];
-                        }
-
-                        for (DDHBirthday *birthday in self.birthdays) {
-
-                            UNNotificationRequest* request = [birthday notificationRequest];
-                            if (NO == [requestIds containsObject:request.identifier]) {
-                                [center addNotificationRequest:request withCompletionHandler:nil];
-                            }
-                        }
-                    }];
-                }
+                [self setupNotificationsIfNeeded];
 
                 dispatch_async(dispatch_get_main_queue(), ^{
 
                     NSLog(@"self.scene updateForBirthdays:self.birthdays");
-                    UIButtonConfiguration *buttonConfig = sender.configuration;
                     buttonConfig.showsActivityIndicator = NO;
                     sender.configuration = buttonConfig;
+
                     [self.scene updateForBirthdays:self.birthdays];
                 });
             }];
         }
     }];
+}
+
+- (void)setupNotificationsIfNeeded {
+    if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        // Fetch the pending notification requests and only add a request if it is not already added.
+        [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> * _Nonnull requests) {
+
+            NSMutableArray<NSString *> *requestIds = [[NSMutableArray alloc] init];
+            for (UNNotificationRequest *request in requests) {
+                [requestIds addObject:request.identifier];
+            }
+
+            for (DDHBirthday *birthday in self.birthdays) {
+
+                UNNotificationRequest* request = [birthday notificationRequest];
+                if (NO == [requestIds containsObject:request.identifier]) {
+                    [center addNotificationRequest:request withCompletionHandler:nil];
+                }
+            }
+        }];
+    }
 }
 
 - (void)settings:(UIButton *)sender {
