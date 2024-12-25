@@ -8,6 +8,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHRope : SKNode
+@property (nonatomic, strong) NSUUID *birthdayId;
+- (instancetype)initWithBirthdayId:(NSUUID *)birthdayId;
 - (void)joinToStartNode:(SKNode *)startNode startAnchor:(CGPoint)startAnchor endNode:(SKNode *)endNode endAnchor:(CGPoint)endAnchor inScene:(SKScene *)scene;
 - (void)removeFromParentWithScene:(SKScene *)scene;
 //- (void)adjustRingPositions;

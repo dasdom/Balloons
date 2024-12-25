@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)createDatabaseIfNeeded;
 - (BOOL)insertBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 - (BOOL)insertBirthday:(DDHBirthday *)birthday;
+- (BOOL)deleteBirthday:(DDHBirthday *)birthday;
 - (NSArray<DDHBirthday *> *)birthdays;
 @end
 

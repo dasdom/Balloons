@@ -6,7 +6,7 @@
 #import "DDHBalloonAnchor.h"
 
 @implementation DDHBalloonAnchor
-+ (instancetype)anchorNodeWithDaysLeft:(NSInteger)daysLeft {
++ (instancetype)anchorNodeWithDaysLeft:(NSInteger)daysLeft forBirthdayId:(NSUUID *)birthdayId {
     CGSize size;
 //    if (daysLeft < 100) {
 //        size = CGSizeMake(16, 16);
@@ -14,6 +14,7 @@
         size = CGSizeMake(8, 8);
 //    }
     DDHBalloonAnchor *node = [super shapeNodeWithEllipseOfSize:size];
+    node.birthdayId = birthdayId;
     node.daysLeft = daysLeft;
     node.fillColor = [UIColor whiteColor];
     node.zPosition = 2;

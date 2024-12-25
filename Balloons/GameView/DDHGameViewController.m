@@ -178,12 +178,21 @@
 }
 
 // MARK: - DDHTimelineSceneProtocol
-- (void)didSelectBalloon {
+- (void)didSelectBalloonInScene:(SKScene *)scene {
     [self.feedbackGenerator selectionChanged];
 }
 
-- (void)didDeselectBalloon {
+- (void)didDeselectBalloonInScene:(SKScene *)scene {
     [self.feedbackGenerator selectionChanged];
+}
+
+- (void)scene:(SKScene *)scene didSelectDeleteForBirthdayWithUUID:(NSUUID *)uuid {
+    for (DDHBirthday *birthday in self.birthdays) {
+        if ([birthday.uuid isEqual:uuid]) {
+            [self.storage deleteBirthday:birthday];
+            break;
+        }
+    }
 }
 
 @end

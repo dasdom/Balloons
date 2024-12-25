@@ -81,6 +81,35 @@
     return success;
 }
 
+- (BOOL)deleteBirthday:(DDHBirthday *)birthday {
+    BOOL success = NO;
+    const char *databasePath = [[self databasePath] UTF8String];
+    sqlite3 *database;
+    if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
+        const char *delete_statement = "DELETE FROM birthdays WHERE uuid = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, delete_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[birthday.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to delete birthday: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
 - (NSArray<DDHBirthday *> *)birthdays {
     const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;

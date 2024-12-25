@@ -9,8 +9,9 @@
 @class DDHBirthday;
 
 @protocol DDHTimelineSceneProtocol <NSObject>
-- (void)didSelectBalloon;
-- (void)didDeselectBalloon;
+- (void)didSelectBalloonInScene:(SKScene *)scene;
+- (void)didDeselectBalloonInScene:(SKScene *)scene;
+- (void)scene:(SKScene *)scene didSelectDeleteForBirthdayWithUUID:(NSUUID *)uuid;
 @end
 
 #endif /* DDHTimelineSceneProtocol_h */

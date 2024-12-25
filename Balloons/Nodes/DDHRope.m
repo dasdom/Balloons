@@ -11,6 +11,14 @@
 @end
 
 @implementation DDHRope
+
+- (instancetype)initWithBirthdayId:(NSUUID *)birthdayId {
+    if (self = [super init]) {
+        _birthdayId = birthdayId;
+    }
+    return self;
+}
+
 - (void)joinToStartNode:(SKNode *)startNode startAnchor:(CGPoint)startAnchor endNode:(SKNode *)endNode endAnchor:(CGPoint)endAnchor inScene:(SKScene *)scene {
 
     NSMutableArray<SKNode *> *segments = [[NSMutableArray alloc] init];

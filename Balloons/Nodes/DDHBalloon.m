@@ -18,6 +18,7 @@
 
 - (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width {
     if (self = [super init]) {
+        self.birthdayId = birthday.uuid;
         self.birthday = birthday;
 
         UIImage *roundedImage;
@@ -32,6 +33,16 @@
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.size = CGSizeMake(width, width);
         self.zPosition = 500 - birthday.daysLeft;
+
+        _deleteButtonNode = [[SKSpriteNode alloc] initWithImageNamed:@"trash"];
+        _deleteButtonNode.position = CGPointMake(200/3, 200/3);
+        _deleteButtonNode.size = CGSizeMake(40, 40);
+        _deleteButtonNode.color = [UIColor tintColor];
+        _deleteButtonNode.blendMode = SKBlendModeAlpha;
+        _deleteButtonNode.colorBlendFactor = 1;
+        _deleteButtonNode.hidden = YES;
+        _deleteButtonNode.name = @"delete";
+        [self addChild:_deleteButtonNode];
 
         _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
         _nameLabel.numberOfLines = 0;

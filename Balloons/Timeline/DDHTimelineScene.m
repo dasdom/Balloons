@@ -222,7 +222,7 @@
 
         [balloons addObject:balloon];
 
-        DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft];
+        DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
         CGPoint anchorPosition = CGPointMake(xPos, -self.timelineYPosition);
         anchor.position = anchorPosition;
         anchor.zPosition = 1;
@@ -233,7 +233,7 @@
         balloon.constraints = @[constraint];
 
         CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - balloon.size.height/2);
-        DDHRope *rope = [[DDHRope alloc] init];
+        DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
         rope.zPosition = 0;
         [self addChild:rope];
         [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
@@ -273,13 +273,44 @@
         DDHBalloon *balloon = (DDHBalloon *)node;
         [self showBalloon:balloon];
 
-        [self.timelineDelegate didSelectBalloon];
+        [self.timelineDelegate didSelectBalloonInScene:self];
 
     } else if (self.detailBalloon) {
+        if ([node.name isEqual:@"delete"]) {
+            self.gravityFactor = 7;
+            [self.timelineDelegate scene:self didSelectDeleteForBirthdayWithUUID:self.detailBalloon.birthdayId];
 
-        [self hideDetailBalloon];
+            self.detailBalloon.physicsBody.affectedByGravity = YES;
+            [self removeNodesForBirthdayId:self.detailBalloon.birthdayId];
 
-        [self.timelineDelegate didDeselectBalloon];
+            [self runAction:[SKAction waitForDuration:2] completion:^{
+                [self.detailBalloon removeFromParent];
+                self.detailBalloon = nil;
+                [self hideDetailBalloon];
+            }];
+        } else {
+            [self hideDetailBalloon];
+
+            [self.timelineDelegate didSelectBalloonInScene:self];
+        }
+    }
+}
+
+- (void)removeNodesForBirthdayId:(NSUUID *)birthdayId {
+    [self.selectedBalloon removeFromParent];
+
+    for (DDHRope *rope in self.ropes) {
+        if ([rope.birthdayId isEqual:birthdayId]) {
+            [rope removeFromParentWithScene:self];
+            break;
+        }
+    }
+
+    for (DDHBalloonAnchor *anchor in self.anchors) {
+        if ([anchor.birthdayId isEqual:birthdayId]) {
+            [anchor removeFromParent];
+            break;
+        }
     }
 }
 
@@ -298,6 +329,7 @@
     ]];
     animation.timingMode = SKActionTimingEaseInEaseOut;
     [detailBalloon runAction:animation completion:^{
+        detailBalloon.deleteButtonNode.hidden = NO;
         [detailBalloon showInfoWithNameFormatter:self.nameFormatter dateFormatterWithYear:self.dateFormatterWithYear dateFormatterWithoutYear:self.dateFormatterWithoutYear];
     }];
 
@@ -316,6 +348,7 @@
 
 //    self.detailBalloon.physicsBody.affectedByGravity = YES;
 
+    self.detailBalloon.deleteButtonNode.hidden = YES;
     [self.detailBalloon showLabel:false animated:true];
 
     [self.detailBalloon runAction:animation completion:^{
