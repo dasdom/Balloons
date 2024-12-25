@@ -74,6 +74,11 @@
     [viewController presentViewController:picker animated:YES completion:nil];
 }
 
+- (void)didSelectAddInViewController:(UIViewController *)viewController withBirthday:(DDHBirthday *)birthday {
+    [self.gameViewController updateWithBirthdays:@[birthday]];
+    [viewController dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)didSelectCancelInViewController:(UIViewController *)viewController {
     [viewController dismissViewControllerAnimated:YES completion:nil];
     [self.gameViewController updateWithBirthdays:@[]];

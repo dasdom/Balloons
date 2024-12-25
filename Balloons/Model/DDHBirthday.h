@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithContact:(CNContact *)contact;
 - (void)updateDaysLeft;
 - (UNNotificationRequest *)notificationRequest;
+- (void)saveImageData:(NSData *)imageData personUUID:(NSUUID *)uuid;
 @end
 
 NS_ASSUME_NONNULL_END

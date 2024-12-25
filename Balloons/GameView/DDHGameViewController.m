@@ -13,6 +13,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import "NSUserDefaults+Extension.h"
 #import "DDHTimelineSceneProtocol.h"
+#import "Balloons-Swift.h"
 
 @interface DDHGameViewController () <DDHTimelineSceneProtocol>
 @property (nonatomic, strong) id<DDHGameViewControllerDelegate> delegate;
@@ -96,6 +97,8 @@
             UIButtonConfiguration *buttonConfig = addButton.configuration;
             buttonConfig.showsActivityIndicator = NO;
             addButton.configuration = buttonConfig;
+
+            [WidgetContentLoader reloadWidgetContent];
         });
     }];
 }

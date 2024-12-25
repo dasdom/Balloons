@@ -49,6 +49,7 @@
 
         buttonConfiguration.title = @"Add manually";
         _addButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
+        _addButton.enabled = NO;
 
         UIStackView *inputStackView = [[UIStackView alloc] initWithArrangedSubviews:@[imageViewHostView, _givenNameTextField, _familyNameTextField, _birthdayPicker, _addButton]];
         inputStackView.axis = UILayoutConstraintAxisVertical;

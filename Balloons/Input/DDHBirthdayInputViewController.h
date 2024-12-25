@@ -7,8 +7,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class DDHBirthday;
+
 @protocol DDHBirthdayInputViewControllerProtocol <NSObject>
 - (void)didSelectImportFromContactsInViewController:(UIViewController *)viewController;
+- (void)didSelectAddInViewController:(UIViewController *)viewController withBirthday:(DDHBirthday *)birthday;
 - (void)didSelectPhotoInViewController:(UIViewController *)viewController;
 - (void)didSelectCancelInViewController:(UIViewController *)viewController;
 @end
