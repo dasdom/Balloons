@@ -12,13 +12,26 @@
         buttonConfiguration.title = @"Import From Contacts";
         _importButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
 
+        UIView *leftDividerView = [[UIView alloc] init];
+        leftDividerView.backgroundColor = [UIColor secondaryLabelColor];
+
+        UIView *rightDividerView = [[UIView alloc] init];
+        rightDividerView.backgroundColor = [UIColor secondaryLabelColor];
+
         UILabel *orLabel = [[UILabel alloc] init];
         orLabel.text = @"or";
         orLabel.textAlignment = NSTextAlignmentCenter;
 
+        UIStackView *orStackView = [[UIStackView alloc] initWithArrangedSubviews:@[leftDividerView, orLabel, rightDividerView]];
+        orStackView.spacing = 10;
+        orStackView.alignment = UIStackViewAlignmentCenter;
+
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
+        _imageView.userInteractionEnabled = YES;
         _imageView.backgroundColor = [UIColor secondarySystemFillColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFill;
+        _imageView.clipsToBounds = YES;
 
         UIView *imageViewHostView = [[UIView alloc] init];
         [imageViewHostView addSubview:_imageView];
@@ -34,11 +47,14 @@
         _birthdayPicker = [[UIDatePicker alloc] init];
         _birthdayPicker.datePickerMode = UIDatePickerModeDate;
 
-        UIStackView *inputStackView = [[UIStackView alloc] initWithArrangedSubviews:@[_importButton, orLabel, imageViewHostView, _givenNameTextField, _familyNameTextField, _birthdayPicker]];
+        buttonConfiguration.title = @"Add manually";
+        _addButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
+
+        UIStackView *inputStackView = [[UIStackView alloc] initWithArrangedSubviews:@[imageViewHostView, _givenNameTextField, _familyNameTextField, _birthdayPicker, _addButton]];
         inputStackView.axis = UILayoutConstraintAxisVertical;
         inputStackView.spacing = 10;
 
-        UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_importButton, orLabel, inputStackView]];
+        UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_importButton, orStackView, inputStackView]];
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.axis = UILayoutConstraintAxisVertical;
         stackView.spacing = 20;
@@ -53,6 +69,10 @@
             [stackView.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor constant:10],
             [stackView.leadingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.leadingAnchor constant:16],
             [stackView.trailingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.trailingAnchor constant:-16],
+
+            [leftDividerView.heightAnchor constraintEqualToConstant:1],
+            [leftDividerView.widthAnchor constraintEqualToAnchor:rightDividerView.widthAnchor],
+            [rightDividerView.heightAnchor constraintEqualToAnchor:leftDividerView.heightAnchor],
 
             [_imageView.topAnchor constraintEqualToAnchor:imageViewHostView.topAnchor constant:8],
             [_imageView.bottomAnchor constraintEqualToAnchor:imageViewHostView.bottomAnchor constant:-8],

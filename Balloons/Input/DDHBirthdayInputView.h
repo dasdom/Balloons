@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UITextField *givenNameTextField;
 @property (nonatomic, strong) UITextField *familyNameTextField;
 @property (nonatomic, strong) UIDatePicker *birthdayPicker;
+@property (nonatomic, strong) UIButton *addButton;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -11,8 +11,9 @@
 #import <UserNotifications/UserNotifications.h>
 #import "DDHStorage.h"
 #import "NSUserDefaults+Extension.h"
+#import <PhotosUI/PhotosUI.h>
 
-@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol>
+@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, PHPickerViewControllerDelegate>
 @property (nonatomic, strong) DDHGameViewController *gameViewController;
 @end
 
@@ -65,9 +66,30 @@
     }];
 }
 
+- (void)didSelectPhotoInViewController:(UIViewController *)viewController {
+    PHPickerConfiguration *config = [[PHPickerConfiguration alloc] init];
+    config.selectionLimit = 1;
+    PHPickerViewController *picker = [[PHPickerViewController alloc] initWithConfiguration:config];
+    picker.delegate = self;
+    [viewController presentViewController:picker animated:YES completion:nil];
+}
+
 - (void)didSelectCancelInViewController:(UIViewController *)viewController {
     [viewController dismissViewControllerAnimated:YES completion:nil];
     [self.gameViewController updateWithBirthdays:@[]];
+}
+
+// MARK: - PHPickerViewControllerDelegate
+- (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results {
+    [picker dismissViewControllerAnimated:YES completion:nil];
+
+    [results.firstObject.itemProvider loadObjectOfClass:[UIImage class] completionHandler:^(__kindof id<NSItemProviderReading>  _Nullable object, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UINavigationController *navigationController = (UINavigationController *)[self.gameViewController presentedViewController];
+            DDHBirthdayInputViewController *inputViewController = (DDHBirthdayInputViewController *)[navigationController topViewController];
+            [inputViewController setImage:object];
+        });
+    }];
 }
 
 // MARK: - Misc

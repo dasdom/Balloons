@@ -35,13 +35,24 @@
 
     [self.contentView.importButton addTarget:self action:@selector(importSelected:) forControlEvents:UIControlEventTouchUpInside];
 
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageSelected:)];
+    [self.contentView.imageView addGestureRecognizer:tapRecognizer];
+
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(cancel:)];
     self.navigationItem.leftBarButtonItem = cancelButton;
+}
+
+- (void)setImage:(UIImage *)image {
+    self.contentView.imageView.image = image;
 }
 
 // MARK: - Actions
 - (void)importSelected:(UIButton *)sender {
     [self.delegate didSelectImportFromContactsInViewController:self];
+}
+
+- (void)imageSelected:(UITapGestureRecognizer *)sender {
+    [self.delegate didSelectPhotoInViewController:self];
 }
 
 - (void)cancel:(UIButton *)sender {

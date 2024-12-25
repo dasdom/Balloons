@@ -19,7 +19,7 @@ struct BirthdayBalloonsEntryView : View {
 
     var body: some View {
         GeometryReader { proxy in
-            var minY: CGFloat = 20
+            var minY: CGFloat = 40
             var maxY: CGFloat = 90
             ForEach(birthdays, id: \.self) { birthday in
                 let y = CGFloat.random(in: minY..<maxY)
@@ -29,7 +29,7 @@ struct BirthdayBalloonsEntryView : View {
                     minY = y+15
                     maxY = 90
                 } else {
-                    minY = 20
+                    minY = 40
                     maxY = max(y, 90)
                 }
                 let _ = print("\(x), \(y)")
