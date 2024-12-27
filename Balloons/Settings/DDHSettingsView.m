@@ -13,7 +13,7 @@
         _tableView.translatesAutoresizingMaskIntoConstraints = NO;
         _tableView.backgroundColor = [UIColor clearColor];
 
-        self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.4];
+        self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
 
         [self addSubview:_tableView];
 

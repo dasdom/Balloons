@@ -20,4 +20,5 @@
 - (void)pointGravityUp;
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 - (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (void)addBirthday:(DDHBirthday *)birthday;
 @end

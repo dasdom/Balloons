@@ -58,6 +58,7 @@
     if (error) {
         NSLog(@"error: %@", error);
     }
+    self.imageData = imageData;
 }
 
 - (NSData *)imageDataForPersonUUID:(NSUUID *)uuid {

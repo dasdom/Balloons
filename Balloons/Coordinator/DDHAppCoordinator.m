@@ -75,7 +75,8 @@
 }
 
 - (void)didSelectAddInViewController:(UIViewController *)viewController withBirthday:(DDHBirthday *)birthday {
-    [self.gameViewController updateWithBirthdays:@[birthday]];
+//    [self.gameViewController updateWithBirthdays:@[birthday]];
+    [self.gameViewController addBirthday:birthday];
     [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 

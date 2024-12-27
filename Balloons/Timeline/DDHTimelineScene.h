@@ -11,6 +11,7 @@
 @interface DDHTimelineScene : SKScene
 - (instancetype)initWithSize:(CGSize)size timelineDelegate:(id<DDHTimelineSceneProtocol>)timelineDelegate;
 - (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (void)insertBirthday:(DDHBirthday *)birthday;
 - (void)updateWithSize:(CGSize)size;
 - (void)toggleGravityDirection;
 - (void)pointGravityDown;

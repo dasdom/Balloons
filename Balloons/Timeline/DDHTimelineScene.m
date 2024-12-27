@@ -35,6 +35,8 @@
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
 @property (nonatomic, strong) NSDateFormatter *dateFormatterWithYear;
 @property (nonatomic, strong) NSDateFormatter *dateFormatterWithoutYear;
+@property (nonatomic, strong) NSArray<SKTexture *> *personWalkingFrames;
+@property (nonatomic, strong) SKSpriteNode *personNode;
 @end
 
 @implementation DDHTimelineScene
@@ -90,12 +92,18 @@
         [anchor runAction:move];
     }
 
-    for (SKLabelNode *label in self.monthNamesNodes) {
-        CGFloat labelX = self.timelineStart * 2 * label.name.integerValue / numberOfShownDays - self.timelineStart;
-        SKAction *move = [SKAction moveToX:labelX duration:1];
-        move.timingMode = SKActionTimingEaseInEaseOut;
-        [label runAction:move];
-    }
+//    if (self.numberOfShownDays > 200 && numberOfShownDays < 200) {
+//        [self updateMonthNamesNodes];
+//    } else if (self.numberOfShownDays < 200 && numberOfShownDays > 200) {
+//        [self updateMonthNamesNodes];
+//    } else {
+        for (SKLabelNode *label in self.monthNamesNodes) {
+            CGFloat labelX = self.timelineStart * 2 * label.name.integerValue / numberOfShownDays - self.timelineStart;
+            SKAction *move = [SKAction moveToX:labelX duration:1];
+            move.timingMode = SKActionTimingEaseInEaseOut;
+            [label runAction:move];
+        }
+//    }
 
     for (SKShapeNode *line in self.lineNodes) {
         CGFloat startX = self.timelineStart * 2 * line.name.integerValue / numberOfShownDays - self.timelineStart;
@@ -103,6 +111,7 @@
         move.timingMode = SKActionTimingEaseInEaseOut;
         [line runAction:move];
     }
+
 }
 
 - (void)didMoveToView:(SKView *)view {
@@ -127,6 +136,97 @@
     self.timeline = timeline;
 
     [self updateMonthNamesNodes];
+
+    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-340 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
+}
+
+- (void)animatePerson {
+    [self.personNode runAction:[SKAction repeatActionForever:[SKAction animateWithTextures:self.personWalkingFrames timePerFrame:0.11]]
+                       withKey:@"walkingInPlace"];
+}
+
+- (void)insertBirthday:(DDHBirthday *)birthday {
+    SKTextureAtlas *textureAtlas = [SKTextureAtlas atlasNamed:@"DomImages"];
+    NSMutableArray<SKTexture *> *walkFrames = [[NSMutableArray alloc] init];
+
+    NSInteger imagesCount = [textureAtlas.textureNames count];
+    for (NSInteger i=1; i<imagesCount; i++) {
+        NSString *textureName = [NSString stringWithFormat:@"dom%ld", i];
+        [walkFrames addObject:[textureAtlas textureNamed:textureName]];
+    }
+    self.personWalkingFrames = walkFrames;
+
+    SKTexture *firstTexture = [walkFrames firstObject];
+    self.personNode = [[SKSpriteNode alloc] initWithTexture:firstTexture];
+    self.personNode.size = CGSizeMake(50, 100);
+    CGPoint position = CGPointMake(CGRectGetMaxX(self.frame) + 20, -self.timelineYPosition + 50);
+    self.personNode.position = position;
+    self.personNode.zPosition = 2;
+
+    [self addChild:self.personNode];
+    [self animatePerson];
+
+    CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
+
+    NSPersonNameComponents *personNameComponents = [[NSPersonNameComponents alloc] init];
+    personNameComponents.givenName = @"Foo";
+    personNameComponents.familyName = @"Bar";
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
+    //    CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
+    position = CGPointMake(self.personNode.position.x - 20, position.y + 150);
+    balloon.position = position;
+    [self addChild:balloon];
+    self.balloons = [self.balloons arrayByAddingObject:balloon];
+
+    DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
+    anchor.position = CGPointMake(self.personNode.position.x - 20, self.personNode.position.y + 30);
+    anchor.zPosition = 1;
+    [self addChild:anchor];
+    self.anchors = [self.anchors arrayByAddingObject:anchor];
+
+    SKConstraint *constraint = [SKConstraint distance:[SKRange rangeWithUpperLimit:balloon.position.y - anchor.position.y] toNode:anchor];
+    balloon.constraints = @[constraint];
+
+    CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - balloon.size.height/2);
+    DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
+    rope.zPosition = 0;
+    [self addChild:rope];
+    [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
+    self.ropes = [self.ropes arrayByAddingObject:rope];
+
+    SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
+    [self.physicsWorld addJoint:joint];
+    self.balloonJoints = [self.balloonJoints arrayByAddingObject:joint];
+
+    if (birthday.daysLeft < self.numberOfShownDays) {
+        CGFloat timeFactor = 5;
+        CGFloat distance1 = fabs(position.x - xPos);
+        CGFloat duration1 = distance1/self.frame.size.width * timeFactor;
+        CGFloat distance2 = fabs(xPos - (-self.frame.size.width/2 - 30));
+        CGFloat duration2 = distance2/self.frame.size.width * timeFactor;
+
+        SKAction *moveToBirthdayAction = [SKAction moveToX:xPos duration:duration1];
+
+        [self.personNode runAction:[SKAction sequence:@[
+            moveToBirthdayAction,
+            [SKAction runBlock:^{ [self.personNode removeActionForKey:@"walkingInPlace"]; }],
+            [SKAction waitForDuration:0.3],
+            [SKAction runBlock:^{
+            [self animatePerson];
+        }],
+            [SKAction moveToX:-self.frame.size.width/2 - 30 duration:duration2]
+        ]]
+                        completion:^{
+            [self.personNode removeAllActions];
+            [self.personNode removeFromParent];
+            self.personNode = nil;
+        }];
+
+        [anchor runAction:[SKAction sequence:@[
+            moveToBirthdayAction,
+            [SKAction moveToY:-self.timelineYPosition duration:0.3]
+        ]]];
+    }
 }
 
 - (void)updateMonthNamesNodes {
@@ -141,7 +241,7 @@
         [node removeFromParent];
     }
 
-    BOOL useVeryShort = self.size.width < self.size.height;
+    BOOL useVeryShort = YES;//self.numberOfShownDays > 200;
     NSArray<DDHDisplayMonth *> *displayMonths = [DDHDateHelper displayMonthsUseVeryShort:useVeryShort];
 
     NSMutableArray<SKLabelNode *> *monthNamesNodes = [[NSMutableArray alloc] initWithCapacity:displayMonths.count];
@@ -150,24 +250,18 @@
     for (DDHDisplayMonth *displayMonth in displayMonths) {
         SKLabelNode *label = [SKLabelNode labelNodeWithText:displayMonth.name];
         CGFloat labelX = self.timelineStart * 2 * (displayMonth.start + displayMonth.end)/2 / self.numberOfShownDays - self.timelineStart;
-        label.position = CGPointMake(labelX, -self.timelineYPosition - 30);
+        label.position = CGPointMake(labelX, -self.timelineYPosition - 35);
         label.name = [NSString stringWithFormat:@"%ld", (long)((displayMonth.start + displayMonth.end)/2)];
         [monthNamesNodes addObject:label];
         [self addChild:label];
 
         CGFloat startX = self.timelineStart * 2 * displayMonth.start / self.numberOfShownDays - self.timelineStart;
         if (startX > -self.timelineStart) {
-//            UIBezierPath *path = [[UIBezierPath alloc] init];
-//            CGPoint start = CGPointMake(startX, -self.timelineYPosition - 30);
-//            [path moveToPoint:start];
-//            CGPoint end = CGPointMake(startX, 2 * self.timelineYPosition);
-//            [path addLineToPoint:end];
-
-            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 10)];
+            SKShapeNode *lineNode = [SKShapeNode shapeNodeWithRect:CGRectMake(0, 0, 1, 20)];
             lineNode.name = [NSString stringWithFormat:@"%ld", (long)displayMonth.start];
             lineNode.strokeColor = [UIColor clearColor];
             lineNode.fillColor = [UIColor whiteColor];
-            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 10);
+            lineNode.position = CGPointMake(startX, -self.timelineYPosition - 20);
             lineNode.lineWidth = 1;
             [lineNodes addObject:lineNode];
             lineNode.zPosition = 0;
@@ -248,21 +342,6 @@
     self.anchors = [anchors copy];
     self.balloonJoints = [joints copy];
     self.ropes = [ropes copy];
-}
-
-- (void)touchDownAtPoint:(CGPoint)pos {
-//    SKShapeNode *n = [_spinnyNode copy];
-//    n.position = pos;
-//    NSLog(@"pos: %lf %lf", pos.x, pos.y);
-//    n.strokeColor = [SKColor greenColor];
-//    [self addChild:n];
-}
-
-- (void)touchMovedToPoint:(CGPoint)pos {
-//    SKShapeNode *n = [_spinnyNode copy];
-//    n.position = pos;
-//    n.strokeColor = [SKColor blueColor];
-//    [self addChild:n];
 }
 
 - (void)touchUpAtPoint:(CGPoint)pos {
@@ -381,25 +460,10 @@
     }
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-//    // Run 'Pulse' action from 'Actions.sks'
-//    [_label runAction:[SKAction actionNamed:@"Pulse"] withKey:@"fadeInOut"];
-//    
-//    for (UITouch *t in touches) {[self touchDownAtPoint:[t locationInNode:self]];}
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
-    for (UITouch *t in touches) {[self touchMovedToPoint:[t locationInNode:self]];}
-}
-
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     for (UITouch *t in touches) {
         [self touchUpAtPoint:[t locationInNode:self]];
     }
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    for (UITouch *t in touches) {[self touchUpAtPoint:[t locationInNode:self]];}
 }
 
 - (void)update:(CFTimeInterval)currentTime {

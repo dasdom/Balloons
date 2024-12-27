@@ -103,6 +103,24 @@
     }];
 }
 
+- (void)addBirthday:(DDHBirthday *)birthday {
+    [self.storage insertBirthday:birthday];
+
+    [self setupNotificationsIfNeededWithCompletion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.scene updateForBirthdays:self.birthdays];
+            [self.scene insertBirthday:birthday];
+
+            UIButton *addButton = self.contentView.addButton;
+            UIButtonConfiguration *buttonConfig = addButton.configuration;
+            buttonConfig.showsActivityIndicator = NO;
+            addButton.configuration = buttonConfig;
+
+            [WidgetContentLoader reloadWidgetContent];
+        });
+    }];
+}
+
 // MARK: - Actions
 - (void)add:(UIButton *)sender {
     UIButtonConfiguration *buttonConfig = sender.configuration;

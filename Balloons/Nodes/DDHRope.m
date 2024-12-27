@@ -76,7 +76,7 @@
 
     SKNode *nodeA = self.segments.lastObject;
     CGPoint anchorA = [self convertPoint:CGPointMake(CGRectGetMidX(nodeA.frame), CGRectGetMinY(nodeA.frame)) toNode:scene];
-    CGPoint anchorB = [self convertPoint:CGPointMake(CGRectGetMidX(endNode.frame), CGRectGetMinY(endNode.frame)) toNode:scene];
+//    CGPoint anchorB = [self convertPoint:CGPointMake(CGRectGetMidX(endNode.frame), CGRectGetMinY(endNode.frame)) toNode:scene];
 
     SKPhysicsJointPin *joint = [SKPhysicsJointPin jointWithBodyA:nodeA.physicsBody bodyB:endNode.physicsBody anchor:anchorA];
     [joints addObject:joint];

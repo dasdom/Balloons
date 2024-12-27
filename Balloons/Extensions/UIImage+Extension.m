@@ -9,6 +9,14 @@
 // https://stackoverflow.com/a/34985608/498796
 // https://stackoverflow.com/a/40867644/498796
 - (UIImage *)roundedWithColor:(UIColor *)color width:(CGFloat)width targetSize:(CGSize)targetSize {
+    CGSize originalSize = self.size;
+
+    BOOL landscape = originalSize.width > originalSize.height;
+    CGFloat drawWidth = landscape ? originalSize.width * targetSize.height / originalSize.height : targetSize.width;
+    CGFloat drawHeight = landscape ? targetSize.height : originalSize.height * targetSize.width / originalSize.width;
+    CGFloat xOffset = landscape ? (drawWidth - targetSize.width) / 2 : 0;
+    CGFloat yOffset = landscape ? 0 : (drawHeight - targetSize.height) / 2;
+
     CGRect breadthRect = CGRectMake(0, 0, targetSize.width, targetSize.height);
     CGRect bleedRect = CGRectInset(breadthRect, -width, -width);
     UIGraphicsImageRendererFormat *imageRendererFormat = self.imageRendererFormat;
@@ -34,7 +42,8 @@
         CGRect strokeRect = CGRectInset(breadthRect, -width/2, -width/2);
         strokeRect = CGRectMake(width/2, width/2, strokeRect.size.width, strokeRect.size.height);
 
-        [self drawInRect:strokeRect];
+        CGRect drawRect = CGRectMake(-xOffset, -yOffset, drawWidth, drawHeight);
+        [self drawInRect:drawRect];
         [color setStroke];
 
 //        UIBezierPath *line = [UIBezierPath bezierPathWithOvalInRect:strokeRect];
@@ -59,7 +68,7 @@
 
     UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
     UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-        [[UIColor systemOrangeColor] setFill];
+        [[UIColor systemPinkColor] setFill];
         CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
 
 //        UIBezierPath *path = [[UIBezierPath alloc] init];
