@@ -36,6 +36,7 @@
 @property (nonatomic, strong) NSDateFormatter *dateFormatterWithYear;
 @property (nonatomic, strong) NSDateFormatter *dateFormatterWithoutYear;
 @property (nonatomic, strong) NSArray<SKTexture *> *personWalkingFrames;
+@property (nonatomic, strong) NSArray<SKTexture *> *attachingFrames;
 @property (nonatomic, strong) SKSpriteNode *personNode;
 @end
 
@@ -137,16 +138,13 @@
 
     [self updateMonthNamesNodes];
 
-    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-340 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
+    [self loadAnimationFrames];
+
+    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-330 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
 }
 
-- (void)animatePerson {
-    [self.personNode runAction:[SKAction repeatActionForever:[SKAction animateWithTextures:self.personWalkingFrames timePerFrame:0.11]]
-                       withKey:@"walkingInPlace"];
-}
-
-- (void)insertBirthday:(DDHBirthday *)birthday {
-    SKTextureAtlas *textureAtlas = [SKTextureAtlas atlasNamed:@"DomImages"];
+- (void)loadAnimationFrames {
+    SKTextureAtlas *textureAtlas = [SKTextureAtlas atlasNamed:@"WalkingImages"];
     NSMutableArray<SKTexture *> *walkFrames = [[NSMutableArray alloc] init];
 
     NSInteger imagesCount = [textureAtlas.textureNames count];
@@ -156,7 +154,29 @@
     }
     self.personWalkingFrames = walkFrames;
 
-    SKTexture *firstTexture = [walkFrames firstObject];
+    textureAtlas = [SKTextureAtlas atlasNamed:@"AttachImages"];
+    NSMutableArray<SKTexture *> *attachingFrames = [[NSMutableArray alloc] init];
+
+    imagesCount = [textureAtlas.textureNames count];
+    for (NSInteger i=1; i<imagesCount; i++) {
+        NSString *textureName = [NSString stringWithFormat:@"attach%ld", i];
+        [attachingFrames addObject:[textureAtlas textureNamed:textureName]];
+    }
+    self.attachingFrames = attachingFrames;
+}
+
+- (void)animateWalk {
+    [self.personNode runAction:[SKAction repeatActionForever:[SKAction animateWithTextures:self.personWalkingFrames timePerFrame:0.09]]
+                       withKey:@"walkingInPlace"];
+}
+
+- (void)animateAttach {
+    [self.personNode runAction:[SKAction animateWithTextures:self.attachingFrames timePerFrame:0.09]
+                       withKey:@"attach"];
+}
+
+- (void)insertBirthday:(DDHBirthday *)birthday {
+    SKTexture *firstTexture = [self.personWalkingFrames firstObject];
     self.personNode = [[SKSpriteNode alloc] initWithTexture:firstTexture];
     self.personNode.size = CGSizeMake(50, 100);
     CGPoint position = CGPointMake(CGRectGetMaxX(self.frame) + 20, -self.timelineYPosition + 50);
@@ -164,7 +184,7 @@
     self.personNode.zPosition = 2;
 
     [self addChild:self.personNode];
-    [self animatePerson];
+    [self animateWalk];
 
     CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
@@ -173,13 +193,13 @@
     personNameComponents.familyName = @"Bar";
     DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
     //    CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
-    position = CGPointMake(self.personNode.position.x - 20, position.y + 150);
+    position = CGPointMake(self.personNode.position.x - 10, position.y + 150);
     balloon.position = position;
     [self addChild:balloon];
     self.balloons = [self.balloons arrayByAddingObject:balloon];
 
     DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
-    anchor.position = CGPointMake(self.personNode.position.x - 20, self.personNode.position.y + 30);
+    anchor.position = CGPointMake(self.personNode.position.x - 10, self.personNode.position.y + 30);
     anchor.zPosition = 1;
     [self addChild:anchor];
     self.anchors = [self.anchors arrayByAddingObject:anchor];
@@ -210,9 +230,9 @@
         [self.personNode runAction:[SKAction sequence:@[
             moveToBirthdayAction,
             [SKAction runBlock:^{ [self.personNode removeActionForKey:@"walkingInPlace"]; }],
-            [SKAction waitForDuration:0.3],
+            [SKAction animateWithTextures:self.attachingFrames timePerFrame:0.09],
             [SKAction runBlock:^{
-            [self animatePerson];
+            [self animateWalk];
         }],
             [SKAction moveToX:-self.frame.size.width/2 - 30 duration:duration2]
         ]]
@@ -224,7 +244,7 @@
 
         [anchor runAction:[SKAction sequence:@[
             moveToBirthdayAction,
-            [SKAction moveToY:-self.timelineYPosition duration:0.3]
+            [SKAction moveToY:-self.timelineYPosition duration:0.5]
         ]]];
     }
 }
