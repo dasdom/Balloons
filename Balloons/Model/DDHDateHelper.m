@@ -53,7 +53,7 @@
     NSMutableArray<DDHDisplayMonth *> *sceneMonths = [[NSMutableArray alloc] init];
     
     NSInteger startMonth = dateComponents.month-1;
-    for (NSInteger i = 0; i < 12; i++) {
+    for (NSInteger i = 0; i < 13; i++) {
         dateComponents.month = (startMonth + i) % 12 + 1;
         NSLog(@"month: %ld", dateComponents.month);
         NSDate *startOfNextMonthDate = [[self calendar] nextDateAfterDate:dateOfStartOfToday matchingComponents:dateComponents options:NSCalendarMatchNextTimePreservingSmallerUnits];
@@ -61,6 +61,8 @@
         NSInteger start = [self.calendar components:NSCalendarUnitDay fromDate:dateOfStartOfToday toDate:startOfNextMonthDate options:0].day;
         if (sceneMonths.count == 0) {
             start = start - 365;
+//        } else if (sceneMonths.count == 12) {
+//            start = start + 365;
         }
         NSLog(@"start: %ld", start);
         
@@ -76,6 +78,9 @@
         NSDate *endOfNextMonth = [[self calendar] nextDateAfterDate:dateOfStartOfToday matchingComponents:dateComponents options:NSCalendarMatchNextTimePreservingSmallerUnits];
         
         NSInteger end = [self.calendar components:NSCalendarUnitDay fromDate:dateOfStartOfToday toDate:endOfNextMonth options:0].day - 1;
+        if (sceneMonths.count == 12) {
+            end = end + 365;
+        }
         NSLog(@"end: %ld", end);
         NSLog(@"--");
         //    NSLog(@"number of days: %ld", end - start);

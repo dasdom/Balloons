@@ -21,7 +21,8 @@
 const NSInteger DDHIndexForDays[] = {
     [DDHNumberOfShownDaysThirty] = 0,
     [DDHNumberOfShownDaysNinety] = 1,
-    [DDHNumberOfShownDaysTwoHundredEighty] = 2
+    [DDHNumberOfShownDaysTwoHundredEighty] = 2,
+    [DDHNumberOfShownDaysThreeHundredSixty] = 3
 };
 
 @implementation DDHSettingsViewController
@@ -56,7 +57,6 @@ const NSInteger DDHIndexForDays[] = {
     UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"xmark"] style:UIBarButtonItemStylePlain target:self action:@selector(close:)];
     self.navigationItem.rightBarButtonItem = closeButton;
 
-
     [self.tableView registerClass:[DDHNumberOfShownDaysCell class] forCellReuseIdentifier:[DDHNumberOfShownDaysCell identifier]];
     [self.tableView registerClass:[DDHNotificationsCell class] forCellReuseIdentifier:[DDHNotificationsCell identifier]];
 
@@ -70,14 +70,29 @@ const NSInteger DDHIndexForDays[] = {
 
                 [shownDaysCell.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysThirty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysThirty] animated:NO];
                 [shownDaysCell.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysNinety] atIndex:DDHIndexForDays[DDHNumberOfShownDaysNinety] animated:NO];
-                [shownDaysCell.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysTwoHundredEighty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty] animated:NO];
+                if ([self.birthdays count] < 200) {
+                    [shownDaysCell.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysTwoHundredEighty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty] animated:NO];
+                    [shownDaysCell.daysSegmentedControl insertSegmentWithTitle:[NSString stringWithFormat:@"%ld days", DDHNumberOfShownDaysThreeHundredSixty] atIndex:DDHIndexForDays[DDHNumberOfShownDaysThreeHundredSixty] animated:NO];
+                }
 
                 if ([[shownDaysCell.daysSegmentedControl allTargets] count] < 1) {
                     [shownDaysCell.daysSegmentedControl addTarget:self action:@selector(changeDays:) forControlEvents:UIControlEventValueChanged];
                 }
 
                 NSInteger numberOfShownDays = [[NSUserDefaults standardUserDefaults] numberOfShownDays];
+                BOOL shouldUpdateSegmentedControl = NO;
+                if ([self.birthdays count] >= 200) {
+                    if (numberOfShownDays > 100) {
+                        numberOfShownDays = DDHNumberOfShownDaysNinety;
+                        [[NSUserDefaults standardUserDefaults] setNumberOfShownDays:numberOfShownDays];
+                        shouldUpdateSegmentedControl = YES;
+                    }
+                }
                 shownDaysCell.daysSegmentedControl.selectedSegmentIndex = DDHIndexForDays[numberOfShownDays];
+
+                if (shouldUpdateSegmentedControl) {
+                    [self changeDays:shownDaysCell.daysSegmentedControl];
+                }
 
                 cell = shownDaysCell;
                 break;
@@ -127,6 +142,9 @@ const NSInteger DDHIndexForDays[] = {
             break;
         case DDHIndexForDays[DDHNumberOfShownDaysTwoHundredEighty]:
             numberOfShownDays = DDHNumberOfShownDaysTwoHundredEighty;
+            break;
+        case DDHIndexForDays[DDHNumberOfShownDaysThreeHundredSixty]:
+            numberOfShownDays = DDHNumberOfShownDaysThreeHundredSixty;
             break;
         default:
             numberOfShownDays = DDHNumberOfShownDaysTwoHundredEighty;

@@ -24,7 +24,7 @@
         UIImage *roundedImage;
         if (birthday.imageData) {
             UIImage *image = [UIImage imageWithData:birthday.imageData];
-            roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(500, 500)];
+            roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(400, 400)];
         } else {
             roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents];
         }
@@ -33,6 +33,9 @@
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.size = CGSizeMake(width, width);
         self.zPosition = 500 - birthday.daysLeft;
+
+        self.isAccessibilityElement = YES;
+        self.accessibilityLabel = birthday.personNameComponents.givenName;
 
         _deleteButtonNode = [[SKSpriteNode alloc] initWithImageNamed:@"trash"];
         _deleteButtonNode.position = CGPointMake(200/3, 200/3);
@@ -47,12 +50,12 @@
         _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
         _nameLabel.numberOfLines = 0;
         _nameLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeCenter;
-        _nameLabel.fontSize = 14;
-        _nameLabel.fontName = [UIFont systemFontOfSize:14 weight:UIFontWeightHeavy].fontName;
+        _nameLabel.fontSize = 13;
+        _nameLabel.fontName = [UIFont systemFontOfSize:13 weight:UIFontWeightHeavy].fontName;
         _nameLabel.fontColor = [UIColor blackColor];
         _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
 
-        _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 6, _nameLabel.frame.size.height)];
+        _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 4, _nameLabel.frame.size.height)];
         _labelBackground.position = CGPointMake(0, -self.size.height/2);
         [_labelBackground addChild:_nameLabel];
 

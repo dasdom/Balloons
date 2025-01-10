@@ -76,42 +76,38 @@
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
     _numberOfShownDays = numberOfShownDays;
 
-//    [self updateMonthNamesNodes];
+    [self updateMonthNamesNodes];
 
-    for (DDHRope *rope in self.ropes) {
-        [rope runAction:[SKAction sequence:@[
-            [SKAction fadeOutWithDuration:0.1],
-            [SKAction waitForDuration:2],
-            [SKAction fadeInWithDuration:0.1]
-        ]]];
-    }
-
-    for (DDHBalloonAnchor *anchor in self.anchors) {
-        CGFloat xPos = self.timelineStart * 2 * anchor.daysLeft / numberOfShownDays - self.timelineStart;
-        SKAction *move = [SKAction moveToX:xPos duration:1];
-        move.timingMode = SKActionTimingEaseInEaseOut;
-        [anchor runAction:move];
-    }
-
-//    if (self.numberOfShownDays > 200 && numberOfShownDays < 200) {
-//        [self updateMonthNamesNodes];
-//    } else if (self.numberOfShownDays < 200 && numberOfShownDays > 200) {
-//        [self updateMonthNamesNodes];
-//    } else {
-        for (SKLabelNode *label in self.monthNamesNodes) {
-            CGFloat labelX = self.timelineStart * 2 * label.name.integerValue / numberOfShownDays - self.timelineStart;
-            SKAction *move = [SKAction moveToX:labelX duration:1];
-            move.timingMode = SKActionTimingEaseInEaseOut;
-            [label runAction:move];
-        }
+//    CGFloat animationDuration = 2;
+//
+//    for (DDHRope *rope in self.ropes) {
+//        [rope runAction:[SKAction sequence:@[
+//            [SKAction fadeOutWithDuration:0.1],
+//            [SKAction waitForDuration:animationDuration + 1],
+//            [SKAction fadeInWithDuration:0.1]
+//        ]]];
 //    }
-
-    for (SKShapeNode *line in self.lineNodes) {
-        CGFloat startX = self.timelineStart * 2 * line.name.integerValue / numberOfShownDays - self.timelineStart;
-        SKAction *move = [SKAction moveToX:startX duration:1];
-        move.timingMode = SKActionTimingEaseInEaseOut;
-        [line runAction:move];
-    }
+//
+//    for (DDHBalloonAnchor *anchor in self.anchors) {
+//        CGFloat xPos = self.timelineStart * 2 * anchor.daysLeft / numberOfShownDays - self.timelineStart;
+//        SKAction *move = [SKAction moveToX:xPos duration:animationDuration];
+//        move.timingMode = SKActionTimingEaseInEaseOut;
+//        [anchor runAction:move];
+//    }
+//
+//    for (SKLabelNode *label in self.monthNamesNodes) {
+//        CGFloat labelX = self.timelineStart * 2 * label.name.integerValue / numberOfShownDays - self.timelineStart;
+//        SKAction *move = [SKAction moveToX:labelX duration:animationDuration];
+//        move.timingMode = SKActionTimingEaseInEaseOut;
+//        [label runAction:move];
+//    }
+//
+//    for (SKShapeNode *line in self.lineNodes) {
+//        CGFloat startX = self.timelineStart * 2 * line.name.integerValue / numberOfShownDays - self.timelineStart;
+//        SKAction *move = [SKAction moveToX:startX duration:animationDuration];
+//        move.timingMode = SKActionTimingEaseInEaseOut;
+//        [line runAction:move];
+//    }
 
 }
 
@@ -140,7 +136,11 @@
 
     [self loadAnimationFrames];
 
-    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-330 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
+    SKLabelNode *titleNode = [SKLabelNode labelNodeWithText:@"Birthdays"];
+    titleNode.position = CGPointMake(0, timelineYPosition);
+    [self addChild:titleNode];
+
+//    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-330 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
 }
 
 - (void)loadAnimationFrames {
@@ -176,30 +176,39 @@
 }
 
 - (void)insertBirthday:(DDHBirthday *)birthday {
-    SKTexture *firstTexture = [self.personWalkingFrames firstObject];
-    self.personNode = [[SKSpriteNode alloc] initWithTexture:firstTexture];
-    self.personNode.size = CGSizeMake(50, 100);
-    CGPoint position = CGPointMake(CGRectGetMaxX(self.frame) + 20, -self.timelineYPosition + 50);
-    self.personNode.position = position;
-    self.personNode.zPosition = 2;
-
-    [self addChild:self.personNode];
-    [self animateWalk];
-
     CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-    NSPersonNameComponents *personNameComponents = [[NSPersonNameComponents alloc] init];
-    personNameComponents.givenName = @"Foo";
-    personNameComponents.familyName = @"Bar";
+    BOOL shouldAnimate = xPos < self.frame.size.width/2;
+
+    CGPoint position = CGPointMake(CGRectGetMaxX(self.frame) + 20, -self.timelineYPosition + 50);
+    if (shouldAnimate) {
+        SKTexture *firstTexture = [self.personWalkingFrames firstObject];
+        self.personNode = [[SKSpriteNode alloc] initWithTexture:firstTexture];
+        self.personNode.size = CGSizeMake(50, 100);
+        self.personNode.position = position;
+        self.personNode.zPosition = 2;
+
+        [self addChild:self.personNode];
+        [self animateWalk];
+    }
+
     DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
     //    CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
-    position = CGPointMake(self.personNode.position.x - 10, position.y + 150);
+    if (shouldAnimate) {
+        position = CGPointMake(self.personNode.position.x - 10, position.y + 150);
+    } else {
+        position = CGPointMake(xPos, position.y + 150);
+    }
     balloon.position = position;
     [self addChild:balloon];
     self.balloons = [self.balloons arrayByAddingObject:balloon];
 
     DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
-    anchor.position = CGPointMake(self.personNode.position.x - 10, self.personNode.position.y + 30);
+    if (shouldAnimate) {
+        anchor.position = CGPointMake(self.personNode.position.x - 10, self.personNode.position.y + 30);
+    } else {
+        anchor.position = CGPointMake(xPos, -self.timelineYPosition);
+    }
     anchor.zPosition = 1;
     [self addChild:anchor];
     self.anchors = [self.anchors arrayByAddingObject:anchor];
@@ -218,7 +227,7 @@
     [self.physicsWorld addJoint:joint];
     self.balloonJoints = [self.balloonJoints arrayByAddingObject:joint];
 
-    if (birthday.daysLeft < self.numberOfShownDays) {
+    if (shouldAnimate) {
         CGFloat timeFactor = 5;
         CGFloat distance1 = fabs(position.x - xPos);
         CGFloat duration1 = distance1/self.frame.size.width * timeFactor;
@@ -261,7 +270,7 @@
         [node removeFromParent];
     }
 
-    BOOL useVeryShort = YES;//self.numberOfShownDays > 200;
+    BOOL useVeryShort = self.numberOfShownDays > 200;
     NSArray<DDHDisplayMonth *> *displayMonths = [DDHDateHelper displayMonthsUseVeryShort:useVeryShort];
 
     NSMutableArray<SKLabelNode *> *monthNamesNodes = [[NSMutableArray alloc] initWithCapacity:displayMonths.count];
@@ -313,9 +322,16 @@
     NSMutableArray<DDHRope *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
 
     for (DDHBirthday *birthday in birthdays) {
+        if (birthday.daysLeft > self.numberOfShownDays) {
+            NSLog(@"skipping: %@", birthday.personNameComponents.givenName);
+            continue;
+        } else {
+            NSLog(@"adding: %@", birthday.personNameComponents.givenName);
+        }
+
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44];
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -323,7 +339,7 @@
 
         for (DDHBalloon *otherBalloon in balloons) {
             CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
-            if (intersectionSize.width > 1 || intersectionSize.height > 1) {
+            if (intersectionSize.width > 5 || intersectionSize.height > 5) {
                 NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
                 CGFloat correctedYPos = otherBalloon.position.y + otherBalloon.size.height + arc4random_uniform(40);
                 if (correctedYPos > 2 * (self.timelineYPosition - 20)) {

@@ -40,6 +40,8 @@
         node.physicsBody.linearDamping = 0.5;
         node.physicsBody.angularDamping = 0.5;
         node.physicsBody.mass = 0.02;
+//        node.physicsBody.affectedByGravity = NO;
+//        node.physicsBody.dynamic = NO;
 
         [segments addObject:node];
         [self addChild:node];
@@ -69,6 +71,8 @@
         }
 
         SKPhysicsJointPin *joint = [SKPhysicsJointPin jointWithBodyA:nodeA.physicsBody bodyB:nodeB.physicsBody anchor:anchorA];
+//        SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:nodeA.physicsBody bodyB:nodeB.physicsBody anchorA:anchorA anchorB:anchorB];
+//        joint.maxLength = sqrt(pow(anchorA.x - anchorB.x, 2) + pow(anchorA.y - anchorB.y, 2));
 
         [joints addObject:joint];
         [scene.physicsWorld addJoint:joint];
@@ -79,6 +83,8 @@
 //    CGPoint anchorB = [self convertPoint:CGPointMake(CGRectGetMidX(endNode.frame), CGRectGetMinY(endNode.frame)) toNode:scene];
 
     SKPhysicsJointPin *joint = [SKPhysicsJointPin jointWithBodyA:nodeA.physicsBody bodyB:endNode.physicsBody anchor:anchorA];
+//    SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:nodeA.physicsBody bodyB:endNode.physicsBody anchorA:anchorA anchorB:anchorB];
+//    joint.maxLength = sqrt(pow(anchorA.x - anchorB.x, 2) + pow(anchorA.y - anchorB.y, 2));
     [joints addObject:joint];
     [scene.physicsWorld addJoint:joint];
 

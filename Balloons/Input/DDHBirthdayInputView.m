@@ -32,6 +32,7 @@
         _imageView.backgroundColor = [UIColor secondarySystemFillColor];
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         _imageView.clipsToBounds = YES;
+        _imageView.image = [UIImage systemImageNamed:@"person.fill"];
 
         UIView *imageViewHostView = [[UIView alloc] init];
         [imageViewHostView addSubview:_imageView];

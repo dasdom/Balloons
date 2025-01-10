@@ -106,6 +106,8 @@
 - (void)addBirthday:(DDHBirthday *)birthday {
     [self.storage insertBirthday:birthday];
 
+    self.birthdays = [self.birthdays arrayByAddingObject:birthday];
+
     [self setupNotificationsIfNeededWithCompletion:^{
         dispatch_async(dispatch_get_main_queue(), ^{
 //            [self.scene updateForBirthdays:self.birthdays];
@@ -192,7 +194,7 @@
 
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
     [self.scene setNumberOfShownDays:numberOfShownDays];
-//    [self.scene updateForBirthdays:self.birthdays];
+    [self.scene updateForBirthdays:self.birthdays];
 }
 
 // MARK: - DDHTimelineSceneProtocol
@@ -208,6 +210,9 @@
     for (DDHBirthday *birthday in self.birthdays) {
         if ([birthday.uuid isEqual:uuid]) {
             [self.storage deleteBirthday:birthday];
+
+            self.birthdays = [self.storage birthdays];
+
             break;
         }
     }

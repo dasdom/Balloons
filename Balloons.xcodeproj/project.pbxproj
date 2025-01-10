@@ -51,6 +51,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F22E3EC82D2533D40067C8DF /* Balloons.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Balloons.xctestplan; sourceTree = "<group>"; };
 		F260F7BA2CF78B0F0015A0B8 /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = "<group>"; };
 		F268E8512CCEDCBA008B84EE /* Balloons.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Balloons.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F268E86F2CCEDCBC008B84EE /* BalloonsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BalloonsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +156,7 @@
 		F268E8482CCEDCBA008B84EE = {
 			isa = PBXGroup;
 			children = (
+				F22E3EC82D2533D40067C8DF /* Balloons.xctestplan */,
 				F260F7BA2CF78B0F0015A0B8 /* WidgetsExtension.entitlements */,
 				F268E8532CCEDCBA008B84EE /* Balloons */,
 				F268E8722CCEDCBC008B84EE /* BalloonsTests */,

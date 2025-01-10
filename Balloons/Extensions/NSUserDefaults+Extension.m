@@ -12,7 +12,7 @@ NSString * const notificationsActiveKey = @"de.dasdom.notificationsKey";
 @implementation NSUserDefaults (Extension)
 
 - (void)setup {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{numberOfShownDaysKey: @(DDHNumberOfShownDaysTwoHundredEighty)}];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{numberOfShownDaysKey: @(DDHNumberOfShownDaysNinety)}];
 }
 
 - (NSInteger)numberOfShownDays {

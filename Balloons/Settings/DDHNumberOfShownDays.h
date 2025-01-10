@@ -10,6 +10,7 @@ typedef NS_ENUM(NSUInteger, DDHNumberOfShownDays) {
     DDHNumberOfShownDaysThirty = 30,
     DDHNumberOfShownDaysNinety = 90,
     DDHNumberOfShownDaysTwoHundredEighty = 280,
+    DDHNumberOfShownDaysThreeHundredSixty = 360
 };
 
 #endif /* DDHNumberOfShownDays_h */
