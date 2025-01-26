@@ -80,9 +80,9 @@
     [self.scene updateForBirthdays:self.birthdays];
 }
 
-- (BOOL)prefersStatusBarHidden {
-    return YES;
-}
+//- (BOOL)prefersStatusBarHidden {
+//    return YES;
+//}
 
 - (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays {
     [self.storage insertBirthdays:birthdays];

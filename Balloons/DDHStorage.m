@@ -26,7 +26,7 @@
         sqlite3 *database;
         if (sqlite3_open(utf8Path, &database) == SQLITE_OK) {
             char *errorMessage;
-            const char *sql_statement = "CREATE TABLE IF NOT EXISTS birthdays (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, givenName TEXT, nickname TEXT, familyName TEXT, date INT, yearUnknown INT)";
+            const char *sql_statement = "CREATE TABLE IF NOT EXISTS birthdays (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, givenName TEXT, nickname TEXT, familyName TEXT, date INT, yearUnknown INT, favorite INT)";
 
             if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
                 NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
@@ -52,7 +52,7 @@
     const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;
     if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
-        const char *insert_statement = "INSERT OR IGNORE INTO birthdays (uuid, givenName, nickname, familyName, date, yearUnknown) VALUES (?,?,?,?,?,?)";
+        const char *insert_statement = "INSERT OR IGNORE INTO birthdays (uuid, givenName, nickname, familyName, date, yearUnknown, favorite) VALUES (?,?,?,?,?,?,?)";
         sqlite3_stmt *statement;
 
         if (sqlite3_prepare_v2(database, insert_statement, -1, &statement, NULL) == SQLITE_OK) {
@@ -63,6 +63,7 @@
             sqlite3_bind_text(statement, 4, [nameComponents.familyName UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_int(statement, 5, (int)[birthday.date timeIntervalSince1970]);
             sqlite3_bind_int(statement, 6, (int)(birthday.yearUnknown ? 1 : 0));
+            sqlite3_bind_int(statement, 7, (int)(birthday.favorite ? 1 : 0));
 
             if (sqlite3_step(statement) == SQLITE_DONE) {
                 success = YES;
@@ -135,6 +136,7 @@
                 
                 int timeInterval = sqlite3_column_int(statement, 5);
                 int yearUnknown = sqlite3_column_int(statement, 6);
+                int favorite = sqlite3_column_int(statement, 7);
 
                 NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
                 NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
@@ -142,7 +144,7 @@
                 nameComponents.givenName = givenName;
                 nameComponents.nickname = nickname;
                 nameComponents.familyName = familyName;
-                DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:uuid date:date personNameComponents:nameComponents yearUnknown:yearUnknown];
+                DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:uuid date:date personNameComponents:nameComponents yearUnknown:yearUnknown favorite:favorite];
 
                 [birthdays addObject:birthday];
             }

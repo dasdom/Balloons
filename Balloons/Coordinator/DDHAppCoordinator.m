@@ -12,15 +12,36 @@
 #import "DDHStorage.h"
 #import "NSUserDefaults+Extension.h"
 #import <PhotosUI/PhotosUI.h>
+#import "DDHBirthdayListViewController.h"
+#import "DDHPersonsListViewController.h"
 
-@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, PHPickerViewControllerDelegate>
+@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate>
 @property (nonatomic, strong) DDHGameViewController *gameViewController;
+@property (nonatomic, strong) UINavigationController *navigationController;
+@property (nonatomic, strong) DDHBirthdayListViewController *birthdayListViewController;
 @end
 
 @implementation DDHAppCoordinator
+- (instancetype)init {
+    if (self = [super init]) {
+        _navigationController = [[UINavigationController alloc] init];
+    }
+    return self;
+}
+
 - (UIViewController *)start {
+    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+
+    DDHBirthdayListViewController *birthdayListViewController = [[DDHBirthdayListViewController alloc] init];
+    [self.navigationController pushViewController:birthdayListViewController animated:NO];
+    self.birthdayListViewController = birthdayListViewController;
+    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"List" image:[UIImage systemImageNamed:@"list.bullet"] tag:0];
+
     self.gameViewController = [[DDHGameViewController alloc] initWithDelegate:self];
-    return self.gameViewController;
+    self.gameViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Balloons" image:[UIImage systemImageNamed:@"balloon"] tag:1];
+
+    tabBarController.viewControllers = @[self.navigationController, self.gameViewController];
+    return tabBarController;
 }
 
 // MARK: - DDHGameViewControllerDelegate
@@ -44,6 +65,11 @@
 - (void)didSelectCloseInViewController:(UIViewController *)viewController {
     [viewController dismissViewControllerAnimated:YES completion:nil];
 //    [self.gameViewController pointGravityUp];
+}
+
+- (void)didSelectPersonsInViewController:(UIViewController *)viewController birthdays:(nonnull NSArray<DDHBirthday *> *)birthdays {
+    DDHPersonsListViewController *next = [[DDHPersonsListViewController alloc] initWithDelegate:self birthdays:birthdays];
+    [viewController.navigationController pushViewController:next animated:YES];
 }
 
 // MARK: - DDHBirthdayInputViewControllerProtocol

@@ -10,7 +10,7 @@
 #import <UserNotifications/UserNotifications.h>
 
 @implementation DDHBirthday
-- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents yearUnknown:(BOOL)yearUnknown {
+- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents yearUnknown:(BOOL)yearUnknown favorite:(BOOL)favorite {
     if (self = [super init]) {
         _uuid = uuid;
         _imageData = [self imageDataForPersonUUID:uuid];
@@ -18,6 +18,7 @@
         _date = date;
         _personNameComponents = personNameComponents;
         _yearUnknown = yearUnknown;
+        _favorite = favorite;
     }
     return self;
 }

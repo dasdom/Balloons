@@ -1,4 +1,4 @@
-//  Created by Dominik Hauser on 17.11.24.
+//  Created by Dominik Hauser on 24.01.25.
 //  
 //
 
@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DDHSettingsView : UIView
+@interface DDHPersonsListView : UIView
 @property (nonatomic, strong) UITableView *tableView;
 @end
 

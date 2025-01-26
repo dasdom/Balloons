@@ -116,7 +116,7 @@
     NSPersonNameComponents *personComponents = [[NSPersonNameComponents alloc] init];
     personComponents.givenName = self.givenName;
     personComponents.familyName = self.familyName;
-    DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:self.date personNameComponents:personComponents yearUnknown:NO];
+    DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:self.date personNameComponents:personComponents yearUnknown:NO favorite:YES];
 
     if (self.image) {
         NSData *imageData = UIImageJPEGRepresentation(self.image, 0.5);

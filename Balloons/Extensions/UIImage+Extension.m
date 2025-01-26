@@ -42,7 +42,7 @@
         CGRect strokeRect = CGRectInset(breadthRect, -width/2, -width/2);
         strokeRect = CGRectMake(width/2, width/2, strokeRect.size.width, strokeRect.size.height);
 
-        CGRect drawRect = CGRectMake(-xOffset, -yOffset, drawWidth, drawHeight);
+        CGRect drawRect = CGRectMake(-xOffset + width/2, -yOffset + width/2, drawWidth + width, drawHeight + width);
         [self drawInRect:drawRect];
         [color setStroke];
 

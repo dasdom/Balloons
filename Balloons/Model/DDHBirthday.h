@@ -15,9 +15,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger daysLeft;
 @property (nonatomic, strong) NSDate *date;
 @property (nonatomic, strong) NSPersonNameComponents *personNameComponents;
-@property (assign) Boolean yearUnknown;
+@property (assign) BOOL yearUnknown;
+@property (assign) BOOL favorite;
 
-- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents yearUnknown:(BOOL)yearUnknown;
+- (instancetype)initWithUUID:(NSUUID *)uuid date:(NSDate *)date personNameComponents:(NSPersonNameComponents *)personNameComponents yearUnknown:(BOOL)yearUnknown favorite:(BOOL)favorite;
 - (instancetype)initWithContact:(CNContact *)contact;
 - (void)updateDaysLeft;
 - (UNNotificationRequest *)notificationRequest;

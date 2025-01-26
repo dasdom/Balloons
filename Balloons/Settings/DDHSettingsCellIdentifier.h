@@ -9,6 +9,7 @@
 typedef NS_ENUM(NSUInteger, DDHSettingsCellIdentifier) {
     DDHSettingsCellIdentifierNumberOfShownDays,
     DDHSettingsCellIdentifierNotifications,
+    DDHSettingsCellIdentifierPersons,
     DDHSettingsCellIdentifierCount,
 };
 

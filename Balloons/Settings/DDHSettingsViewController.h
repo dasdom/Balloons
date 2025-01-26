@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol DDHSettingsViewControllerDelegate <NSObject>
 - (void)didChangeNumberOfShownDays:(UIViewController *)viewController numberOfShownDays:(NSInteger)numberOfShownDays;
 - (void)didSelectCloseInViewController:(UIViewController *)viewController;
+- (void)didSelectPersonsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays;
 @end
 
 @interface DDHSettingsViewController : UIViewController

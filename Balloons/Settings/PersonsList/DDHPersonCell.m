@@ -1,0 +1,62 @@
+//  Created by Dominik Hauser on 24.01.25.
+//  
+//
+
+
+#import "DDHPersonCell.h"
+#import "DDHBirthday.h"
+
+@interface DDHPersonCell ()
+@property (nonatomic, strong) UIImageView *avatarImageView;
+@property (nonatomic, strong) UILabel *nameLabel;
+@property (nonatomic, strong) UIButton *balloonButton;
+@end
+
+@implementation DDHPersonCell
+
++ (NSString *)identifier {
+    return NSStringFromClass(self);
+}
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        _avatarImageView = [[UIImageView alloc] init];
+
+        _nameLabel = [[UILabel alloc] init];
+        _nameLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+
+        UIButtonConfiguration *buttonConfiguration = [UIButtonConfiguration plainButtonConfiguration];
+        buttonConfiguration.image = [UIImage systemImageNamed:@"balloon"];
+        _balloonButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
+
+        UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_avatarImageView, _nameLabel, _balloonButton]];
+        stackView.translatesAutoresizingMaskIntoConstraints = NO;
+        stackView.alignment = UIStackViewAlignmentCenter;
+
+        [self.contentView addSubview:stackView];
+
+        [NSLayoutConstraint activateConstraints:@[
+            [stackView.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+            [stackView.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+            [stackView.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
+            [stackView.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+
+            [_avatarImageView.widthAnchor constraintEqualToConstant:40],
+            [_avatarImageView.heightAnchor constraintEqualToAnchor:_avatarImageView.widthAnchor],
+        ]];
+    }
+    return self;
+}
+
+- (void)updateWithBirthday:(DDHBirthday *)birthday nameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter {
+    UIImage *avatar = [UIImage imageWithData:birthday.imageData];
+    self.avatarImageView.image = avatar;
+
+    self.nameLabel.text = [nameFormatter stringFromPersonNameComponents:birthday.personNameComponents];
+
+    UIButtonConfiguration *buttonConfiguration = [self.balloonButton configuration];
+    buttonConfiguration.image = birthday.favorite ? [UIImage systemImageNamed:@"balloon.fill"] : [UIImage systemImageNamed:@"balloon"];
+    self.balloonButton.configuration = buttonConfiguration;
+}
+
+@end

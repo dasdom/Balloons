@@ -11,8 +11,9 @@
 #import "DDHSettingsCellIdentifier.h"
 #import <UserNotifications/UserNotifications.h>
 #import "DDHBirthday.h"
+#import "DDHNumberOfShownDays.h"
 
-@interface DDHSettingsViewController ()
+@interface DDHSettingsViewController () <UITableViewDelegate>
 @property (nonatomic, strong) id<DDHSettingsViewControllerDelegate> delegate;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
@@ -57,8 +58,11 @@ const NSInteger DDHIndexForDays[] = {
     UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"xmark"] style:UIBarButtonItemStylePlain target:self action:@selector(close:)];
     self.navigationItem.rightBarButtonItem = closeButton;
 
+    self.tableView.delegate = self;
+
     [self.tableView registerClass:[DDHNumberOfShownDaysCell class] forCellReuseIdentifier:[DDHNumberOfShownDaysCell identifier]];
     [self.tableView registerClass:[DDHNotificationsCell class] forCellReuseIdentifier:[DDHNotificationsCell identifier]];
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
 
     _dataSource = [[UITableViewDiffableDataSource alloc] initWithTableView:self.tableView cellProvider:^UITableViewCell * _Nullable(UITableView * _Nonnull tableView, NSIndexPath * _Nonnull indexPath, NSNumber *  _Nonnull itemIdentifier) {
 
@@ -110,7 +114,14 @@ const NSInteger DDHIndexForDays[] = {
                 cell = notificationCell;
                 break;
             }
+            case DDHSettingsCellIdentifierPersons:
+            {
+                cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
+                cell.textLabel.text = @"Persons";
+                break;
+            }
             default:
+                NSAssert(NO, @"Unexpected");
                 break;
         }
         return cell;
@@ -122,7 +133,7 @@ const NSInteger DDHIndexForDays[] = {
 - (void)update {
     NSDiffableDataSourceSnapshot *snapshot = [[NSDiffableDataSourceSnapshot alloc] init];
     [snapshot appendSectionsWithIdentifiers:@[@"Main"]];
-    [snapshot appendItemsWithIdentifiers:@[@(DDHSettingsCellIdentifierNumberOfShownDays), @(DDHSettingsCellIdentifierNotifications)]];
+    [snapshot appendItemsWithIdentifiers:@[@(DDHSettingsCellIdentifierNumberOfShownDays), @(DDHSettingsCellIdentifierNotifications), @(DDHSettingsCellIdentifierPersons)]];
     [self.dataSource applySnapshot:snapshot animatingDifferences:YES];
 }
 
@@ -175,6 +186,14 @@ const NSInteger DDHIndexForDays[] = {
 //            NSLog(@"requests %@", requests);
 //        }];
         [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
+    }
+}
+
+// MARK: - UITableViewDelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    DDHSettingsCellIdentifier cellIdentifier = [[self.dataSource itemIdentifierForIndexPath:indexPath] integerValue];
+    if (cellIdentifier == DDHSettingsCellIdentifierPersons) {
+        [self.delegate didSelectPersonsInViewController:self birthdays:self.birthdays];
     }
 }
 
