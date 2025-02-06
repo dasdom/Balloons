@@ -117,7 +117,7 @@ const NSInteger DDHIndexForDays[] = {
             case DDHSettingsCellIdentifierPersons:
             {
                 cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
-                cell.textLabel.text = @"Persons";
+                cell.textLabel.text = @"Shown Balloons";
                 break;
             }
             default:

@@ -21,7 +21,8 @@
 @property (nonatomic, strong) NSArray<DDHBalloonAnchor *> *anchors;
 @property (nonatomic, strong) NSArray<SKLabelNode *> *monthNamesNodes;
 @property (nonatomic, strong) NSArray<SKShapeNode *> *lineNodes;
-@property (nonatomic, strong) NSArray<DDHRope *> *ropes;
+//@property (nonatomic, strong) NSArray<DDHRope *> *ropes;
+@property (nonatomic, strong) NSArray<SKShapeNode *> *ropes;
 @property (assign) CGFloat timelineYPosition;
 @property (assign) CGFloat timelineStart;
 @property (nonatomic, assign) NSInteger numberOfShownDays;
@@ -192,12 +193,23 @@
         [self animateWalk];
     }
 
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:50];
-    //    CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44];
+    position = CGPointMake(xPos, position.y + 70);
+    balloon.position = position;
+
+    for (DDHBalloon *otherBalloon in self.balloons) {
+        CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
+        if (intersectionSize.width > 5 || intersectionSize.height > 5) {
+            NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
+            position = CGPointMake(xPos, otherBalloon.position.y + 50);
+            balloon.position = position;
+        }
+    }
+
     if (shouldAnimate) {
-        position = CGPointMake(self.personNode.position.x - 10, position.y + 150);
+        position = CGPointMake(self.personNode.position.x - 10, position.y + 80);
     } else {
-        position = CGPointMake(xPos, position.y + 150);
+        position = CGPointMake(xPos, position.y);
     }
     balloon.position = position;
     [self addChild:balloon];
@@ -217,10 +229,21 @@
     balloon.constraints = @[constraint];
 
     CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - balloon.size.height/2);
-    DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
-    rope.zPosition = 0;
+//    DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
+//    rope.zPosition = 0;
+//    [self addChild:rope];
+//    [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
+//    self.ropes = [self.ropes arrayByAddingObject:rope];
+
+    SKShapeNode *rope = [SKShapeNode node];
+    CGMutablePathRef pathToDraw = CGPathCreateMutable();
+    CGPathMoveToPoint(pathToDraw, NULL, balloon.position.x, balloon.position.y);
+    CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
+    rope.path = pathToDraw;
+    CGFloat hue = birthday.daysLeft/366.0;
+    UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
+    rope.strokeColor = ropeColor;
     [self addChild:rope];
-    [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
     self.ropes = [self.ropes arrayByAddingObject:rope];
 
     SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
@@ -313,13 +336,15 @@
         [anchor removeFromParent];
     }
     for (DDHRope *rope in self.ropes) {
-        [rope removeFromParentWithScene:self];
+        [rope removeFromParent];
+//        [rope removeFromParentWithScene:self];
     }
 
     NSMutableArray<DDHBalloon *> *balloons = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
     NSMutableArray<DDHBalloonAnchor *> *anchors = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
     NSMutableArray<SKPhysicsJoint *> *joints = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
-    NSMutableArray<DDHRope *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
+//    NSMutableArray<DDHRope *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
+    NSMutableArray<SKShapeNode *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
 
     for (DDHBirthday *birthday in birthdays) {
         if (birthday.daysLeft > self.numberOfShownDays) {
@@ -341,11 +366,7 @@
             CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
             if (intersectionSize.width > 5 || intersectionSize.height > 5) {
                 NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
-                CGFloat correctedYPos = otherBalloon.position.y + otherBalloon.size.height + arc4random_uniform(40);
-                if (correctedYPos > 2 * (self.timelineYPosition - 20)) {
-                    correctedYPos = -self.timelineYPosition + 60 + arc4random_uniform(40);
-                }
-                CGPoint position = CGPointMake(xPos, otherBalloon.position.y + 60);
+                CGPoint position = CGPointMake(xPos, otherBalloon.position.y + 50);
                 balloon.position = position;
             }
         }
@@ -363,10 +384,21 @@
         balloon.constraints = @[constraint];
 
         CGPoint balloonAnchor = CGPointMake(balloon.position.x, balloon.position.y - balloon.size.height/2);
-        DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
-        rope.zPosition = 0;
+//        DDHRope *rope = [[DDHRope alloc] initWithBirthdayId:birthday.uuid];
+//        rope.zPosition = 0;
+//        [self addChild:rope];
+//        [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
+//        [ropes addObject:rope];
+
+        SKShapeNode *rope = [SKShapeNode node];
+        CGMutablePathRef pathToDraw = CGPathCreateMutable();
+        CGPathMoveToPoint(pathToDraw, NULL, balloon.position.x, balloon.position.y);
+        CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
+        rope.path = pathToDraw;
+        CGFloat hue = birthday.daysLeft/366.0;
+        UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
+        rope.strokeColor = ropeColor;
         [self addChild:rope];
-        [rope joinToStartNode:balloon startAnchor:balloonAnchor endNode:anchor endAnchor:anchor.position inScene:self];
         [ropes addObject:rope];
 
         SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
@@ -545,11 +577,19 @@
     [self updateMonthNamesNodes];
 }
 
-//- (void)didSimulatePhysics {
-//    for (DDHRope *rope in self.ropes) {
-//        [rope adjustRingPositions];
-//    }
-//}
+- (void)didSimulatePhysics {
+    for (NSInteger i=0; i<[self.balloons count]; i++) {
+        DDHBalloon *balloon = self.balloons[i];
+        DDHBalloonAnchor *anchor = self.anchors[i];
+
+        SKShapeNode *rope = self.ropes[i];
+
+        CGMutablePathRef pathToDraw = CGPathCreateMutable();
+        CGPathMoveToPoint(pathToDraw, NULL, balloon.position.x, balloon.position.y);
+        CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
+        rope.path = pathToDraw;
+    }
+}
 
 - (void)toggleGravityDirection {
     self.gravityFactor = -self.gravityFactor;

@@ -5,7 +5,7 @@
 
 
 enum PositionCalculator {
-    static let numberOfShownDays: CGFloat = 30
+    static let numberOfShownDays: CGFloat = 60
 
     static func balloonX(for daysLeft: Int, canvasWidth: CGFloat) -> CGFloat {
         return xValue(for: CGFloat(daysLeft), canvasWidth: canvasWidth)

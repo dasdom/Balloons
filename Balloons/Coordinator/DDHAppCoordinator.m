@@ -30,18 +30,20 @@
 }
 
 - (UIViewController *)start {
-    UITabBarController *tabBarController = [[UITabBarController alloc] init];
-
-    DDHBirthdayListViewController *birthdayListViewController = [[DDHBirthdayListViewController alloc] init];
-    [self.navigationController pushViewController:birthdayListViewController animated:NO];
-    self.birthdayListViewController = birthdayListViewController;
-    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"List" image:[UIImage systemImageNamed:@"list.bullet"] tag:0];
+//    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+//
+//    DDHBirthdayListViewController *birthdayListViewController = [[DDHBirthdayListViewController alloc] init];
+//    [self.navigationController pushViewController:birthdayListViewController animated:NO];
+//    self.birthdayListViewController = birthdayListViewController;
+//    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"List" image:[UIImage systemImageNamed:@"list.bullet"] tag:0];
 
     self.gameViewController = [[DDHGameViewController alloc] initWithDelegate:self];
-    self.gameViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Balloons" image:[UIImage systemImageNamed:@"balloon"] tag:1];
+//    self.gameViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Balloons" image:[UIImage systemImageNamed:@"balloon"] tag:1];
 
-    tabBarController.viewControllers = @[self.navigationController, self.gameViewController];
-    return tabBarController;
+//    tabBarController.viewControllers = @[self.navigationController, self.gameViewController];
+//    return tabBarController;
+
+    return self.gameViewController;
 }
 
 // MARK: - DDHGameViewControllerDelegate

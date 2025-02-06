@@ -64,7 +64,7 @@
         self.physicsBody = [SKPhysicsBody bodyWithCircleOfRadius:width/2];
         self.physicsBody.angularDamping = 0.9;
         self.physicsBody.linearDamping = 0.9;
-        self.physicsBody.categoryBitMask = 1 << 1;
+        self.physicsBody.categoryBitMask = 1 << 0;
         self.physicsBody.collisionBitMask = 1 << 1;
     }
     return self;

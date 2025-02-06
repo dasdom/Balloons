@@ -21,6 +21,10 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         _avatarImageView = [[UIImageView alloc] init];
+        _avatarImageView.contentMode = UIViewContentModeScaleAspectFill;
+        CGFloat cornerRadius = 20;
+        _avatarImageView.layer.cornerRadius = cornerRadius;
+        _avatarImageView.layer.masksToBounds = YES;
 
         _nameLabel = [[UILabel alloc] init];
         _nameLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
@@ -32,6 +36,7 @@
         UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_avatarImageView, _nameLabel, _balloonButton]];
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.alignment = UIStackViewAlignmentCenter;
+        stackView.spacing = 4;
 
         [self.contentView addSubview:stackView];
 
@@ -41,7 +46,7 @@
             [stackView.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor],
             [stackView.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
 
-            [_avatarImageView.widthAnchor constraintEqualToConstant:40],
+            [_avatarImageView.widthAnchor constraintEqualToConstant:cornerRadius*2],
             [_avatarImageView.heightAnchor constraintEqualToAnchor:_avatarImageView.widthAnchor],
         ]];
     }

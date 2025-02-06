@@ -16,6 +16,7 @@
 @property (nonatomic, strong) NSDictionary<NSNumber *, NSArray<DDHBirthday *> *> *birthdaysForDaysLeft;
 @property (nonatomic, strong) UICollectionViewDiffableDataSource *dataSource;
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
+@property (assign) BOOL filtered;
 @end
 
 @implementation DDHBirthdayListViewController
@@ -44,6 +45,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    UIBarButtonItem *filterButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"line.3.horizontal.decrease.circle"] style:UIBarButtonItemStylePlain target:self action:@selector(toggleFilter:)];
+    self.navigationItem.leftBarButtonItem = filterButton;
 
     UICollectionViewCellRegistration *cellRegistration = [UICollectionViewCellRegistration registrationWithCellClass:[DDHBirthdayCell class] configurationHandler:^(__kindof DDHBirthdayCell * _Nonnull cell, NSIndexPath * _Nonnull indexPath, NSNumber *  _Nonnull item) {
         NSArray<DDHBirthday *> *birthdays = self.birthdaysForDaysLeft[item];
@@ -110,6 +114,9 @@
     NSString *sectionIdentifier;
     NSDateComponents *dateComponents;
     for (NSUInteger i=0; i<366; i++) {
+        if (self.filtered && [self.birthdaysForDaysLeft[@(i)] count] < 1) {
+            continue;
+        }
         NSDate *date = [calendar dateByAddingUnit:NSCalendarUnitDay value:i toDate:[NSDate date] options:0];
         dateComponents = [calendar components:(NSCalendarUnitMonth | NSCalendarUnitYear) fromDate:date];
         if (previousDateComponents.month != dateComponents.month) {
@@ -142,5 +149,10 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return CGSizeMake(self.contentView.frame.size.width, 40);
+}
+
+- (void)toggleFilter:(UIBarButtonItem *)sender {
+    self.filtered = !self.filtered;
+    [self updateWithBirthdaysForDaysLeft:self.birthdaysForDaysLeft];
 }
 @end
