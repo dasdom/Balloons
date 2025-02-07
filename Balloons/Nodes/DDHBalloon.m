@@ -12,21 +12,23 @@
 @property (nonatomic, strong) DDHBirthday *birthday;
 @property (nonatomic, strong) SKLabelNode *nameLabel;
 @property (nonatomic, strong) SKSpriteNode *labelBackground;
+@property (nonatomic, strong) UIColor *balloonColor;
 @end
 
 @implementation DDHBalloon
 
-- (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width {
+- (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width color:(UIColor *)color {
     if (self = [super init]) {
         self.birthdayId = birthday.uuid;
         self.birthday = birthday;
+        self.balloonColor = color;
 
         UIImage *roundedImage;
         if (birthday.imageData) {
             UIImage *image = [UIImage imageWithData:birthday.imageData];
             roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(400, 400)];
         } else {
-            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents];
+            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents color:color];
         }
         SKTexture *texture = [SKTexture textureWithImage:roundedImage];
         self.texture = texture;
@@ -55,7 +57,7 @@
         _nameLabel.fontColor = [UIColor blackColor];
         _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
 
-        _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 4, _nameLabel.frame.size.height)];
+        _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 2, _nameLabel.frame.size.height)];
         _labelBackground.position = CGPointMake(0, -self.size.height/2);
         [_labelBackground addChild:_nameLabel];
 
@@ -71,7 +73,7 @@
 }
 
 - (DDHBalloon *)balloonCopyForDetail {
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:self.birthday width:self.size.width];
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:self.birthday width:self.size.width color:self.balloonColor];
     balloon.position = self.position;
     balloon.physicsBody.allowsRotation = NO;
     balloon.physicsBody.affectedByGravity = NO;

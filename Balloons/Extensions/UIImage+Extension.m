@@ -54,7 +54,7 @@
     return roundedImage;
 }
 
-+ (UIImage *)initialsImageWithPersonNameComponents:(NSPersonNameComponents *)nameComponents {
++ (UIImage *)initialsImageWithPersonNameComponents:(NSPersonNameComponents *)nameComponents color:(UIColor *)color {
 
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     label.textColor = [UIColor labelColor];
@@ -68,7 +68,7 @@
 
     UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
     UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
-        [[UIColor systemPinkColor] setFill];
+        [color setFill];
         CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
 
 //        UIBezierPath *path = [[UIBezierPath alloc] init];

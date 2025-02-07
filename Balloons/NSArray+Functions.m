@@ -14,4 +14,22 @@
     }
     return [tempArray copy];
 }
+
+- (NSArray *)filter:(BOOL(^)(id))filterBlock {
+    NSMutableArray *tempArray = [[NSMutableArray alloc] initWithCapacity:[self count]];
+    for (id input in self) {
+        if (filterBlock(input)) {
+            [tempArray addObject:input];
+        }
+    }
+    return tempArray;
+}
+
+- (id)firstObjectPassingTest:(BOOL (NS_NOESCAPE ^)(id obj, NSUInteger idx, BOOL *stop))predicate {
+    NSInteger index = [self indexOfObjectPassingTest:predicate];
+    if (index == NSNotFound) {
+        return nil;
+    }
+    return self[index];
+}
 @end

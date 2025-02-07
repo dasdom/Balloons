@@ -9,9 +9,10 @@
 #import "DDHPersonCell.h"
 #import "NSArray+Functions.h"
 
-@interface DDHPersonsListViewController ()
+@interface DDHPersonsListViewController () <UITableViewDelegate>
 @property (nonatomic, strong) id<DDHPersonsListViewControllerProtocol> delegate;
 @property (nonatomic, strong) DDHPersonsListView *contentView;
+@property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
@@ -52,28 +53,49 @@
 
         DDHPersonCell *cell = [tableView dequeueReusableCellWithIdentifier:[DDHPersonCell identifier] forIndexPath:indexPath];
 
-        NSUInteger index = [self.birthdays indexOfObjectPassingTest:^BOOL(DDHBirthday * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        DDHBirthday *birthday = [self.birthdays firstObjectPassingTest:^BOOL(DDHBirthday * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             return (obj.uuid == itemIdentifier);
         }];
-
-        DDHBirthday *birthday = self.birthdays[index];
 
         [cell updateWithBirthday:birthday nameFormatter:self.nameFormatter];
 
         return cell;
     }];
 
+    self.tableView.delegate = self;
+
     [self updateWithBirthdays:self.birthdays];
 }
 
 - (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays {
+    [self updateWithBirthdays:birthdays reloadBirthdays:@[]];
+}
+
+- (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays reloadBirthdays:(NSArray<DDHBirthday *> *)reloadBirthdays {
     NSDiffableDataSourceSnapshot *snapshot = [[NSDiffableDataSourceSnapshot alloc] init];
     [snapshot appendSectionsWithIdentifiers:@[@"Main"]];
     NSArray<NSUUID *> *uuids = [birthdays map:^id _Nonnull(DDHBirthday * _Nonnull input) {
         return input.uuid;
     }];
     [snapshot appendItemsWithIdentifiers:uuids];
-    [self.dataSource applySnapshot:snapshot animatingDifferences:YES];
+
+    NSArray<NSUUID *> *uuidsToReload = [reloadBirthdays map:^id _Nonnull(DDHBirthday * _Nonnull input) {
+        return input.uuid;
+    }];
+    [snapshot reloadItemsWithIdentifiers:uuidsToReload];
+
+    [self.dataSource applySnapshot:snapshot animatingDifferences:NO];
+}
+
+// MARK: - UITableViewDelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSUUID *itemIdentifier = [self.dataSource itemIdentifierForIndexPath:indexPath];
+    DDHBirthday *birthday = [self.birthdays firstObjectPassingTest:^BOOL(DDHBirthday * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return (obj.uuid == itemIdentifier);
+    }];
+
+    birthday.favorite = !birthday.favorite;
+    [self updateWithBirthdays:self.birthdays reloadBirthdays:@[birthday]];
 }
 
 @end

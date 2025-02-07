@@ -6,6 +6,7 @@
 #import "DDHContactsManager.h"
 #import <Contacts/Contacts.h>
 #import "DDHBirthday.h"
+#import "NSUserDefaults+Extension.h"
 
 @interface DDHContactsManager ()
 @property (nonatomic, strong) CNContactStore *contactsStore;
@@ -56,6 +57,9 @@
 
     for (CNContact *contact in contacts) {
         DDHBirthday *birthday = [[DDHBirthday alloc] initWithContact:contact];
+        if ([birthdays count] < [[NSUserDefaults standardUserDefaults] maximumNumberOfBalloons]) {
+            birthday.favorite = YES;
+        }
         [birthdays addObject:birthday];
     }
 

@@ -8,11 +8,15 @@
 
 NSString * const numberOfShownDaysKey = @"de.dasdom.numberOfShownDaysKey";
 NSString * const notificationsActiveKey = @"de.dasdom.notificationsKey";
+NSString * const maximumNumberOfBalloonsKey = @"de.dasdom.maximumNumberOfBalloonsKey";
 
 @implementation NSUserDefaults (Extension)
 
 - (void)setup {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{numberOfShownDaysKey: @(DDHNumberOfShownDaysNinety)}];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{
+        numberOfShownDaysKey: @(DDHNumberOfShownDaysNinety),
+        maximumNumberOfBalloonsKey: @(200),
+    }];
 }
 
 - (NSInteger)numberOfShownDays {
@@ -29,6 +33,10 @@ NSString * const notificationsActiveKey = @"de.dasdom.notificationsKey";
 
 - (void)setNotificationsActive:(BOOL)notificationsActive {
     [self setBool:notificationsActive forKey:notificationsActiveKey];
+}
+
+- (NSInteger)maximumNumberOfBalloons {
+    return [self integerForKey:maximumNumberOfBalloonsKey];
 }
 
 @end

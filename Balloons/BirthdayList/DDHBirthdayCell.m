@@ -50,7 +50,7 @@
             UIImage *image = [UIImage imageWithData:birthday.imageData];
             roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(400, 400)];
         } else {
-            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents];
+            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents color:[UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1]];
         }
         if (roundedImage) {
             UIImageView *imageView = [[UIImageView alloc] initWithImage:roundedImage];

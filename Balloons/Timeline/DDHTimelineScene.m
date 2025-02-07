@@ -193,7 +193,9 @@
         [self animateWalk];
     }
 
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44];
+    CGFloat hue = birthday.daysLeft/366.0;
+    UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44 color:ropeColor];
     position = CGPointMake(xPos, position.y + 70);
     balloon.position = position;
 
@@ -240,8 +242,6 @@
     CGPathMoveToPoint(pathToDraw, NULL, balloon.position.x, balloon.position.y);
     CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
     rope.path = pathToDraw;
-    CGFloat hue = birthday.daysLeft/366.0;
-    UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
     rope.strokeColor = ropeColor;
     [self addChild:rope];
     self.ropes = [self.ropes arrayByAddingObject:rope];
@@ -356,7 +356,9 @@
 
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44];
+        CGFloat hue = birthday.daysLeft/366.0;
+        UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44 color:ropeColor];
         CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -395,8 +397,6 @@
         CGPathMoveToPoint(pathToDraw, NULL, balloon.position.x, balloon.position.y);
         CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
         rope.path = pathToDraw;
-        CGFloat hue = birthday.daysLeft/366.0;
-        UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
         rope.strokeColor = ropeColor;
         [self addChild:rope];
         [ropes addObject:rope];

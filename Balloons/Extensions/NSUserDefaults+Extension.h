@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 - (BOOL)notificationsActive;
 - (void)setNotificationsActive:(BOOL)notificationsActive;
+- (NSInteger)maximumNumberOfBalloons;
 @end
 
 NS_ASSUME_NONNULL_END
