@@ -8,11 +8,14 @@
 #import "DDHBirthday.h"
 #import "DDHPersonCell.h"
 #import "NSArray+Functions.h"
+#import "DDHStorage.h"
+#import "NSUserDefaults+Extension.h"
 
 @interface DDHPersonsListViewController () <UITableViewDelegate>
 @property (nonatomic, strong) id<DDHPersonsListViewControllerProtocol> delegate;
 @property (nonatomic, strong) DDHPersonsListView *contentView;
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) DDHStorage *storage;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
@@ -20,10 +23,10 @@
 
 @implementation DDHPersonsListViewController
 
-- (instancetype)initWithDelegate:(id<DDHPersonsListViewControllerProtocol>)delegate birthdays:(NSArray<DDHBirthday *> *)birthdays {
+- (instancetype)initWithDelegate:(id<DDHPersonsListViewControllerProtocol>)delegate storage:(nonnull DDHStorage *)storage {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _delegate = delegate;
-        _birthdays = birthdays;
+        _storage = storage;
 
         _nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
         _nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
@@ -46,6 +49,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.birthdays = [self.storage birthdays];
 
     [self.tableView registerClass:[DDHPersonCell class] forCellReuseIdentifier:[DDHPersonCell identifier]];
 
@@ -87,6 +92,16 @@
     [self.dataSource applySnapshot:snapshot animatingDifferences:NO];
 }
 
+- (void)showTooManyBirthdaysAlert {
+    NSString *title = NSLocalizedString(@"too_many_birthdays_alert_title", @"too_many_birthdays_alert_title");
+    NSString *message = NSLocalizedString(@"too_many_birthdays_alert_message", @"too_many_birthdays_alert_message");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    NSString *okActionTitle = NSLocalizedString(@"general_ok", @"general_ok");
+    [alert addAction:[UIAlertAction actionWithTitle:okActionTitle style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+
 // MARK: - UITableViewDelegate
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSUUID *itemIdentifier = [self.dataSource itemIdentifierForIndexPath:indexPath];
@@ -94,8 +109,19 @@
         return (obj.uuid == itemIdentifier);
     }];
 
-    birthday.favorite = !birthday.favorite;
-    [self updateWithBirthdays:self.birthdays reloadBirthdays:@[birthday]];
+    NSArray<DDHBirthday *> *favoriteBirthdays = [self.birthdays filter:^BOOL(DDHBirthday * _Nonnull birthday) {
+        return birthday.favorite;
+    }];
+    NSInteger maximumNumberOfBalloons = [[NSUserDefaults standardUserDefaults] maximumNumberOfBalloons];
+
+    if ([favoriteBirthdays count] >= maximumNumberOfBalloons) {
+        [self showTooManyBirthdaysAlert];
+    } else {
+        birthday.favorite = !birthday.favorite;
+        [self.storage updateFavorite:birthday.favorite forBirthday:birthday];
+        [self.delegate reloadBirthdaysFromViewController:self];
+        [self updateWithBirthdays:self.birthdays reloadBirthdays:@[birthday]];
+    }
 }
 
 @end

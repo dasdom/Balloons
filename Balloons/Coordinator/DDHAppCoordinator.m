@@ -47,12 +47,12 @@
 }
 
 // MARK: - DDHGameViewControllerDelegate
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays {
+- (void)didSelectSettingsInViewController:(UIViewController *)viewController storage:(DDHStorage *)storage {
 //    if ([viewController isKindOfClass:[DDHGameViewController class]]) {
 //        [(DDHGameViewController *)viewController pointGravityDown];
 //    }
 
-    DDHSettingsViewController *next = [[DDHSettingsViewController alloc] initWithDelegate:self birthdays:birthdays];
+    DDHSettingsViewController *next = [[DDHSettingsViewController alloc] initWithDelegate:self storage:storage];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
     [viewController presentViewController:navigationController animated:YES completion:nil];
 }
@@ -69,8 +69,8 @@
 //    [self.gameViewController pointGravityUp];
 }
 
-- (void)didSelectPersonsInViewController:(UIViewController *)viewController birthdays:(nonnull NSArray<DDHBirthday *> *)birthdays {
-    DDHPersonsListViewController *next = [[DDHPersonsListViewController alloc] initWithDelegate:self birthdays:birthdays];
+- (void)didSelectPersonsInViewController:(UIViewController *)viewController storage:(nonnull DDHStorage *)storage {
+    DDHPersonsListViewController *next = [[DDHPersonsListViewController alloc] initWithDelegate:self storage:storage];
     [viewController.navigationController pushViewController:next animated:YES];
 }
 
@@ -124,6 +124,11 @@
             [inputViewController setImage:object];
         });
     }];
+}
+
+// MARK: - DDHPersonsListViewControllerProtocol
+- (void)reloadBirthdaysFromViewController:(UIViewController *)viewController {
+    [self.gameViewController updateWithBirthdays:@[]];
 }
 
 // MARK: - Misc

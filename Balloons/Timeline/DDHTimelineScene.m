@@ -113,7 +113,7 @@
 }
 
 - (void)didMoveToView:(SKView *)view {
-    view.showsNodeCount = YES;
+//    view.showsNodeCount = YES;
 //    view.showsPhysics = YES;
 //    view.showsFields = true;
 

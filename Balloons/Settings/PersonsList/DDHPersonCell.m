@@ -5,6 +5,7 @@
 
 #import "DDHPersonCell.h"
 #import "DDHBirthday.h"
+#import "UIImage+Extension.h"
 
 @interface DDHPersonCell ()
 @property (nonatomic, strong) UIImageView *avatarImageView;
@@ -32,11 +33,12 @@
         UIButtonConfiguration *buttonConfiguration = [UIButtonConfiguration plainButtonConfiguration];
         buttonConfiguration.image = [UIImage systemImageNamed:@"balloon"];
         _balloonButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
+        _balloonButton.userInteractionEnabled = NO;
 
         UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_avatarImageView, _nameLabel, _balloonButton]];
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.alignment = UIStackViewAlignmentCenter;
-        stackView.spacing = 4;
+        stackView.spacing = 8;
 
         [self.contentView addSubview:stackView];
 
@@ -54,8 +56,15 @@
 }
 
 - (void)updateWithBirthday:(DDHBirthday *)birthday nameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter {
-    UIImage *avatar = [UIImage imageWithData:birthday.imageData];
-    self.avatarImageView.image = avatar;
+    UIImage *roundedImage;
+    if (birthday.imageData) {
+        UIImage *image = [UIImage imageWithData:birthday.imageData];
+        roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(400, 400)];
+    } else {
+        CGFloat hue = birthday.daysLeft/366.0;
+        roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents color:[UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1]];
+    }
+    self.avatarImageView.image = roundedImage;
 
     self.nameLabel.text = [nameFormatter stringFromPersonNameComponents:birthday.personNameComponents];
 

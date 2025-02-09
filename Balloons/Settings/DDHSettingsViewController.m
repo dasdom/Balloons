@@ -10,11 +10,13 @@
 #import "DDHNotificationsCell.h"
 #import "DDHSettingsCellIdentifier.h"
 #import <UserNotifications/UserNotifications.h>
+#import "DDHStorage.h"
 #import "DDHBirthday.h"
 #import "DDHNumberOfShownDays.h"
 
 @interface DDHSettingsViewController () <UITableViewDelegate>
 @property (nonatomic, strong) id<DDHSettingsViewControllerDelegate> delegate;
+@property (nonatomic, strong) DDHStorage *storage;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
 @end
@@ -28,10 +30,10 @@ const NSInteger DDHIndexForDays[] = {
 
 @implementation DDHSettingsViewController
 
-- (instancetype)initWithDelegate:(id<DDHSettingsViewControllerDelegate>)delegate birthdays:(NSArray<DDHBirthday *> *)birthdays {
+- (instancetype)initWithDelegate:(id<DDHSettingsViewControllerDelegate>)delegate storage:(DDHStorage *)storage {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _delegate = delegate;
-        _birthdays = birthdays;
+        _storage = storage;
     }
     return self;
 }
@@ -50,6 +52,8 @@ const NSInteger DDHIndexForDays[] = {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.birthdays = [self.storage birthdays];
 
     self.title = @"Settings";
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
@@ -193,7 +197,7 @@ const NSInteger DDHIndexForDays[] = {
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     DDHSettingsCellIdentifier cellIdentifier = [[self.dataSource itemIdentifierForIndexPath:indexPath] integerValue];
     if (cellIdentifier == DDHSettingsCellIdentifierPersons) {
-        [self.delegate didSelectPersonsInViewController:self birthdays:self.birthdays];
+        [self.delegate didSelectPersonsInViewController:self storage:self.storage];
     }
 }
 

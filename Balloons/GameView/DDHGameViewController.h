@@ -8,9 +8,10 @@
 #import <GameplayKit/GameplayKit.h>
 
 @class DDHBirthday;
+@class DDHStorage;
 
 @protocol DDHGameViewControllerDelegate <NSObject>
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController birthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (void)didSelectSettingsInViewController:(UIViewController *)viewController storage:(DDHStorage *)storage;
 - (void)didSelectAddInViewController:(UIViewController *)viewController;
 @end
 

@@ -7,14 +7,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class DDHBirthday;
+@class DDHStorage;
 
 @protocol DDHPersonsListViewControllerProtocol <NSObject>
-
+- (void)reloadBirthdaysFromViewController:(UIViewController *)viewController;
 @end
 
 @interface DDHPersonsListViewController : UIViewController
-- (instancetype)initWithDelegate:(id<DDHPersonsListViewControllerProtocol>)delegate birthdays:(NSArray<DDHBirthday *> *)birthdays;
+- (instancetype)initWithDelegate:(id<DDHPersonsListViewControllerProtocol>)delegate storage:(DDHStorage *)storage;
 @end
 
 NS_ASSUME_NONNULL_END

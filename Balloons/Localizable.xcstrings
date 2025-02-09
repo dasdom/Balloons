@@ -1,7 +1,35 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-
+    "general_ok" : {
+      "comment" : "general_ok",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "too_many_birthdays_add_this_one_alert_add" : {
+      "comment" : "too_many_birthdays_add_this_one_alert_add"
+    },
+    "too_many_birthdays_add_this_one_alert_dont_add" : {
+      "comment" : "too_many_birthdays_add_this_one_alert_dont_add"
+    },
+    "too_many_birthdays_add_this_one_alert_message" : {
+      "comment" : "too_many_birthdays_add_this_one_alert_message"
+    },
+    "too_many_birthdays_add_this_one_alert_title" : {
+      "comment" : "too_many_birthdays_add_this_one_alert_title"
+    },
+    "too_many_birthdays_alert_message" : {
+      "comment" : "too_many_birthdays_alert_message"
+    },
+    "too_many_birthdays_alert_title" : {
+      "comment" : "too_many_birthdays_alert_title"
+    }
   },
   "version" : "1.0"
 }

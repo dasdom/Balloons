@@ -225,7 +225,7 @@
 }
 
 - (void)settings:(UIButton *)sender {
-    [self.delegate didSelectSettingsInViewController:self birthdays:self.birthdays];
+    [self.delegate didSelectSettingsInViewController:self storage:self.storage];
 }
 
 - (void)pointGravityDown {

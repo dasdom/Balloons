@@ -49,7 +49,7 @@ struct BirthdayBalloonsEntryView : View {
                                 .font(.subheadline)
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: balloonWidth, height: balloonWidth)
-                                .background(Color(uiColor: .systemOrange))
+                                .background(balloonColor(daysLeft: birthday.daysLeft))
                                 .foregroundColor(Color(uiColor: .label))
                                 .clipShape(Circle())
                         }
@@ -71,5 +71,9 @@ struct BirthdayBalloonsEntryView : View {
 
             BalloonsTimelineView(size: proxy.size)
         }
+    }
+
+    func balloonColor(daysLeft: Int) -> Color {
+        Color(uiColor: UIColor(hue: CGFloat(daysLeft)/366.0, saturation: 0.7, brightness: 0.7, alpha: 1))
     }
 }
