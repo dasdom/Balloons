@@ -14,6 +14,7 @@
 #import <PhotosUI/PhotosUI.h>
 #import "DDHBirthdayListViewController.h"
 #import "DDHPersonsListViewController.h"
+#import "DDHImprintViewController.h"
 
 @interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate>
 @property (nonatomic, strong) DDHGameViewController *gameViewController;
@@ -47,7 +48,14 @@
 }
 
 // MARK: - DDHGameViewControllerDelegate
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController storage:(DDHStorage *)storage {
+- (void)didSelectInfo:(UIViewController *)viewController {
+    DDHImprintViewController *next = [[DDHImprintViewController alloc] init];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [viewController presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)didSelectSettings:(UIViewController *)viewController storage:(DDHStorage *)storage {
 //    if ([viewController isKindOfClass:[DDHGameViewController class]]) {
 //        [(DDHGameViewController *)viewController pointGravityDown];
 //    }
@@ -57,7 +65,7 @@
     [viewController presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)didSelectAddInViewController:(UIViewController *)viewController {
+- (void)didSelectAdd:(UIViewController *)viewController {
     DDHBirthdayInputViewController *next = [[DDHBirthdayInputViewController alloc] initWithDelegate:self];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
     [viewController presentViewController:navigationController animated:YES completion:nil];

@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DDHInprintView : UIView
+@interface DDHImprintView : UIView
 
 @end
 

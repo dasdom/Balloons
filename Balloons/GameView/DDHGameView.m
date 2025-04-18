@@ -13,6 +13,10 @@
         _skView.translatesAutoresizingMaskIntoConstraints = NO;
 
         UIButtonConfiguration *buttonConfig = [UIButtonConfiguration plainButtonConfiguration];
+        buttonConfig.image = [UIImage systemImageNamed:@"info.circle"];
+        _infoButton = [UIButton buttonWithConfiguration:buttonConfig primaryAction:nil];
+        _infoButton.translatesAutoresizingMaskIntoConstraints = NO;
+
         buttonConfig.image = [UIImage systemImageNamed:@"plus"];
         _addButton = [UIButton buttonWithConfiguration:buttonConfig primaryAction:nil];
 
@@ -24,6 +28,7 @@
         buttonStackView.spacing = 8;
 
         [self addSubview:_skView];
+        [self addSubview:_infoButton];
         [self addSubview:buttonStackView];
 
         [NSLayoutConstraint activateConstraints:@[
@@ -32,7 +37,10 @@
             [_skView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
             [_skView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
 
-            [buttonStackView.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor constant:16],
+            [_infoButton.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor constant:16],
+            [_infoButton.leadingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.leadingAnchor constant:16],
+
+            [buttonStackView.topAnchor constraintEqualToAnchor:_infoButton.topAnchor],
             [buttonStackView.trailingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.trailingAnchor constant:-16],
         ]];
 

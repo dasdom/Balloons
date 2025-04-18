@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHGameView : UIView
 @property (nonatomic, strong) SKView *skView;
+@property (nonatomic, strong) UIButton *infoButton;
 @property (nonatomic, strong) UIButton *addButton;
 @property (nonatomic, strong) UIButton *settingsButton;
 @end

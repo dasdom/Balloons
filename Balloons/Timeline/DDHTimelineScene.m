@@ -446,19 +446,22 @@
 - (void)removeNodesForBirthdayId:(NSUUID *)birthdayId {
     [self.selectedBalloon removeFromParent];
 
-    for (DDHRope *rope in self.ropes) {
-        if ([rope.birthdayId isEqual:birthdayId]) {
-            [rope removeFromParentWithScene:self];
-            break;
-        }
-    }
+//    for (DDHRope *rope in self.ropes) {
+//        if ([rope.birthdayId isEqual:birthdayId]) {
+//            [rope removeFromParentWithScene:self];
+//            break;
+//        }
+//    }
 
-    for (DDHBalloonAnchor *anchor in self.anchors) {
-        if ([anchor.birthdayId isEqual:birthdayId]) {
-            [anchor removeFromParent];
-            break;
-        }
-    }
+    NSInteger index = [self.anchors indexOfObjectPassingTest:^BOOL(DDHBalloonAnchor * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return [obj.birthdayId isEqual:birthdayId];
+    }];
+
+    DDHBalloonAnchor *anchor = self.anchors[index];
+    [anchor removeFromParent];
+
+    SKShapeNode *rope = self.ropes[index];
+    [rope removeFromParent];
 }
 
 - (void)showBalloon:(DDHBalloon *)balloon {

@@ -66,6 +66,7 @@
 
     [self.contentView.skView presentScene:_scene];
 
+    [self.contentView.infoButton addTarget:self action:@selector(info:) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.addButton addTarget:self action:@selector(add:) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView.settingsButton addTarget:self action:@selector(settings:) forControlEvents:UIControlEventTouchUpInside];
 }
@@ -168,12 +169,16 @@
 }
 
 // MARK: - Actions
+- (void)info:(UIButton *)sender {
+    [self.delegate didSelectInfo:self];
+}
+
 - (void)add:(UIButton *)sender {
     UIButtonConfiguration *buttonConfig = sender.configuration;
     buttonConfig.showsActivityIndicator = YES;
     sender.configuration = buttonConfig;
 
-    [self.delegate didSelectAddInViewController:self];
+    [self.delegate didSelectAdd:self];
 }
 
 //- (void)importFromContacts {
@@ -225,7 +230,7 @@
 }
 
 - (void)settings:(UIButton *)sender {
-    [self.delegate didSelectSettingsInViewController:self storage:self.storage];
+    [self.delegate didSelectSettings:self storage:self.storage];
 }
 
 - (void)pointGravityDown {

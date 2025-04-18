@@ -11,8 +11,9 @@
 @class DDHStorage;
 
 @protocol DDHGameViewControllerDelegate <NSObject>
-- (void)didSelectSettingsInViewController:(UIViewController *)viewController storage:(DDHStorage *)storage;
-- (void)didSelectAddInViewController:(UIViewController *)viewController;
+- (void)didSelectInfo:(UIViewController *)viewController;
+- (void)didSelectSettings:(UIViewController *)viewController storage:(DDHStorage *)storage;
+- (void)didSelectAdd:(UIViewController *)viewController;
 @end
 
 @interface DDHGameViewController : UIViewController
