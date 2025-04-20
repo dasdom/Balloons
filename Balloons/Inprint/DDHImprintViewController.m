@@ -18,7 +18,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    self.title = @"Imprint";
+
+    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done:)];
+    self.navigationItem.rightBarButtonItem = done;
 }
 
+// MARK: - Actions
+- (void)done:(UIBarButtonItem *)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 @end

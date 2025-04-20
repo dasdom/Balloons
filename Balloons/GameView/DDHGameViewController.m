@@ -53,7 +53,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    _feedbackGenerator = [UISelectionFeedbackGenerator feedbackGeneratorForView:self.view];
+    if (@available(iOS 17.5, *)) {
+        _feedbackGenerator = [UISelectionFeedbackGenerator feedbackGeneratorForView:self.view];
+    } else {
+        _feedbackGenerator = [[UISelectionFeedbackGenerator alloc] init];
+    }
 
     _storage = [[DDHStorage alloc] init];
     [_storage createDatabaseIfNeeded];

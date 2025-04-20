@@ -58,14 +58,14 @@ struct Widgets: Widget {
     }
 }
 
-#Preview(as: .systemSmall) {
-    Widgets()
-} timeline: {
-    BirthdaysEntry(date: .now, birthdays: [
-        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_000_000), personNameComponents: try! PersonNameComponents("Dominik Hauser"), yearUnknown: false,
-                    favorite: true),
-        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_800_000), personNameComponents: try! PersonNameComponents("Kartoffelpüh Reh"), yearUnknown: false,
-                    favorite: true)
-
-    ])
-}
+//#Preview(as: .systemSmall) {
+//    Widgets()
+//} timeline: {
+//    BirthdaysEntry(date: .now, birthdays: [
+//        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_000_000), personNameComponents: try! PersonNameComponents("Dominik Hauser"), yearUnknown: false,
+//                    favorite: true),
+//        DDHBirthday(uuid: UUID(), date: Date(timeIntervalSinceNow: 1_800_000), personNameComponents: try! PersonNameComponents("Kartoffelpüh Reh"), yearUnknown: false,
+//                    favorite: true)
+//
+//    ])
+//}

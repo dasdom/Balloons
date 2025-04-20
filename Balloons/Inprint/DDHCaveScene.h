@@ -8,7 +8,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHCaveScene : SKScene
-
+@property (nonatomic, assign) CGFloat scrollSpeed;
+- (void)updatePositionForPercentage:(CGFloat)percentage;
 @end
 
 NS_ASSUME_NONNULL_END
