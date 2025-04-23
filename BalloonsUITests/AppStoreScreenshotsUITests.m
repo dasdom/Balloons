@@ -40,18 +40,10 @@
 
     [self takeScreenshotWithName:@"02_MainView280"];
 
-    [app.otherElements[@"Kate"] tap];
-
-    sleep(2);
-    [self takeScreenshotWithName:@"03_Details"];
-
-    XCUICoordinate *outsideTapCoordinate = [app.windows.firstMatch coordinateWithNormalizedOffset:CGVectorMake(100, 100)];
-    [outsideTapCoordinate tap];
-
     XCUIElement *gearshapeButton = app.buttons[@"gearshape"];
     [gearshapeButton tap];
 
-    [self takeScreenshotWithName:@"04_MainView30"];
+    [self takeScreenshotWithName:@"03_MainView30"];
 
     XCUIElementQuery *tablesQuery = app.tables;
     [tablesQuery.buttons[@"30 days"] tap];
@@ -59,13 +51,18 @@
     XCUIElement *closeButton = app.navigationBars[@"Settings"].buttons[@"Close"];
     [closeButton tap];
 
-    [self takeScreenshotWithName:@"05_MainView30"];
+    [self takeScreenshotWithName:@"04_MainView30"];
 
     [gearshapeButton tap];
     [tablesQuery.buttons[@"360 days"] tap];
     [closeButton tap];
 
-    [self takeScreenshotWithName:@"06_MainView360"];
+    [self takeScreenshotWithName:@"05_MainView360"];
+
+    [app.otherElements[@"Kate"] tap];
+
+    sleep(2);
+    [self takeScreenshotWithName:@"06_Details"];
 }
 
 - (void)handleContactsPermissionAlert {
@@ -75,7 +72,7 @@
 
 - (void)handleAccessPrompt {
     XCUIApplication *access = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.ContactsUI.LimitedAccessPromptView"];
-    [access.buttons[@"Allow Full Access"] tap];
+    [access.buttons[@"Share All 12 Contacts"] tap];
 }
 
 - (void)takeScreenshotWithName:(NSString *)name {

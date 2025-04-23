@@ -18,7 +18,7 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         UILabel *notificationsLabel = [[UILabel alloc] init];
         notificationsLabel.text = @"Notify a week before";
-        notificationsLabel.textColor = [UIColor whiteColor];
+        notificationsLabel.textColor = [UIColor labelColor];
         notificationsLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
 
         _notificationSwitch = [[UISwitch alloc] init];

@@ -15,7 +15,7 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         UILabel *shownDaysLabel = [[UILabel alloc] init];
         shownDaysLabel.text = @"Shown days";
-        shownDaysLabel.textColor = [UIColor whiteColor];
+        shownDaysLabel.textColor = [UIColor labelColor];
         shownDaysLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
 
         _daysSegmentedControl = [[UISegmentedControl alloc] init];

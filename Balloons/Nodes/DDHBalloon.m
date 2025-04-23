@@ -39,14 +39,17 @@
         self.isAccessibilityElement = YES;
         self.accessibilityLabel = birthday.personNameComponents.givenName;
 
-        _deleteButtonNode = [[SKSpriteNode alloc] initWithImageNamed:@"trash"];
-        _deleteButtonNode.position = CGPointMake(200/3, 200/3);
-        _deleteButtonNode.size = CGSizeMake(40, 40);
-        _deleteButtonNode.color = [UIColor tintColor];
-        _deleteButtonNode.blendMode = SKBlendModeAlpha;
-        _deleteButtonNode.colorBlendFactor = 1;
+        _deleteButtonNode = [[SKSpriteNode alloc] init];
+        _deleteButtonNode.position = CGPointMake(200/3 + 10, 200/3 + 10);
+        _deleteButtonNode.size = CGSizeMake(44, 44);
         _deleteButtonNode.hidden = YES;
         _deleteButtonNode.name = @"delete";
+        SKSpriteNode *deleteButtonLabel = [[SKSpriteNode alloc] initWithImageNamed:@"trash"];
+        deleteButtonLabel.color = [UIColor colorNamed:@"AccentColor"];
+        deleteButtonLabel.blendMode = SKBlendModeAlpha;
+        deleteButtonLabel.colorBlendFactor = 1;
+        [_deleteButtonNode addChild:deleteButtonLabel];
+
         [self addChild:_deleteButtonNode];
 
         _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
@@ -57,9 +60,20 @@
         _nameLabel.fontColor = [UIColor blackColor];
         _nameLabel.position = CGPointMake(0, -_nameLabel.frame.size.height/2);
 
+        _presentsButton = [[SKSpriteNode alloc] init];
+        _presentsButton.size = CGSizeMake(44, 44);
+        _presentsButton.name = @"presents";
+        _presentsButton.hidden = YES;
+        SKSpriteNode *presentsButtonLabel = [SKSpriteNode spriteNodeWithImageNamed:@"gift.fill"];
+        presentsButtonLabel.color = [UIColor colorNamed:@"AccentColor"];
+        presentsButtonLabel.blendMode = SKBlendModeAlpha;
+        presentsButtonLabel.colorBlendFactor = 1;
+        [_presentsButton addChild:presentsButtonLabel];
+
         _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 2, _nameLabel.frame.size.height)];
         _labelBackground.position = CGPointMake(0, -self.size.height/2);
         [_labelBackground addChild:_nameLabel];
+        [_labelBackground addChild:_presentsButton];
 
         [self addChild:_labelBackground];
 
@@ -115,8 +129,13 @@
     self.nameLabel.fontName = [UIFont systemFontOfSize:15 weight:UIFontWeightHeavy].fontName;
     self.nameLabel.position = CGPointMake(0, -self.nameLabel.frame.size.height/2);
 
+    self.presentsButton.hidden = NO;
+    self.presentsButton.position = CGPointMake(0, -self.nameLabel.frame.size.height);
+
     self.labelBackground.position = CGPointMake(0, -self.size.height/2);
-    self.labelBackground.size = CGSizeMake(self.nameLabel.frame.size.width + 16, self.nameLabel.frame.size.height + 4);
+    self.labelBackground.size = CGSizeMake(self.nameLabel.frame.size.width + 16, self.nameLabel.frame.size.height
+                                           //+ self.presentsButton.frame.size.height
+                                           + 4);
     [self showLabel:YES animated:YES];
 }
 
