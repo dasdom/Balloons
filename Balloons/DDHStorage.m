@@ -7,33 +7,29 @@
 #import "NSFileManager+Extension.h"
 #import <sqlite3.h>
 #import "DDHBirthday.h"
+#import "DDHPresent.h"
 
 // https://stackoverflow.com/a/36950666/498796
 @implementation DDHStorage
 
-- (NSString *)databasePath {
+- (const char *)databasePath {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *databaseURL = [fileManager databaseURL];
-    return [databaseURL path];
+    return [[databaseURL path] UTF8String];
 }
 
+// MARK: - Birthdays
 - (void)createDatabaseIfNeeded {
-    NSString *databasePath = [self databasePath];
-    BOOL databaseFileExists = [[NSFileManager defaultManager] fileExistsAtPath:databasePath];
-    if (NO == databaseFileExists) {
-        const char *utf8Path = [databasePath UTF8String];
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        char *errorMessage;
+        const char *sql_statement = "CREATE TABLE IF NOT EXISTS birthdays (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, givenName TEXT, nickname TEXT, familyName TEXT, date INT, yearUnknown INT, favorite INT)";
 
-        sqlite3 *database;
-        if (sqlite3_open(utf8Path, &database) == SQLITE_OK) {
-            char *errorMessage;
-            const char *sql_statement = "CREATE TABLE IF NOT EXISTS birthdays (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, givenName TEXT, nickname TEXT, familyName TEXT, date INT, yearUnknown INT, favorite INT)";
-
-            if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
-                NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
-            }
-
-            sqlite3_close(database);
+        if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
+            NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
         }
+
+        sqlite3_close(database);
     }
 }
 
@@ -49,9 +45,8 @@
 
 - (BOOL)insertBirthday:(DDHBirthday *)birthday {
     BOOL success = NO;
-    const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;
-    if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
         const char *insert_statement = "INSERT OR IGNORE INTO birthdays (uuid, givenName, nickname, familyName, date, yearUnknown, favorite) VALUES (?,?,?,?,?,?,?)";
         sqlite3_stmt *statement;
 
@@ -85,9 +80,8 @@
 
 - (BOOL)updateFavorite:(BOOL)favorite forBirthday:(DDHBirthday *)birthday {
     BOOL success = NO;
-    const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;
-    if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
         const char *update_statement = "UPDATE birthdays SET favorite = ? WHERE uuid = ?";
         sqlite3_stmt *statement;
 
@@ -115,9 +109,8 @@
 
 - (BOOL)deleteBirthday:(DDHBirthday *)birthday {
     BOOL success = NO;
-    const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;
-    if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
         const char *delete_statement = "DELETE FROM birthdays WHERE uuid = ?";
         sqlite3_stmt *statement;
 
@@ -143,11 +136,10 @@
 }
 
 - (NSArray<DDHBirthday *> *)birthdays {
-    const char *databasePath = [[self databasePath] UTF8String];
     sqlite3 *database;
     NSMutableArray<DDHBirthday *> *birthdays = [[NSMutableArray alloc] init];
 
-    if (sqlite3_open(databasePath, &database) == SQLITE_OK) {
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
         const char *fetch_statement = "SELECT * FROM birthdays";
         sqlite3_stmt *statement;
 
@@ -181,6 +173,141 @@
         }
     }
     return birthdays;
+}
+
+// MARK: - Presents
+- (void)createPresentsDatabaseIfNeeded {
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        char *errorMessage;
+        const char *sql_statement = "CREATE TABLE IF NOT EXISTS presents (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, birthdayUUID TEXT, url TEXT, title TEXT, givenAway INT, priority INT, note TEXT)";
+
+        if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
+            NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    }
+}
+
+- (BOOL)insertPresent:(DDHPresent *)present {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *insert_statement = "INSERT OR IGNORE INTO presents (uuid, birthdayUUID, url, title, givenAway, priority, note) VALUES (?,?,?,?,?,?,?)";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, insert_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[present.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 2, [[present.birthdayUUID UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 3, [present.url.path UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 4, [present.title UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int(statement, 5, (int)(present.givenAway ? 1 : 0));
+            sqlite3_bind_int(statement, 6, (int)present.priority);
+            sqlite3_bind_text(statement, 7, [present.note UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to add present: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (BOOL)updateGivenAway:(BOOL)givenAway forPresent:(DDHPresent *)present {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *update_statement = "UPDATE presents SET givenAway = ? WHERE uuid = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, update_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_int(statement, 1, (int)(givenAway ? 1 : 0));
+            sqlite3_bind_text(statement, 2, [[present.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to update present: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (BOOL)deletePresent:(DDHPresent *)present {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *delete_statement = "DELETE FROM birthdays WHERE uuid = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, delete_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[present.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to delete present: %s", sqlite3_errmsg(database));
+            }
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (NSArray<DDHPresent *> *)presentsForBirthday:(DDHBirthday *)birthday {
+    sqlite3 *database;
+    NSMutableArray<DDHPresent *> *presents = [[NSMutableArray alloc] init];
+
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *fetch_statement = "SELECT * FROM presents WHERE birthdayUUID = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, fetch_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[birthday.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_ROW) {
+                NSString *uuidString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
+                NSString *birthdayUUIDString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
+                NSString *urlString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 3)];
+                NSURL *url = [NSURL URLWithString:urlString];
+                NSString *title = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 4)];
+
+                int givenAway = sqlite3_column_int(statement, 5);
+                int priority = sqlite3_column_int(statement, 6);
+
+                NSString *note = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 7)];
+
+                DDHPresent *present = [[DDHPresent alloc] initWithUUID:[[NSUUID alloc] initWithUUIDString:uuidString] birthdayUUID:[[NSUUID alloc] initWithUUIDString:birthdayUUIDString] url:url title:title givenAway:givenAway priority:priority note:note];
+                [presents addObject:present];
+            }
+        }
+    }
+    return [presents copy];
 }
 
 @end

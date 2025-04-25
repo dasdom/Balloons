@@ -77,6 +77,7 @@
 				Model/DDHBirthday.m,
 				Model/DDHDateHelper.m,
 				Model/DDHDisplayMonth.m,
+				Model/DDHPresent.m,
 			);
 			target = F2F7E6AA2CF66987003ACD55 /* WidgetsExtension */;
 		};

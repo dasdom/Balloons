@@ -39,6 +39,7 @@
 @property (nonatomic, strong) NSArray<SKTexture *> *personWalkingFrames;
 @property (nonatomic, strong) NSArray<SKTexture *> *attachingFrames;
 @property (nonatomic, strong) SKSpriteNode *personNode;
+@property (assign) CGPoint panStartPoint;
 @end
 
 @implementation DDHTimelineScene
@@ -129,7 +130,11 @@
     self.timelineYPosition = timelineYPosition;
     self.timelineStart = timelineStart;
 
-    DDHTimeline *timeline = [[DDHTimeline alloc] initWithStartPoint:CGPointMake(-timelineStart, -timelineYPosition) andEndPoint:CGPointMake(timelineStart * 1.5, -timelineYPosition)];
+    SKCameraNode *camera = [[SKCameraNode alloc] init];
+    self.camera = camera;
+    [self addChild:camera];
+
+    DDHTimeline *timeline = [[DDHTimeline alloc] initWithStartPoint:CGPointMake(-timelineStart, -timelineYPosition) andEndPoint:CGPointMake(timelineStart * 10, -timelineYPosition)];
     [self addChild:timeline];
     self.timeline = timeline;
 
@@ -140,6 +145,9 @@
     SKLabelNode *titleNode = [SKLabelNode labelNodeWithText:@"Birthdays"];
     titleNode.position = CGPointMake(0, timelineYPosition);
     [self addChild:titleNode];
+
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(pan:)];
+    [view addGestureRecognizer:panRecognizer];
 
 //    [self insertBirthday:[[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate dateWithTimeIntervalSinceNow:-330 * 24 * 60 * 60] personNameComponents:[[NSPersonNameComponents alloc] init] yearUnknown:NO]];
 }
@@ -243,7 +251,7 @@
     CGPathAddLineToPoint(pathToDraw, NULL, anchor.position.x, anchor.position.y);
     rope.path = pathToDraw;
     rope.strokeColor = ropeColor;
-    [self addChild:rope];
+    [self.timeline addChild:rope];
     self.ropes = [self.ropes arrayByAddingObject:rope];
 
     SKPhysicsJointLimit *joint = [SKPhysicsJointLimit jointWithBodyA:balloon.physicsBody bodyB:anchor.physicsBody anchorA:balloonAnchor anchorB:anchor.position];
@@ -347,12 +355,12 @@
     NSMutableArray<SKShapeNode *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
 
     for (DDHBirthday *birthday in birthdays) {
-        if (birthday.daysLeft > self.numberOfShownDays) {
-            NSLog(@"skipping: %@", birthday.personNameComponents.givenName);
-            continue;
-        } else {
+//        if (birthday.daysLeft > self.numberOfShownDays) {
+//            NSLog(@"skipping: %@", birthday.personNameComponents.givenName);
+//            continue;
+//        } else {
             NSLog(@"adding: %@", birthday.personNameComponents.givenName);
-        }
+//        }
 
         CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
 
@@ -435,6 +443,8 @@
                 self.detailBalloon = nil;
                 [self hideDetailBalloon];
             }];
+        } else if ([node.name isEqual:@"presents"]) {
+            
         } else {
             [self hideDetailBalloon];
 
@@ -530,6 +540,43 @@
         [lineNode runAction:[SKAction fadeInWithDuration:0.5]];
     }
 }
+
+- (void)pan:(UIPanGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        self.panStartPoint = self.camera.position;
+    } else {
+        CGPoint translation = [sender translationInView:self.view];
+
+        CGPoint position = self.camera.position;
+        position.x = (self.panStartPoint.x - translation.x);
+        NSLog(@"panStartPoint: %ld", (long)self.panStartPoint.x);
+        NSLog(@"currentLocation: %ld", (long)translation.x);
+        NSLog(@"x: %ld", (long)position.x);
+        self.camera.position = position;
+    }
+}
+
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    UITouch *touch = [event.allTouches anyObject];
+//    self.panStartPoint = [touch locationInNode:self];
+//}
+//
+//- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    UITouch *touch = [event.allTouches anyObject];
+//    CGPoint currentLocation = [touch locationInNode:self];
+//
+////    CGPoint position = self.timeline.position;
+////    position.x = (currentLocation.x - self.panStartPoint.x);
+////    self.timeline.position = position;
+//
+//    CGPoint position = self.camera.position;
+//    position.x = (self.panStartPoint.x - currentLocation.x);
+//    NSLog(@"panStartPoint: %ld", (long)self.panStartPoint.x);
+//    NSLog(@"currentLocation: %ld", (long)currentLocation.x);
+//    NSLog(@"x: %ld", (long)position.x);
+//    self.camera.position = position;
+//}
+
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     for (UITouch *t in touches) {

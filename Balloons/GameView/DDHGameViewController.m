@@ -61,6 +61,7 @@
 
     _storage = [[DDHStorage alloc] init];
     [_storage createDatabaseIfNeeded];
+    [_storage createPresentsDatabaseIfNeeded];
 
     self.birthdays = [_storage birthdays];
 

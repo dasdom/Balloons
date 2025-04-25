@@ -11,6 +11,7 @@
 @protocol DDHTimelineSceneProtocol <NSObject>
 - (void)didSelectBalloonInScene:(SKScene *)scene;
 - (void)didDeselectBalloonInScene:(SKScene *)scene;
+- (void)scene:(SKScene *)scene didSelectPresentsForBirthdayWithUUID:(NSUUID *)uuid;
 - (void)scene:(SKScene *)scene didSelectDeleteForBirthdayWithUUID:(NSUUID *)uuid;
 @end
 
