@@ -202,7 +202,7 @@
             sqlite3_bind_text(statement, 2, [[present.birthdayUUID UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(statement, 3, [present.url.path UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(statement, 4, [present.title UTF8String], -1, SQLITE_TRANSIENT);
-            sqlite3_bind_int(statement, 5, (int)(present.givenAway ? 1 : 0));
+            sqlite3_bind_int(statement, 5, (int)[present.givenAwayDate timeIntervalSince1970]);
             sqlite3_bind_int(statement, 6, (int)present.priority);
             sqlite3_bind_text(statement, 7, [present.note UTF8String], -1, SQLITE_TRANSIENT);
 
@@ -224,7 +224,7 @@
     return success;
 }
 
-- (BOOL)updateGivenAway:(BOOL)givenAway forPresent:(DDHPresent *)present {
+- (BOOL)updateGivenAwayDate:(NSDate *)givenAwayDate forPresent:(DDHPresent *)present {
     BOOL success = NO;
     sqlite3 *database;
     if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
@@ -232,7 +232,7 @@
         sqlite3_stmt *statement;
 
         if (sqlite3_prepare_v2(database, update_statement, -1, &statement, NULL) == SQLITE_OK) {
-            sqlite3_bind_int(statement, 1, (int)(givenAway ? 1 : 0));
+            sqlite3_bind_int(statement, 1, (int)[givenAwayDate timeIntervalSince1970]);
             sqlite3_bind_text(statement, 2, [[present.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
 
             if (sqlite3_step(statement) == SQLITE_DONE) {
@@ -297,12 +297,13 @@
                 NSURL *url = [NSURL URLWithString:urlString];
                 NSString *title = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 4)];
 
-                int givenAway = sqlite3_column_int(statement, 5);
+                int givenAwayTimestamp = sqlite3_column_int(statement, 5);
+                NSDate *givenAwayDate = [NSDate dateWithTimeIntervalSince1970:givenAwayTimestamp];
                 int priority = sqlite3_column_int(statement, 6);
 
                 NSString *note = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 7)];
 
-                DDHPresent *present = [[DDHPresent alloc] initWithUUID:[[NSUUID alloc] initWithUUIDString:uuidString] birthdayUUID:[[NSUUID alloc] initWithUUIDString:birthdayUUIDString] url:url title:title givenAway:givenAway priority:priority note:note];
+                DDHPresent *present = [[DDHPresent alloc] initWithUUID:[[NSUUID alloc] initWithUUIDString:uuidString] birthdayUUID:[[NSUUID alloc] initWithUUIDString:birthdayUUIDString] url:url title:title givenAwayDate:givenAwayDate priority:priority note:note];
                 [presents addObject:present];
             }
         }

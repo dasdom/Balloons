@@ -444,7 +444,7 @@
                 [self hideDetailBalloon];
             }];
         } else if ([node.name isEqual:@"presents"]) {
-            
+            [self.timelineDelegate scene:self didSelectPresentsForBirthdayWithUUID:self.detailBalloon.birthdayId];
         } else {
             [self hideDetailBalloon];
 

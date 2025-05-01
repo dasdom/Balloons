@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)createPresentsDatabaseIfNeeded;
 - (BOOL)insertPresent:(DDHPresent *)present;
-- (BOOL)updateGivenAway:(BOOL)givenAway forPresent:(DDHPresent *)present;
+- (BOOL)updateGivenAwayDate:(NSDate *)givenAwayDate forPresent:(DDHPresent *)present;
 - (BOOL)deletePresent:(DDHPresent *)present;
 - (NSArray<DDHPresent *> *)presentsForBirthday:(DDHBirthday *)birthday;
 

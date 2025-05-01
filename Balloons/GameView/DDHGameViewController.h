@@ -14,6 +14,7 @@
 - (void)didSelectInfo:(UIViewController *)viewController;
 - (void)didSelectSettings:(UIViewController *)viewController storage:(DDHStorage *)storage;
 - (void)didSelectAdd:(UIViewController *)viewController;
+- (void)viewController:(UIViewController *)viewController didSelectPresentsForBirthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage;
 @end
 
 @interface DDHGameViewController : UIViewController

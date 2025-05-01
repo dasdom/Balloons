@@ -15,8 +15,10 @@
 #import "DDHBirthdayListViewController.h"
 #import "DDHPersonsListViewController.h"
 #import "DDHImprintViewController.h"
+#import "DDHPresentsListViewController.h"
+#import "DDHPresentInputViewController.h"
 
-@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate>
+@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate, DDHPresentsListViewControllerProtocol>
 @property (nonatomic, strong) DDHGameViewController *gameViewController;
 @property (nonatomic, strong) UINavigationController *navigationController;
 @property (nonatomic, strong) DDHBirthdayListViewController *birthdayListViewController;
@@ -68,6 +70,13 @@
 - (void)didSelectAdd:(UIViewController *)viewController {
     DDHBirthdayInputViewController *next = [[DDHBirthdayInputViewController alloc] initWithDelegate:self];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
+    [viewController presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)viewController:(UIViewController *)viewController didSelectPresentsForBirthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage {
+    DDHPresentsListViewController *next = [[DDHPresentsListViewController alloc] initWithDelegate:self birthday:birthday storage:storage];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
+    navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     [viewController presentViewController:navigationController animated:YES completion:nil];
 }
 
@@ -137,6 +146,17 @@
 // MARK: - DDHPersonsListViewControllerProtocol
 - (void)reloadBirthdaysFromViewController:(UIViewController *)viewController {
     [self.gameViewController updateWithBirthdays:@[]];
+}
+
+// MARK: - DDHPresentsListViewControllerProtocol
+- (void)viewControllerDidSelectAdd:(UIViewController *)viewController {
+    DDHPresentInputViewController *next = [[DDHPresentInputViewController alloc] init];
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
+    [viewController presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)viewControllerDidCancel:(UIViewController *)viewController {
+    [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 // MARK: - Misc

@@ -272,4 +272,12 @@
     }
 }
 
+- (void)scene:(SKScene *)scene didSelectPresentsForBirthdayWithUUID:(NSUUID *)uuid {
+    NSUInteger index = [self.birthdays indexOfObjectPassingTest:^BOOL(DDHBirthday * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return [obj.uuid.UUIDString isEqualToString:uuid.UUIDString];
+    }];
+    DDHBirthday *birthday = self.birthdays[index];
+    [self.delegate viewController:self didSelectPresentsForBirthday:birthday storage:self.storage];
+}
+
 @end

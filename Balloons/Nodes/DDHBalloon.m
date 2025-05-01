@@ -48,6 +48,7 @@
         deleteButtonLabel.color = [UIColor colorNamed:@"AccentColor"];
         deleteButtonLabel.blendMode = SKBlendModeAlpha;
         deleteButtonLabel.colorBlendFactor = 1;
+        deleteButtonLabel.name = @"delete";
         [_deleteButtonNode addChild:deleteButtonLabel];
 
         [self addChild:_deleteButtonNode];
@@ -68,6 +69,7 @@
         presentsButtonLabel.color = [UIColor colorNamed:@"AccentColor"];
         presentsButtonLabel.blendMode = SKBlendModeAlpha;
         presentsButtonLabel.colorBlendFactor = 1;
+        presentsButtonLabel.name = @"presents";
         [_presentsButton addChild:presentsButtonLabel];
 
         _labelBackground = [SKSpriteNode spriteNodeWithColor:[UIColor whiteColor] size:CGSizeMake(_nameLabel.frame.size.width + 2, _nameLabel.frame.size.height)];
