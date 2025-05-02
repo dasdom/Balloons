@@ -10,6 +10,7 @@
 
 @interface DDHBalloon ()
 @property (nonatomic, strong) DDHBirthday *birthday;
+@property (nonatomic, strong) SKSpriteNode *imageNode;
 @property (nonatomic, strong) SKLabelNode *nameLabel;
 @property (nonatomic, strong) SKSpriteNode *labelBackground;
 @property (nonatomic, strong) UIColor *balloonColor;

@@ -28,18 +28,23 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         _titleLabel = [[UILabel alloc] init];
         _titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+        _titleLabel.textColor = [UIColor whiteColor];
 
         _urlLabel = [[UILabel alloc] init];
         _urlLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+        _urlLabel.textColor = [UIColor whiteColor];
 
         _note = [[UILabel alloc] init];
         _note.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
         _note.numberOfLines = 3;
+        _note.textColor = [UIColor whiteColor];
 
         UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_titleLabel, _urlLabel, _note]];
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.axis = UILayoutConstraintAxisVertical;
         stackView.spacing = 8;
+
+        self.backgroundColor = [UIColor colorNamed:@"backgroundColor"];
 
         [self.contentView addSubview:stackView];
 

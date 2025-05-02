@@ -21,6 +21,7 @@
     _window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     _appCoordinator = [[DDHAppCoordinator alloc] init];
     _window.rootViewController = [_appCoordinator start];
+    _window.overrideUserInterfaceStyle = UIUserInterfaceStyleDark;
     [_window makeKeyAndVisible];
 
     return YES;

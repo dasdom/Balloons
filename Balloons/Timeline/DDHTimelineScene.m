@@ -544,14 +544,14 @@
 - (void)pan:(UIPanGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateBegan) {
         self.panStartPoint = self.camera.position;
+    } else if (sender.state == UIGestureRecognizerStateEnded) {
+        SKAction *moveAction = [SKAction moveToX:self.panStartPoint.x duration:0.3];
+        [self.camera runAction:moveAction];
     } else {
         CGPoint translation = [sender translationInView:self.view];
 
         CGPoint position = self.camera.position;
         position.x = (self.panStartPoint.x - translation.x);
-        NSLog(@"panStartPoint: %ld", (long)self.panStartPoint.x);
-        NSLog(@"currentLocation: %ld", (long)translation.x);
-        NSLog(@"x: %ld", (long)position.x);
         self.camera.position = position;
     }
 }

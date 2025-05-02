@@ -10,8 +10,9 @@
     if (self = [super initWithFrame:frame]) {
         _tableView = [[UITableView alloc] init];
         _tableView.translatesAutoresizingMaskIntoConstraints = NO;
+        _tableView.backgroundColor = [UIColor colorNamed:@"backgroundColor"];
 
-        self.backgroundColor = [UIColor systemBackgroundColor];
+        self.backgroundColor = [UIColor colorNamed:@"backgroundColor"];
         
         [self addSubview:_tableView];
 

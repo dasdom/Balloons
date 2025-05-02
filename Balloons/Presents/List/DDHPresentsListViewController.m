@@ -5,12 +5,14 @@
 #import "DDHPresentsListViewController.h"
 #import "DDHPresentsListView.h"
 #import "DDHStorage.h"
+#import "DDHEmptyPresentListCell.h"
 #import "DDHPresentCell.h"
 #import "DDHPresent.h"
 #import "DDHBirthday.h"
 #import "NSArray+Functions.h"
+#import <SafariServices/SafariServices.h>
 
-@interface DDHPresentsListViewController ()
+@interface DDHPresentsListViewController () <UITableViewDelegate>
 @property (nonatomic, strong) id<DDHPresentsListViewControllerProtocol> delegate;
 @property (nonatomic, strong) DDHBirthday *birthday;
 @property (nonatomic, strong) DDHStorage *storage;
@@ -18,6 +20,7 @@
 @property (nonatomic, strong) DDHPresentsListView *contentView;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
+@property (nonatomic, strong) NSUUID *emptyInfoUUID;
 @end
 
 @implementation DDHPresentsListViewController
@@ -46,32 +49,56 @@
     [super viewDidLoad];
 
     self.title = @"Present ideas";
-    self.navigationItem.prompt = [self.nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents];
+    self.navigationItem.prompt = [NSString stringWithFormat:@"for %@", [self.nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents]];
 
-    UIBarButtonItem *cancel = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel:)];
-    self.navigationItem.leftBarButtonItem = cancel;
+    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done:)];
+    self.navigationItem.leftBarButtonItem = done;
 
     UIBarButtonItem *add = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(add:)];
     self.navigationItem.rightBarButtonItem = add;
 
     UITableView *tableView = self.contentView.tableView;
 
+    tableView.delegate = self;
+
+    [tableView registerClass:[DDHEmptyPresentListCell class] forCellReuseIdentifier:[DDHEmptyPresentListCell identifier]];
     [tableView registerClass:[DDHPresentCell class] forCellReuseIdentifier:[DDHPresentCell identifier]];
 
     _dataSource = [[UITableViewDiffableDataSource alloc] initWithTableView:tableView cellProvider:^UITableViewCell * _Nullable(UITableView * _Nonnull tableView, NSIndexPath * _Nonnull indexPath, NSUUID * _Nonnull itemIdentifier) {
 
-        NSUInteger index = [self.presents indexOfObjectPassingTest:^BOOL(DDHPresent * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            return [obj.uuid.UUIDString isEqualToString:itemIdentifier.UUIDString];
-        }];
-        DDHPresent *present = self.presents[index];
+        UITableViewCell *cell;
 
-        DDHPresentCell *cell = [tableView dequeueReusableCellWithIdentifier:[DDHPresentCell identifier] forIndexPath:indexPath];
+        if ([itemIdentifier.UUIDString isEqualToString:self.emptyInfoUUID.UUIDString]) {
+            DDHEmptyPresentListCell *emptyListCell = [tableView dequeueReusableCellWithIdentifier:[DDHEmptyPresentListCell identifier] forIndexPath:indexPath];
+            cell = emptyListCell;
+        } else {
+            NSUInteger index = [self.presents indexOfObjectPassingTest:^BOOL(DDHPresent * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                return [obj.uuid.UUIDString isEqualToString:itemIdentifier.UUIDString];
+            }];
+            DDHPresent *present = self.presents[index];
 
-        [cell updateWithPresent:present];
+            DDHPresentCell *presentCell = [tableView dequeueReusableCellWithIdentifier:[DDHPresentCell identifier] forIndexPath:indexPath];
+
+            [presentCell updateWithPresent:present];
+            cell = presentCell;
+        }
 
         return cell;
     }];
 
+    [self loadAndUpdate];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    [self.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        NSIndexPath *selectedIndexPath = [self.contentView.tableView indexPathForSelectedRow];
+        [self.contentView.tableView deselectRowAtIndexPath:selectedIndexPath animated:YES];
+    } completion:nil];
+}
+
+- (void)loadAndUpdate {
     NSArray<DDHPresent *> *presents = [self.storage presentsForBirthday:self.birthday];
     [self updateWithPresents:presents];
 }
@@ -86,17 +113,50 @@
     }];
     if ([ids count] > 0) {
         [snapshot appendItemsWithIdentifiers:ids];
+    } else {
+        _emptyInfoUUID = [NSUUID UUID];
+        [snapshot appendItemsWithIdentifiers:@[_emptyInfoUUID]];
     }
     [self.dataSource applySnapshot:snapshot animatingDifferences:YES];
 }
 
-// MARK: - Actions
-- (void)add:(UIBarButtonItem *)sender {
-    [self.delegate viewControllerDidSelectAdd:self];
+// MARK: - UITableViewDelegate
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UIContextualAction *deleteAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"Delete" handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+
+        NSUUID *itemIdentifier = [self.dataSource itemIdentifierForIndexPath:indexPath];
+        NSUInteger index = [self.presents indexOfObjectPassingTest:^BOOL(DDHPresent * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return [obj.uuid.UUIDString isEqualToString:itemIdentifier.UUIDString];
+        }];
+        DDHPresent *present = self.presents[index];
+        [self.storage deletePresent:present];
+
+        [self loadAndUpdate];
+        completionHandler(YES);
+    }];
+    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
 }
 
-- (void)cancel:(UIBarButtonItem *)sender {
-    [self.delegate viewControllerDidCancel:self];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSUUID *itemIdentifier = [self.dataSource itemIdentifierForIndexPath:indexPath];
+    NSUInteger index = [self.presents indexOfObjectPassingTest:^BOOL(DDHPresent * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return [obj.uuid.UUIDString isEqualToString:itemIdentifier.UUIDString];
+    }];
+    DDHPresent *present = self.presents[index];
+
+    if (present.url.host.length > 0) {
+        SFSafariViewController *safariViewController = [[SFSafariViewController alloc] initWithURL:present.url];
+        [self presentViewController:safariViewController animated:YES completion:nil];
+    }
+}
+
+// MARK: - Actions
+- (void)add:(UIBarButtonItem *)sender {
+    [self.delegate viewControllerDidSelectAdd:self birthday:self.birthday storage:self.storage];
+}
+
+- (void)done:(UIBarButtonItem *)sender {
+    [self.delegate viewControllerDidDone:self];
 }
 
 @end

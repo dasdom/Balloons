@@ -61,7 +61,7 @@
         stackView.axis = UILayoutConstraintAxisVertical;
         stackView.spacing = 20;
 
-        self.backgroundColor = [UIColor systemBackgroundColor];
+        self.backgroundColor = [UIColor colorNamed:@"backgroundColor"];
 
         [self addSubview:stackView];
 

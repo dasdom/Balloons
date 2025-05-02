@@ -18,10 +18,11 @@
 #import "DDHPresentsListViewController.h"
 #import "DDHPresentInputViewController.h"
 
-@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate, DDHPresentsListViewControllerProtocol>
+@interface DDHAppCoordinator () <DDHGameViewControllerDelegate, DDHSettingsViewControllerDelegate, DDHBirthdayInputViewControllerProtocol, DDHPersonsListViewControllerProtocol, PHPickerViewControllerDelegate, DDHPresentsListViewControllerProtocol, DDHPresentInputViewControllerProtocol>
 @property (nonatomic, strong) DDHGameViewController *gameViewController;
 @property (nonatomic, strong) UINavigationController *navigationController;
 @property (nonatomic, strong) DDHBirthdayListViewController *birthdayListViewController;
+@property (nonatomic, weak) DDHPresentsListViewController *presentsListViewController;
 @end
 
 @implementation DDHAppCoordinator
@@ -39,6 +40,9 @@
 //    [self.navigationController pushViewController:birthdayListViewController animated:NO];
 //    self.birthdayListViewController = birthdayListViewController;
 //    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"List" image:[UIImage systemImageNamed:@"list.bullet"] tag:0];
+
+    [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]}];
+    [[UINavigationBar appearance] setBarStyle:UIBarStyleBlack];
 
     self.gameViewController = [[DDHGameViewController alloc] initWithDelegate:self];
 //    self.gameViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Balloons" image:[UIImage systemImageNamed:@"balloon"] tag:1];
@@ -75,6 +79,7 @@
 
 - (void)viewController:(UIViewController *)viewController didSelectPresentsForBirthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage {
     DDHPresentsListViewController *next = [[DDHPresentsListViewController alloc] initWithDelegate:self birthday:birthday storage:storage];
+    self.presentsListViewController = next;
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
     navigationController.modalPresentationStyle = UIModalPresentationFullScreen;
     [viewController presentViewController:navigationController animated:YES completion:nil];
@@ -149,13 +154,20 @@
 }
 
 // MARK: - DDHPresentsListViewControllerProtocol
-- (void)viewControllerDidSelectAdd:(UIViewController *)viewController {
-    DDHPresentInputViewController *next = [[DDHPresentInputViewController alloc] init];
+- (void)viewControllerDidSelectAdd:(UIViewController *)viewController birthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage {
+    DDHPresentInputViewController *next = [[DDHPresentInputViewController alloc] initWithDelegate:self birthday:birthday storage:storage];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:next];
     [viewController presentViewController:navigationController animated:YES completion:nil];
 }
 
-- (void)viewControllerDidCancel:(UIViewController *)viewController {
+- (void)viewControllerDidDone:(UIViewController *)viewController {
+    self.presentsListViewController = nil;
+    [viewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+// MARK: - DDHPresentInputViewControllerProtocol
+- (void)viewControllerDidAddPresent:(UIViewController *)viewController {
+    [self.presentsListViewController loadAndUpdate];
     [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 

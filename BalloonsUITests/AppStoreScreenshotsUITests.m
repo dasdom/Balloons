@@ -63,6 +63,8 @@
 
     sleep(2);
     [self takeScreenshotWithName:@"06_Details"];
+
+    
 }
 
 - (void)handleContactsPermissionAlert {

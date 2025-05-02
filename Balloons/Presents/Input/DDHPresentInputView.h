@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UITextField *titleTextField;
 @property (nonatomic, strong) UITextField *urlTextField;
 @property (nonatomic, strong) UITextView *noteTextView;
+@property (nonatomic, strong) UIButton *addButton;
 @end
 
 NS_ASSUME_NONNULL_END

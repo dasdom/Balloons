@@ -180,7 +180,7 @@
     sqlite3 *database;
     if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
         char *errorMessage;
-        const char *sql_statement = "CREATE TABLE IF NOT EXISTS presents (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, birthdayUUID TEXT, url TEXT, title TEXT, givenAway INT, priority INT, note TEXT)";
+        const char *sql_statement = "CREATE TABLE IF NOT EXISTS presents (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, birthdayUUID TEXT NOT NULL, url TEXT, title TEXT NOT NULL, givenAway INT, priority INT, note TEXT)";
 
         if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
             NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
@@ -200,7 +200,7 @@
         if (sqlite3_prepare_v2(database, insert_statement, -1, &statement, NULL) == SQLITE_OK) {
             sqlite3_bind_text(statement, 1, [[present.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(statement, 2, [[present.birthdayUUID UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(statement, 3, [present.url.path UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 3, [present.url.absoluteString UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(statement, 4, [present.title UTF8String], -1, SQLITE_TRANSIENT);
             sqlite3_bind_int(statement, 5, (int)[present.givenAwayDate timeIntervalSince1970]);
             sqlite3_bind_int(statement, 6, (int)present.priority);
@@ -257,7 +257,7 @@
     BOOL success = NO;
     sqlite3 *database;
     if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
-        const char *delete_statement = "DELETE FROM birthdays WHERE uuid = ?";
+        const char *delete_statement = "DELETE FROM presents WHERE uuid = ?";
         sqlite3_stmt *statement;
 
         if (sqlite3_prepare_v2(database, delete_statement, -1, &statement, NULL) == SQLITE_OK) {
@@ -290,18 +290,26 @@
         if (sqlite3_prepare_v2(database, fetch_statement, -1, &statement, NULL) == SQLITE_OK) {
             sqlite3_bind_text(statement, 1, [[birthday.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
 
-            if (sqlite3_step(statement) == SQLITE_ROW) {
+            while (sqlite3_step(statement) == SQLITE_ROW) {
                 NSString *uuidString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
                 NSString *birthdayUUIDString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
-                NSString *urlString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 3)];
-                NSURL *url = [NSURL URLWithString:urlString];
+                char *urlCString = (char *)sqlite3_column_text(statement, 3);
+                NSURL *url;
+                if (urlCString != NULL) {
+                    NSString *urlString = [NSString stringWithUTF8String:urlCString];
+                    url = [NSURL URLWithString:urlString];
+                }
                 NSString *title = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 4)];
 
                 int givenAwayTimestamp = sqlite3_column_int(statement, 5);
                 NSDate *givenAwayDate = [NSDate dateWithTimeIntervalSince1970:givenAwayTimestamp];
                 int priority = sqlite3_column_int(statement, 6);
 
-                NSString *note = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 7)];
+                char *noteCString = (char *)sqlite3_column_text(statement, 7);
+                NSString *note;
+                if (noteCString != NULL) {
+                    note = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 7)];
+                }
 
                 DDHPresent *present = [[DDHPresent alloc] initWithUUID:[[NSUUID alloc] initWithUUIDString:uuidString] birthdayUUID:[[NSUUID alloc] initWithUUIDString:birthdayUUIDString] url:url title:title givenAwayDate:givenAwayDate priority:priority note:note];
                 [presents addObject:present];

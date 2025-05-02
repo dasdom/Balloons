@@ -11,12 +11,13 @@ NS_ASSUME_NONNULL_BEGIN
 @class DDHStorage;
 
 @protocol DDHPresentsListViewControllerProtocol <NSObject>
-- (void)viewControllerDidCancel:(UIViewController *)viewController;
-- (void)viewControllerDidSelectAdd:(UIViewController *)viewController;
+- (void)viewControllerDidDone:(UIViewController *)viewController;
+- (void)viewControllerDidSelectAdd:(UIViewController *)viewController birthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage;
 @end
 
 @interface DDHPresentsListViewController : UIViewController
 - (instancetype)initWithDelegate:(id<DDHPresentsListViewControllerProtocol>)delegate birthday:(DDHBirthday *)birthday storage:(DDHStorage *)storage;
+- (void)loadAndUpdate;
 @end
 
 NS_ASSUME_NONNULL_END

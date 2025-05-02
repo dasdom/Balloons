@@ -122,6 +122,7 @@ const NSInteger DDHIndexForDays[] = {
             {
                 cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
                 cell.textLabel.text = @"Shown Balloons";
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 break;
             }
             default:
@@ -132,6 +133,15 @@ const NSInteger DDHIndexForDays[] = {
     }];
 
     [self update];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+
+    [self.transitionCoordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+        NSIndexPath *selectedIndexPath = [self.contentView.tableView indexPathForSelectedRow];
+        [self.contentView.tableView deselectRowAtIndexPath:selectedIndexPath animated:YES];
+    } completion:nil];
 }
 
 - (void)update {
@@ -194,7 +204,7 @@ const NSInteger DDHIndexForDays[] = {
 }
 
 // MARK: - UITableViewDelegate
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {    
     DDHSettingsCellIdentifier cellIdentifier = [[self.dataSource itemIdentifierForIndexPath:indexPath] integerValue];
     if (cellIdentifier == DDHSettingsCellIdentifierPersons) {
         [self.delegate didSelectPersonsInViewController:self storage:self.storage];
