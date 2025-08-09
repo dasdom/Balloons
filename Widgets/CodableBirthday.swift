@@ -7,12 +7,14 @@ struct CodableBirthday: Codable, Hashable {
     let familyName: String?
     let imageData: Data?
     let daysLeft: Int
+    let personNameComponents: PersonNameComponents
 
     init(givenName: String, familyName: String, imageData: Data?, daysLeft: Int) {
         self.givenName = givenName
         self.familyName = familyName
         self.imageData = imageData
         self.daysLeft = daysLeft
+        self.personNameComponents = PersonNameComponents()
     }
 
     init(birthday: DDHBirthday) {
@@ -20,5 +22,6 @@ struct CodableBirthday: Codable, Hashable {
         self.familyName = birthday.personNameComponents.familyName
         self.imageData = birthday.imageData
         self.daysLeft = birthday.daysLeft
+        self.personNameComponents = birthday.personNameComponents
     }
 }
