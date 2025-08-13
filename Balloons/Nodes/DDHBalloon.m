@@ -121,10 +121,14 @@
         ];
     } else {
         NSString *dateString = [dateFormatterWithYear stringFromDate:self.birthday.date];
+        NSInteger age = [DDHDateHelper ageForDateComponents:self.birthday.date];
+        if (self.birthday.daysLeft > 0) {
+            age = age + 1;
+        }
         self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days",
                                nameString,
                                dateString,
-                               [DDHDateHelper ageForDateComponents:self.birthday.date] + 1,
+                               age,
                                self.birthday.daysLeft
         ];
     }

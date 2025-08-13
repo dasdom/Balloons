@@ -40,8 +40,13 @@
 }
 
 + (NSInteger)ageForDateComponents:(NSDate *)date {
-    NSDateComponents *ageComponents = [self.calendar components:NSCalendarUnitYear fromDate:date toDate:[NSDate now] options:NSCalendarMatchPreviousTimePreservingSmallerUnits];
-    return ageComponents.year;
+    NSDate *now = [NSDate now];
+    NSDateComponents *ageComponents = [self.calendar components:NSCalendarUnitYear fromDate:date toDate:now options:NSCalendarMatchPreviousTimePreservingSmallerUnits];
+    if ([self.calendar isDate:date inSameDayAsDate:now]) {
+        return ageComponents.year - 1;
+    } else {
+        return ageComponents.year;
+    }
 }
 
 + (NSArray<DDHDisplayMonth *> *)displayMonthsUseVeryShort:(BOOL)veryShort {
