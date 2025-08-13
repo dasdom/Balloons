@@ -74,7 +74,7 @@
 
 - (void)handleAccessPrompt {
     XCUIApplication *access = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.ContactsUI.LimitedAccessPromptView"];
-    [access.buttons[@"Share All 12 Contacts"] tap];
+    [access.buttons[@"Share All 6 Contacts"] tap];
 }
 
 - (void)takeScreenshotWithName:(NSString *)name {

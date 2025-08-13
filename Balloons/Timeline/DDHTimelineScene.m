@@ -40,6 +40,7 @@
 @property (nonatomic, strong) NSArray<SKTexture *> *attachingFrames;
 @property (nonatomic, strong) SKSpriteNode *personNode;
 @property (assign) CGPoint panStartPoint;
+@property (nonatomic, assign) CGFloat balloonWidth;
 @end
 
 @implementation DDHTimelineScene
@@ -68,6 +69,14 @@
         _numberOfShownDays = [[NSUserDefaults standardUserDefaults] numberOfShownDays];
     }
     return self;
+}
+
+- (CGFloat)balloonWidth {
+    if (self.view.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
+        return 44;
+    } else {
+        return 80;
+    }
 }
 
 - (void)setGravityFactor:(CGFloat)gravityFactor {
@@ -203,7 +212,7 @@
 
     CGFloat hue = birthday.daysLeft/366.0;
     UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44 color:ropeColor];
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:self.balloonWidth color:ropeColor];
     position = CGPointMake(xPos, position.y + 70);
     balloon.position = position;
 
@@ -211,7 +220,7 @@
         CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
         if (intersectionSize.width > 5 || intersectionSize.height > 5) {
             NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
-            position = CGPointMake(xPos, otherBalloon.position.y + 50);
+            position = CGPointMake(xPos, otherBalloon.position.y + self.balloonWidth + 6);
             balloon.position = position;
         }
     }
@@ -366,8 +375,8 @@
 
         CGFloat hue = birthday.daysLeft/366.0;
         UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:44 color:ropeColor];
-        CGFloat yPos = -self.timelineYPosition + 60 + arc4random_uniform(20);
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:self.balloonWidth color:ropeColor];
+        CGFloat yPos = -self.timelineYPosition + self.balloonWidth + 16 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
         [self addChild:balloon];
@@ -376,7 +385,7 @@
             CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
             if (intersectionSize.width > 5 || intersectionSize.height > 5) {
                 NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
-                CGPoint position = CGPointMake(xPos, otherBalloon.position.y + 50);
+                CGPoint position = CGPointMake(xPos, otherBalloon.position.y + self.balloonWidth + 6);
                 balloon.position = position;
             }
         }
@@ -499,28 +508,38 @@
 }
 
 - (void)hideDetailBalloon {
-    SKAction *animation = [SKAction group:@[
-        [SKAction resizeToWidth:50 height:50 duration:0.8],
-        [SKAction moveTo:self.positionOfSelectedBalloon duration:0.5],
-//        [SKAction fadeOutWithDuration:0.5],
+    SKAction *fadeOutDetailAnimation = [SKAction group:@[
+//        [SKAction resizeToWidth:50 height:50 duration:0.3],
+//        [SKAction moveTo:self.positionOfSelectedBalloon duration:0.5],
+        [SKAction fadeOutWithDuration:0.3],
     ]];
-    animation.timingMode = SKActionTimingEaseInEaseOut;
+    fadeOutDetailAnimation.timingMode = SKActionTimingEaseInEaseOut;
 
 //    self.detailBalloon.physicsBody.affectedByGravity = YES;
+
+    SKAction *fadeInSelectedAnimation = [SKAction sequence:@[
+        [SKAction waitForDuration:0.3],
+        [SKAction fadeInWithDuration:0.3]
+    ]];
+    fadeInSelectedAnimation.timingMode = SKActionTimingEaseInEaseOut;
 
     self.detailBalloon.deleteButtonNode.hidden = YES;
     [self.detailBalloon showLabel:false animated:true];
 
-    [self.detailBalloon runAction:animation completion:^{
-        self.selectedBalloon.hidden = NO;
+    self.selectedBalloon.alpha = 0;
+    self.selectedBalloon.hidden = NO;
+
+    [self.detailBalloon runAction:fadeOutDetailAnimation completion:^{
         [self.detailBalloon removeFromParent];
         self.detailBalloon = nil;
-        self.selectedBalloon = nil;
+
+        [self fadeInMonthIndicators];
+        self.gravityFactor = 7;
     }];
 
-    [self fadeInMonthIndicators];
-
-    self.gravityFactor = 7;
+    [self.selectedBalloon runAction:fadeInSelectedAnimation completion:^{
+        self.selectedBalloon = nil;
+    }];
 }
 
 - (void)fadeOutMonthIndicators {
