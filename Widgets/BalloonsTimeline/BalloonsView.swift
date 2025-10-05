@@ -32,7 +32,7 @@ struct BalloonsView: View {
                         .position(x: x, y: y)
 
                     Path { path in
-                        path.move(to: CGPoint(x: x, y: y - proxy.size.height/2 + balloonWidth/2 + 5))
+                        path.move(to: CGPoint(x: x, y: y - proxy.size.height/2 + balloonWidth/2 + 10))
                         path.addLine(to: CGPoint(x: x, y: proxy.size.height/2-15))
                     }
                     .stroke(.secondary, lineWidth: 1)
