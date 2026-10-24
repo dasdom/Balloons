@@ -88,6 +88,41 @@
     return [UNNotificationRequest requestWithIdentifier:self.uuid.UUIDString content:content trigger:trigger];
 }
 
+- (NSString *)name {
+    return self.personNameComponents.givenName;
+}
+
+- (NSString *)balloonText {
+    NSPersonNameComponentsFormatter *nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
+    nameFormatter.style = NSPersonNameComponentsFormatterStyleAbbreviated;
+    return [nameFormatter stringFromPersonNameComponents:self.personNameComponents];
+}
+
+- (NSString *)detailStringWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatterWithYear:(NSDateFormatter *)dateFormatterWithYear dateFormatterWithoutYear:(NSDateFormatter *)dateFormatterWithoutYear {
+    NSString *detailString;
+    NSString *nameString = [nameFormatter stringFromPersonNameComponents:self.personNameComponents];
+    if (self.yearUnknown) {
+        NSString *dateString = [dateFormatterWithoutYear stringFromDate:self.date];
+        detailString = [NSString stringWithFormat:@"%@\n%@\nin %ld days",
+                        nameString,
+                        dateString,
+                        self.daysLeft];
+    } else {
+        NSString *dateString = [dateFormatterWithYear stringFromDate:self.date];
+        NSInteger age = [DDHDateHelper ageForDateComponents:self.date];
+        if (self.daysLeft > 0) {
+            age = age + 1;
+        }
+        detailString = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days",
+                               nameString,
+                               dateString,
+                               age,
+                               self.daysLeft
+        ];
+    }
+    return detailString;
+}
+
 - (NSString *)description {
     return [@[self.uuid.UUIDString, [NSString stringWithFormat:@"%ld", self.daysLeft], self.personNameComponents.givenName] componentsJoinedByString:@", "];
 }

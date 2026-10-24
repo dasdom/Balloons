@@ -193,8 +193,8 @@
                        withKey:@"attach"];
 }
 
-- (void)insertBirthday:(DDHBirthday *)birthday {
-    CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
+- (void)insertItem:(id<DDHBalloonPresentableProtocol>)item {
+    CGFloat xPos = self.timelineStart * 2 * item.daysLeft / self.numberOfShownDays - self.timelineStart;
 
     BOOL shouldAnimate = xPos < self.frame.size.width/2;
 
@@ -210,16 +210,16 @@
         [self animateWalk];
     }
 
-    CGFloat hue = birthday.daysLeft/366.0;
+    CGFloat hue = item.daysLeft/366.0;
     UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:self.balloonWidth color:ropeColor];
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithItem:item width:self.balloonWidth color:ropeColor];
     position = CGPointMake(xPos, position.y + 70);
     balloon.position = position;
 
     for (DDHBalloon *otherBalloon in self.balloons) {
         CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
         if (intersectionSize.width > 5 || intersectionSize.height > 5) {
-            NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
+            NSLog(@"overlapping: %@", item.name);
             position = CGPointMake(xPos, otherBalloon.position.y + self.balloonWidth + 6);
             balloon.position = position;
         }
@@ -234,7 +234,7 @@
     [self addChild:balloon];
     self.balloons = [self.balloons arrayByAddingObject:balloon];
 
-    DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
+    DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:item.daysLeft forBirthdayId:item.uuid];
     if (shouldAnimate) {
         anchor.position = CGPointMake(self.personNode.position.x - 10, self.personNode.position.y + 30);
     } else {
@@ -342,7 +342,7 @@
     self.lineNodes = [lineNodes copy];
 }
 
-- (void)updateForBirthdays:(NSArray<DDHBirthday *> *)birthdays {
+- (void)updateForItems:(NSArray<id<DDHBalloonPresentableProtocol>> *)items {
     for (SKPhysicsJoint *joint in self.balloonJoints) {
         [self.physicsWorld removeJoint:joint];
     }
@@ -357,25 +357,25 @@
 //        [rope removeFromParentWithScene:self];
     }
 
-    NSMutableArray<DDHBalloon *> *balloons = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
-    NSMutableArray<DDHBalloonAnchor *> *anchors = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
-    NSMutableArray<SKPhysicsJoint *> *joints = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
+    NSMutableArray<DDHBalloon *> *balloons = [[NSMutableArray alloc] initWithCapacity:items.count];
+    NSMutableArray<DDHBalloonAnchor *> *anchors = [[NSMutableArray alloc] initWithCapacity:items.count];
+    NSMutableArray<SKPhysicsJoint *> *joints = [[NSMutableArray alloc] initWithCapacity:items.count];
 //    NSMutableArray<DDHRope *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
-    NSMutableArray<SKShapeNode *> *ropes = [[NSMutableArray alloc] initWithCapacity:birthdays.count];
+    NSMutableArray<SKShapeNode *> *ropes = [[NSMutableArray alloc] initWithCapacity:items.count];
 
-    for (DDHBirthday *birthday in birthdays) {
+    for (id<DDHBalloonPresentableProtocol> item in items) {
 //        if (birthday.daysLeft > self.numberOfShownDays) {
 //            NSLog(@"skipping: %@", birthday.personNameComponents.givenName);
 //            continue;
 //        } else {
-            NSLog(@"adding: %@", birthday.personNameComponents.givenName);
+            NSLog(@"adding: %@", item.name);
 //        }
 
-        CGFloat xPos = self.timelineStart * 2 * birthday.daysLeft / self.numberOfShownDays - self.timelineStart;
+        CGFloat xPos = self.timelineStart * 2 * item.daysLeft / self.numberOfShownDays - self.timelineStart;
 
-        CGFloat hue = birthday.daysLeft/366.0;
+        CGFloat hue = item.daysLeft/366.0;
         UIColor *ropeColor = [UIColor colorWithHue:hue saturation:0.7 brightness:0.7 alpha:1];
-        DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:self.balloonWidth color:ropeColor];
+        DDHBalloon *balloon = [[DDHBalloon alloc] initWithItem:item width:self.balloonWidth color:ropeColor];
         CGFloat yPos = -self.timelineYPosition + self.balloonWidth + 16 + arc4random_uniform(20);
         CGPoint position = CGPointMake(xPos, yPos);
         balloon.position = position;
@@ -384,7 +384,7 @@
         for (DDHBalloon *otherBalloon in balloons) {
             CGSize intersectionSize = CGRectIntersection(otherBalloon.frame, balloon.frame).size;
             if (intersectionSize.width > 5 || intersectionSize.height > 5) {
-                NSLog(@"overlapping: %@", birthday.personNameComponents.givenName);
+                NSLog(@"overlapping: %@", item.name);
                 CGPoint position = CGPointMake(xPos, otherBalloon.position.y + self.balloonWidth + 6);
                 balloon.position = position;
             }
@@ -392,7 +392,7 @@
 
         [balloons addObject:balloon];
 
-        DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:birthday.daysLeft forBirthdayId:birthday.uuid];
+        DDHBalloonAnchor *anchor = [DDHBalloonAnchor anchorNodeWithDaysLeft:item.daysLeft forBirthdayId:item.uuid];
         CGPoint anchorPosition = CGPointMake(xPos, -self.timelineYPosition);
         anchor.position = anchorPosition;
         anchor.zPosition = 1;
@@ -442,10 +442,12 @@
     } else if (self.detailBalloon) {
         if ([node.name isEqual:@"delete"]) {
             self.gravityFactor = 7;
-            [self.timelineDelegate scene:self didSelectDeleteForBirthdayWithUUID:self.detailBalloon.birthdayId];
+            [self hideDetailBalloon];
+
+            [self.timelineDelegate scene:self didSelectDeleteForItemWithUUID:self.detailBalloon.itemId];
 
             self.detailBalloon.physicsBody.affectedByGravity = YES;
-            [self removeNodesForBirthdayId:self.detailBalloon.birthdayId];
+            [self removeNodesForBirthdayId:self.detailBalloon.itemId];
 
             [self runAction:[SKAction waitForDuration:2] completion:^{
                 [self.detailBalloon removeFromParent];
@@ -453,7 +455,7 @@
                 [self hideDetailBalloon];
             }];
         } else if ([node.name isEqual:@"presents"]) {
-            [self.timelineDelegate scene:self didSelectPresentsForBirthdayWithUUID:self.detailBalloon.birthdayId];
+            [self.timelineDelegate scene:self didSelectPresentsForBirthdayWithUUID:self.detailBalloon.itemId];
         } else {
             [self hideDetailBalloon];
 

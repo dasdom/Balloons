@@ -12,7 +12,7 @@
 - (void)didSelectBalloonInScene:(SKScene *)scene;
 - (void)didDeselectBalloonInScene:(SKScene *)scene;
 - (void)scene:(SKScene *)scene didSelectPresentsForBirthdayWithUUID:(NSUUID *)uuid;
-- (void)scene:(SKScene *)scene didSelectDeleteForBirthdayWithUUID:(NSUUID *)uuid;
+- (void)scene:(SKScene *)scene didSelectDeleteForItemWithUUID:(NSUUID *)uuid;
 @end
 
 #endif /* DDHTimelineSceneProtocol_h */

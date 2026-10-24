@@ -4,16 +4,17 @@
 
 
 #import <SpriteKit/SpriteKit.h>
+#import "DDHBalloonPresentableProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class DDHBirthday;
 
 @interface DDHBalloon : SKSpriteNode
-@property (nonatomic, strong) NSUUID *birthdayId;
+@property (nonatomic, strong) NSUUID *itemId;
 @property (nonatomic, strong) SKSpriteNode *deleteButtonNode;
 @property (nonatomic, strong) SKSpriteNode *presentsButton;
-- (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width color:(UIColor *)color;
+- (instancetype)initWithItem:(id<DDHBalloonPresentableProtocol>)item width:(CGFloat)width color:(UIColor *)color;
 - (DDHBalloon *)balloonCopyForDetail;
 - (void)showLabel:(BOOL)show animated:(BOOL)animated;
 - (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatterWithYear:(NSDateFormatter *)dateFormatterWithYear dateFormatterWithoutYear:(NSDateFormatter *)dateFormatterWithoutYear;

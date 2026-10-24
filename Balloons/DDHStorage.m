@@ -8,6 +8,7 @@
 #import <sqlite3.h>
 #import "DDHBirthday.h"
 #import "DDHPresent.h"
+#import "DDHEvent.h"
 
 // https://stackoverflow.com/a/36950666/498796
 @implementation DDHStorage
@@ -317,6 +318,146 @@
         }
     }
     return [presents copy];
+}
+
+// MARK: - Events
+- (void)createEventsDatabaseIfNeeded {
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        char *errorMessage;
+        const char *sql_statement = "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, uuid TEXT NOT NULL UNIQUE, emoji TEXT, name TEXT, date INT, favorite INT)";
+
+        if (sqlite3_exec(database, sql_statement, NULL, NULL, &errorMessage) != SQLITE_OK) {
+            NSLog(@"Failed to create table: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    }
+}
+
+- (BOOL)insertEvent:(DDHEvent *)event {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *insert_statement = "INSERT OR IGNORE INTO events (uuid, emoji, name, date, favorite) VALUES (?,?,?,?,?)";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, insert_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[event.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 2, [event.emoji UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, 3, [event.name UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int(statement, 4, (int)[event.date timeIntervalSince1970]);
+            sqlite3_bind_int(statement, 5, (int)(event.favorite ? 1 : 0));
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to add birthday: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (BOOL)updateFavorite:(BOOL)favorite forEvent:(DDHEvent *)event {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *update_statement = "UPDATE events SET favorite = ? WHERE uuid = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, update_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_int(statement, 1, (int)(favorite ? 1 : 0));
+            sqlite3_bind_text(statement, 2, [[event.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to update birthday: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (BOOL)deleteEvent:(DDHEvent *)event {
+    BOOL success = NO;
+    sqlite3 *database;
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *delete_statement = "DELETE FROM events WHERE uuid = ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, delete_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_text(statement, 1, [[event.uuid UUIDString] UTF8String], -1, SQLITE_TRANSIENT);
+
+            if (sqlite3_step(statement) == SQLITE_DONE) {
+                success = YES;
+            } else {
+                NSLog(@"Failed to delete birthday: %s", sqlite3_errmsg(database));
+            }
+
+            sqlite3_finalize(statement);
+        } else {
+            NSLog(@"Failed to prepare database: %s", sqlite3_errmsg(database));
+        }
+
+        sqlite3_close(database);
+    } else {
+        NSLog(@"Failed to open database: %s", sqlite3_errmsg(database));
+    }
+    return success;
+}
+
+- (NSArray<DDHEvent *> *)events {
+    sqlite3 *database;
+    NSMutableArray<DDHEvent *> *events = [[NSMutableArray alloc] init];
+
+    NSInteger nowTimestamp = [[NSDate date] timeIntervalSince1970];
+
+    if (sqlite3_open([self databasePath], &database) == SQLITE_OK) {
+        const char *fetch_statement = "SELECT * FROM events WHERE date > ?";
+        sqlite3_stmt *statement;
+
+        if (sqlite3_prepare_v2(database, fetch_statement, -1, &statement, NULL) == SQLITE_OK) {
+            sqlite3_bind_int(statement, 1, (int)nowTimestamp);
+
+            while (sqlite3_step(statement) == SQLITE_ROW) {
+                NSString *uuidString = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
+
+                char *rawEmoji = (char *)sqlite3_column_text(statement, 2);
+                NSString *emoji = (rawEmoji != NULL) ? [NSString stringWithUTF8String:rawEmoji] : @"";
+
+                char *rawName = (char *)sqlite3_column_text(statement, 3);
+                NSString *name = (rawName != NULL) ? [NSString stringWithUTF8String:rawName] : @"";
+
+                int timeInterval = sqlite3_column_int(statement, 4);
+                int favorite = sqlite3_column_int(statement, 5);
+
+                NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
+                NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+                DDHEvent *event = [[DDHEvent alloc] initWithUUID:uuid date:date emoji:emoji name:name favorite:favorite];
+
+                [events addObject:event];
+            }
+        }
+    }
+    return events;
 }
 
 @end

@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface DDHPresentCell : UITableViewCell
 + (NSString *)identifier;
-- (void)updateWithPresent:(DDHPresent *)present;
+- (void)updateWithPresent:(DDHPresent *)present dateFormatter:(NSDateFormatter *)dateFormatter;
 @end
 
 NS_ASSUME_NONNULL_END

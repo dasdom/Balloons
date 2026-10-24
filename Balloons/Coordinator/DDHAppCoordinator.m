@@ -130,6 +130,11 @@
     [viewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (void)didSelectAddInViewController:(UIViewController *)viewController withEvent:(DDHEvent *)event {
+    [self.gameViewController addEvent:event];
+    [viewController dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)didSelectCancelInViewController:(UIViewController *)viewController {
     [viewController dismissViewControllerAnimated:YES completion:nil];
     [self.gameViewController updateWithBirthdays:@[]];

@@ -28,7 +28,7 @@
     DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:[NSDate date] personNameComponents:nameComponents yearUnknown:NO favorite:NO];
     UIImage *domImage = [UIImage imageNamed:@"dom"];
     birthday.imageData = UIImageJPEGRepresentation(domImage, 0.8);
-    _balloon = [[DDHBalloon alloc] initWithBirthday:birthday width:20 color:[UIColor whiteColor]];
+    _balloon = [[DDHBalloon alloc] initWithItem:birthday width:20 color:[UIColor whiteColor]];
     [_balloon showLabel:NO animated:NO];
     _balloon.physicsBody.affectedByGravity = NO;
     _balloon.physicsBody.categoryBitMask = balloonCategory;

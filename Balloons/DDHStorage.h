@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class DDHBirthday;
 @class DDHPresent;
+@class DDHEvent;
 
 @interface DDHStorage : NSObject
 - (void)createDatabaseIfNeeded;
@@ -24,6 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)deletePresent:(DDHPresent *)present;
 - (NSArray<DDHPresent *> *)presentsForBirthday:(DDHBirthday *)birthday;
 
+- (void)createEventsDatabaseIfNeeded;
+- (BOOL)insertEvent:(DDHEvent *)event;
+- (BOOL)updateFavorite:(BOOL)favorite forEvent:(DDHEvent *)event;
+- (BOOL)deleteEvent:(DDHEvent *)event;
+- (NSArray<DDHEvent *> *)events;
 @end
 
 NS_ASSUME_NONNULL_END

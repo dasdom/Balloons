@@ -20,6 +20,7 @@
 @property (nonatomic, strong) DDHPresentsListView *contentView;
 @property (nonatomic, strong) UITableViewDiffableDataSource *dataSource;
 @property (nonatomic, strong) NSPersonNameComponentsFormatter *nameFormatter;
+@property (nonatomic, strong) NSDateFormatter *dateFormatter;
 @property (nonatomic, strong) NSUUID *emptyInfoUUID;
 @end
 
@@ -33,6 +34,10 @@
 
         _nameFormatter = [[NSPersonNameComponentsFormatter alloc] init];
         _nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
+
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        _dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+        _dateFormatter.timeStyle = NSDateFormatterNoStyle;
     }
     return self;
 }
@@ -79,7 +84,7 @@
 
             DDHPresentCell *presentCell = [tableView dequeueReusableCellWithIdentifier:[DDHPresentCell identifier] forIndexPath:indexPath];
 
-            [presentCell updateWithPresent:present];
+            [presentCell updateWithPresent:present dateFormatter:self.dateFormatter];
             cell = presentCell;
         }
 
@@ -134,7 +139,23 @@
         [self loadAndUpdate];
         completionHandler(YES);
     }];
-    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+
+    UIContextualAction *markAsGivenAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:@"Given" handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+
+        NSUUID *itemIdentifier = [self.dataSource itemIdentifierForIndexPath:indexPath];
+        NSUInteger index = [self.presents indexOfObjectPassingTest:^BOOL(DDHPresent * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return [obj.uuid.UUIDString isEqualToString:itemIdentifier.UUIDString];
+        }];
+        DDHPresent *present = self.presents[index];
+        NSDate *givenAwayDate = [NSDate date];
+        present.givenAwayDate = givenAwayDate;
+        [self.storage updateGivenAwayDate:givenAwayDate forPresent:present];
+
+        [self loadAndUpdate];
+        completionHandler(YES);
+    }];
+
+    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction, markAsGivenAction]];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

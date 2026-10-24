@@ -5,12 +5,18 @@
 
 #import "DDHBirthdayInputView.h"
 
+@interface DDHBirthdayInputView ()
+@property (nonatomic, strong) UIStackView *orStackView;
+@property (nonatomic, strong) UIView *imageViewHostView;
+@end
+
 @implementation DDHBirthdayInputView
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         UIButtonConfiguration *buttonConfiguration = [UIButtonConfiguration filledButtonConfiguration];
         buttonConfiguration.title = @"Import From Contacts";
         _importButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
+        _importButton.clipsToBounds = YES;
 
         UIView *leftDividerView = [[UIView alloc] init];
         leftDividerView.backgroundColor = [UIColor secondaryLabelColor];
@@ -22,9 +28,9 @@
         orLabel.text = @"or";
         orLabel.textAlignment = NSTextAlignmentCenter;
 
-        UIStackView *orStackView = [[UIStackView alloc] initWithArrangedSubviews:@[leftDividerView, orLabel, rightDividerView]];
-        orStackView.spacing = 10;
-        orStackView.alignment = UIStackViewAlignmentCenter;
+        _orStackView = [[UIStackView alloc] initWithArrangedSubviews:@[leftDividerView, orLabel, rightDividerView]];
+        _orStackView.spacing = 10;
+        _orStackView.alignment = UIStackViewAlignmentCenter;
 
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -34,8 +40,16 @@
         _imageView.clipsToBounds = YES;
         _imageView.image = [UIImage systemImageNamed:@"person.fill"];
 
-        UIView *imageViewHostView = [[UIView alloc] init];
-        [imageViewHostView addSubview:_imageView];
+        _imageViewHostView = [[UIView alloc] init];
+        _imageViewHostView.clipsToBounds = YES;
+        [_imageViewHostView addSubview:_imageView];
+
+        _emojiTextField = [[DDHEmojiTextField alloc] init];
+        _emojiTextField.placeholder = @"Emoji";
+        _emojiTextField.borderStyle = UITextBorderStyleRoundedRect;
+        _emojiTextField.font = [UIFont systemFontOfSize:30];
+        _emojiTextField.textAlignment = NSTextAlignmentCenter;
+        _emojiTextField.hidden = YES;
 
         _givenNameTextField = [[UITextField alloc] init];
         _givenNameTextField.placeholder = @"Given name";
@@ -52,11 +66,11 @@
         _addButton = [UIButton buttonWithConfiguration:buttonConfiguration primaryAction:nil];
         _addButton.enabled = NO;
 
-        UIStackView *inputStackView = [[UIStackView alloc] initWithArrangedSubviews:@[imageViewHostView, _givenNameTextField, _familyNameTextField, _birthdayPicker, _addButton]];
+        UIStackView *inputStackView = [[UIStackView alloc] initWithArrangedSubviews:@[_imageViewHostView, _emojiTextField, _givenNameTextField, _familyNameTextField, _birthdayPicker, _addButton]];
         inputStackView.axis = UILayoutConstraintAxisVertical;
         inputStackView.spacing = 10;
 
-        UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_importButton, orStackView, inputStackView]];
+        UIStackView *stackView = [[UIStackView alloc] initWithArrangedSubviews:@[_importButton, _orStackView, inputStackView]];
         stackView.translatesAutoresizingMaskIntoConstraints = NO;
         stackView.axis = UILayoutConstraintAxisVertical;
         stackView.spacing = 20;
@@ -76,13 +90,47 @@
             [leftDividerView.widthAnchor constraintEqualToAnchor:rightDividerView.widthAnchor],
             [rightDividerView.heightAnchor constraintEqualToAnchor:leftDividerView.heightAnchor],
 
-            [_imageView.topAnchor constraintEqualToAnchor:imageViewHostView.topAnchor constant:8],
-            [_imageView.bottomAnchor constraintEqualToAnchor:imageViewHostView.bottomAnchor constant:-8],
-            [_imageView.centerXAnchor constraintEqualToAnchor:imageViewHostView.centerXAnchor],
+            [_imageView.topAnchor constraintEqualToAnchor:_imageViewHostView.topAnchor constant:8],
+            [_imageView.bottomAnchor constraintEqualToAnchor:_imageViewHostView.bottomAnchor constant:-8],
+            [_imageView.centerXAnchor constraintEqualToAnchor:_imageViewHostView.centerXAnchor],
             [_imageView.widthAnchor constraintEqualToConstant:imageViewWidth],
             [_imageView.heightAnchor constraintEqualToAnchor:_imageView.widthAnchor]
         ]];
     }
     return self;
+}
+
+- (void)updateWithInputType:(DDHInputType)inputType {
+    self.imageView.hidden = YES;
+    [UIView animateWithDuration:0.3 animations:^{
+        switch (inputType) {
+            case DDHInputTypeEvent:
+                self.importButton.hidden = YES;
+                self.orStackView.hidden = YES;
+                self.imageViewHostView.hidden = YES;
+                self.familyNameTextField.hidden = YES;
+                self.givenNameTextField.placeholder = @"Event name";
+
+                self.emojiTextField.hidden = NO;
+                break;
+            default:
+                self.importButton.hidden = NO;
+                self.orStackView.hidden = NO;
+                self.imageViewHostView.hidden = NO;
+                self.familyNameTextField.hidden = NO;
+                self.givenNameTextField.placeholder = @"Given name";
+
+                self.emojiTextField.hidden = YES;
+                break;
+        }
+    } completion:^(BOOL finished) {
+        switch (inputType) {
+            case DDHInputTypeBirthday:
+                self.imageView.hidden = NO;
+                break;
+            default:
+                break;
+        }
+    }];
 }
 @end

@@ -11,15 +11,15 @@ struct BirthdayBalloonsEntryView : View {
         formatter.style = .medium
         return formatter
     }()
-    var birthdays: [CodableBirthday] {
-        entry.birthdays.map({ .init(birthday: $0) }).sorted {
+    var items: [CodableItem] {
+        entry.items.map({ .init(item: $0) }).sorted {
             $0.daysLeft > $1.daysLeft
         }
     }
 
     var body: some View {
 //        ZStack(alignment: .trailing) {
-            BalloonsView(birthdays: birthdays)
+            BalloonsView(items: items)
 
 //            VStack {
 //                ForEach(birthdays.reversed().prefix(5), id: \.self) { birthday in

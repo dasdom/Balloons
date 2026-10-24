@@ -6,14 +6,18 @@
 #import "DDHBirthdayInputViewController.h"
 #import "DDHBirthdayInputView.h"
 #import "DDHBirthday.h"
+#import "DDHEvent.h"
+#import "DDHInputType.h"
 
 @interface DDHBirthdayInputViewController () <UITextFieldDelegate>
 @property (nonatomic, weak) id<DDHBirthdayInputViewControllerProtocol> delegate;
 @property (nonatomic, weak) DDHBirthdayInputView *contentView;
+@property (nonatomic, strong) NSString *emoji;
 @property (nonatomic, strong) NSString *givenName;
 @property (nonatomic, strong) NSString *familyName;
 @property (nonatomic, strong) NSDate *date;
 @property (nonatomic, strong) UIImage *image;
+@property (nonatomic, assign) DDHInputType inputType;
 @end
 
 @implementation DDHBirthdayInputViewController
@@ -21,6 +25,7 @@
 - (instancetype)initWithDelegate:(id<DDHBirthdayInputViewControllerProtocol>)delegate {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _delegate = delegate;
+        _inputType = DDHInputTypeBirthday;
     }
     return self;
 }
@@ -36,7 +41,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.title = @"Input";
+    UISegmentedControl *typeSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"Birthday", @"Event"]];
+    typeSegmentedControl.selectedSegmentIndex = DDHInputTypeBirthday;
+    [typeSegmentedControl addTarget:self action:@selector(typeSelected:) forControlEvents:UIControlEventValueChanged];
+    self.navigationItem.titleView = typeSegmentedControl;
 
     self.date = self.contentView.birthdayPicker.date;
 
@@ -50,6 +58,7 @@
 
     self.contentView.givenNameTextField.delegate = self;
     self.contentView.familyNameTextField.delegate = self;
+    self.contentView.emojiTextField.delegate = self;
 
     [self.contentView.birthdayPicker addTarget:self action:@selector(updateDate:) forControlEvents:UIControlEventValueChanged];
 
@@ -74,6 +83,8 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     if ([textField isEqual:self.contentView.givenNameTextField]) {
         [self.contentView.familyNameTextField becomeFirstResponder];
+    } else if ([textField isEqual:self.contentView.emojiTextField]) {
+        [self.contentView.givenNameTextField becomeFirstResponder];
     } else {
         [textField resignFirstResponder];
     }
@@ -90,6 +101,8 @@
         self.givenName = text;
     } else if ([textField isEqual:self.contentView.familyNameTextField]) {
         self.familyName = text;
+    } else if ([textField isEqual:self.contentView.emojiTextField]) {
+        self.emoji = text;
     }
 
     self.contentView.addButton.enabled = [self isInputValid];
@@ -113,21 +126,39 @@
 }
 
 - (void)add:(UIButton *)sender {
-    NSPersonNameComponents *personComponents = [[NSPersonNameComponents alloc] init];
-    personComponents.givenName = self.givenName;
-    personComponents.familyName = self.familyName;
-    DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:self.date personNameComponents:personComponents yearUnknown:NO favorite:YES];
+    switch (self.inputType) {
+        case DDHInputTypeEvent:
+        {
+            DDHEvent *event = [[DDHEvent alloc] initWithUUID:[NSUUID UUID] date:self.date emoji:self.emoji name:self.givenName favorite:YES];
+            [self.delegate didSelectAddInViewController:self withEvent:event];
+            break;
+        }
+        default:
+        {
+            NSPersonNameComponents *personComponents = [[NSPersonNameComponents alloc] init];
+            personComponents.givenName = self.givenName;
+            personComponents.familyName = self.familyName;
+            DDHBirthday *birthday = [[DDHBirthday alloc] initWithUUID:[NSUUID UUID] date:self.date personNameComponents:personComponents yearUnknown:NO favorite:YES];
 
-    if (self.image) {
-        NSData *imageData = UIImageJPEGRepresentation(self.image, 0.5);
-        [birthday saveImageData:imageData personUUID:birthday.uuid];
+            if (self.image) {
+                NSData *imageData = UIImageJPEGRepresentation(self.image, 0.5);
+                [birthday saveImageData:imageData personUUID:birthday.uuid];
+            }
+
+            [self.delegate didSelectAddInViewController:self withBirthday:birthday];
+            break;
+        }
+            break;
     }
-
-    [self.delegate didSelectAddInViewController:self withBirthday:birthday];
 }
 
 - (void)cancel:(UIButton *)sender {
     [self.delegate didSelectCancelInViewController:self];
+}
+
+- (void)typeSelected:(UISegmentedControl *)sender {
+    self.inputType = sender.selectedSegmentIndex;
+    [self.contentView updateWithInputType:sender.selectedSegmentIndex];
 }
 
 @end

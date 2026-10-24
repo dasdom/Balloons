@@ -7,16 +7,16 @@ import SwiftUI
 
 
 struct BalloonsView: View {
-    let birthdays: [CodableBirthday]
+    let items: [CodableItem]
 
     var body: some View {
         let balloonWidth: CGFloat = 30
         GeometryReader { proxy in
             var minY: CGFloat = 20
             var maxY: CGFloat = 75
-            ForEach(birthdays, id: \.self) { birthday in
+            ForEach(items, id: \.self) { item in
                 let y = CGFloat.random(in: minY..<maxY)
-                let x = PositionCalculator.balloonX(for: birthday.daysLeft, canvasWidth: proxy.size.width)
+                let x = PositionCalculator.balloonX(for: item.daysLeft, canvasWidth: proxy.size.width)
 
                 if y < 50 {
                     minY = y+15
@@ -28,7 +28,7 @@ struct BalloonsView: View {
                 let _ = print("\(x), \(y)")
 
                 return VStack {
-                    SingleBalloonView(balloonWidth: balloonWidth, birthday: birthday)
+                    SingleBalloonView(balloonWidth: balloonWidth, item: item)
                         .position(x: x, y: y)
 
                     Path { path in

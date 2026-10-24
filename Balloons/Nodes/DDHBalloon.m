@@ -9,7 +9,7 @@
 #import "DDHDateHelper.h"
 
 @interface DDHBalloon ()
-@property (nonatomic, strong) DDHBirthday *birthday;
+@property (nonatomic, strong) id<DDHBalloonPresentableProtocol> item;
 @property (nonatomic, strong) SKSpriteNode *imageNode;
 @property (nonatomic, strong) SKLabelNode *nameLabel;
 @property (nonatomic, strong) SKSpriteNode *labelBackground;
@@ -18,27 +18,27 @@
 
 @implementation DDHBalloon
 
-- (instancetype)initWithBirthday:(DDHBirthday *)birthday width:(CGFloat)width color:(UIColor *)color {
+- (instancetype)initWithItem:(id<DDHBalloonPresentableProtocol>)item width:(CGFloat)width color:(UIColor *)color {
     if (self = [super init]) {
-        self.birthdayId = birthday.uuid;
-        self.birthday = birthday;
+        self.itemId = item.uuid;
+        self.item = item;
         self.balloonColor = color;
 
         UIImage *roundedImage;
-        if (birthday.imageData) {
-            UIImage *image = [UIImage imageWithData:birthday.imageData];
+        if ([item respondsToSelector:@selector(imageData)] && item.imageData) {
+            UIImage *image = [UIImage imageWithData:item.imageData];
             roundedImage = [image roundedWithColor:[UIColor whiteColor] width:10 targetSize:CGSizeMake(400, 400)];
         } else {
-            roundedImage = [UIImage initialsImageWithPersonNameComponents:birthday.personNameComponents color:color];
+            roundedImage = [UIImage imageWithText:item.balloonText color:color];
         }
         SKTexture *texture = [SKTexture textureWithImage:roundedImage];
         self.texture = texture;
         self.anchorPoint = CGPointMake(0.5, 0.5);
         self.size = CGSizeMake(width, width);
-        self.zPosition = 500 - birthday.daysLeft;
+        self.zPosition = 500 - item.daysLeft;
 
         self.isAccessibilityElement = YES;
-        self.accessibilityLabel = birthday.personNameComponents.givenName;
+        self.accessibilityLabel = item.name;
 
         _deleteButtonNode = [[SKSpriteNode alloc] init];
         _deleteButtonNode.position = CGPointMake(200/3 + 10, 200/3 + 10);
@@ -54,7 +54,7 @@
 
         [self addChild:_deleteButtonNode];
 
-        _nameLabel = [SKLabelNode labelNodeWithText:birthday.personNameComponents.givenName];
+        _nameLabel = [SKLabelNode labelNodeWithText:item.name];
         _nameLabel.numberOfLines = 0;
         _nameLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeCenter;
         _nameLabel.fontSize = 13;
@@ -90,7 +90,7 @@
 }
 
 - (DDHBalloon *)balloonCopyForDetail {
-    DDHBalloon *balloon = [[DDHBalloon alloc] initWithBirthday:self.birthday width:self.size.width color:self.balloonColor];
+    DDHBalloon *balloon = [[DDHBalloon alloc] initWithItem:self.item width:self.size.width color:self.balloonColor];
     balloon.position = self.position;
     balloon.physicsBody.allowsRotation = NO;
     balloon.physicsBody.affectedByGravity = NO;
@@ -111,34 +111,17 @@
 
 - (void)showInfoWithNameFormatter:(NSPersonNameComponentsFormatter *)nameFormatter dateFormatterWithYear:(NSDateFormatter *)dateFormatterWithYear dateFormatterWithoutYear:(NSDateFormatter *)dateFormatterWithoutYear {
     nameFormatter.style = NSPersonNameComponentsFormatterStyleMedium;
-    NSString *nameString = [nameFormatter stringFromPersonNameComponents:self.birthday.personNameComponents];
-    if (self.birthday.yearUnknown) {
-        NSString *dateString = [dateFormatterWithoutYear stringFromDate:self.birthday.date];
-        self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nin %ld days",
-                               nameString,
-                               dateString,
-                               self.birthday.daysLeft
-        ];
-    } else {
-        NSString *dateString = [dateFormatterWithYear stringFromDate:self.birthday.date];
-        NSInteger age = [DDHDateHelper ageForDateComponents:self.birthday.date];
-        if (self.birthday.daysLeft > 0) {
-            age = age + 1;
-        }
-        self.nameLabel.text = [NSString stringWithFormat:@"%@\n%@\nturns %ld in %ld days",
-                               nameString,
-                               dateString,
-                               age,
-                               self.birthday.daysLeft
-        ];
-    }
+
+    self.nameLabel.text = [self.item detailStringWithNameFormatter:nameFormatter dateFormatterWithYear:dateFormatterWithYear dateFormatterWithoutYear:dateFormatterWithoutYear];
     self.nameLabel.fontSize = 15;
     self.nameLabel.fontName = [UIFont systemFontOfSize:15 weight:UIFontWeightHeavy].fontName;
     self.nameLabel.position = CGPointMake(0, -self.nameLabel.frame.size.height/2);
 
-    self.presentsButton.hidden = NO;
-    self.presentsButton.position = CGPointMake(0, -self.nameLabel.frame.size.height);
+    if ([self.item isKindOfClass:[DDHBirthday class]]) {
+        self.presentsButton.hidden = NO;
+        self.presentsButton.position = CGPointMake(0, -self.nameLabel.frame.size.height);
 
+    }
     self.labelBackground.position = CGPointMake(0, -self.size.height/2);
     self.labelBackground.size = CGSizeMake(self.nameLabel.frame.size.width + 16, self.nameLabel.frame.size.height
                                            //+ self.presentsButton.frame.size.height

@@ -10,11 +10,11 @@ struct Provider: TimelineProvider {
     let calendar = Calendar.current
 
     func placeholder(in context: Context) -> BirthdaysEntry {
-        BirthdaysEntry(date: .now, birthdays: [])
+        BirthdaysEntry(date: .now, items: [])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BirthdaysEntry) -> ()) {
-        let entry = BirthdaysEntry(date: .now, birthdays: [])
+        let entry = BirthdaysEntry(date: .now, items: [])
         completion(entry)
     }
 
@@ -22,11 +22,12 @@ struct Provider: TimelineProvider {
 
         let storage = DDHStorage()
         let birthdays = storage.birthdays()
+        let events = storage.events()
 
         var entries: [BirthdaysEntry] = []
 
         // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        entries.append(BirthdaysEntry(date: .now, birthdays: birthdays))
+        entries.append(BirthdaysEntry(date: .now, items: birthdays + events))
 
         let beginningOfToday = calendar.startOfDay(for: .now)
         let reloadDate = calendar.date(byAdding: .day, value: 1, to: beginningOfToday) ?? Date(timeIntervalSinceNow: 12 * 60 * 60)

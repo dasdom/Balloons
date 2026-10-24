@@ -7,6 +7,7 @@
 #import "DDHTimelineScene.h"
 #import "DDHContactsManager.h"
 #import "DDHBirthday.h"
+#import "DDHEvent.h"
 #import "DDHStorage.h"
 #import "DDHGameView.h"
 #import "DDHSettingsViewController.h"
@@ -15,11 +16,13 @@
 #import "DDHTimelineSceneProtocol.h"
 #import "Balloons-Swift.h"
 #import "NSArray+Functions.h"
+#import "DDHNotificationRequestableProtocol.h"
 
 @interface DDHGameViewController () <DDHTimelineSceneProtocol>
 @property (nonatomic, strong) id<DDHGameViewControllerDelegate> delegate;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *birthdays;
 @property (nonatomic, strong) NSArray<DDHBirthday *> *filteredBirthdays;
+@property (nonatomic, strong) NSArray<DDHEvent *> *events;
 @property (nonatomic, strong) DDHTimelineScene *scene;
 @property (nonatomic, strong) DDHStorage *storage;
 @property (nonatomic, strong) UISelectionFeedbackGenerator *feedbackGenerator;
@@ -43,6 +46,13 @@
     return (DDHGameView *)self.view;
 }
 
+- (NSArray<id<DDHBalloonPresentableProtocol>> *)allItems {
+    NSMutableArray<id<DDHBalloonPresentableProtocol>> *items = [[NSMutableArray alloc] initWithCapacity:self.filteredBirthdays.count + self.events.count];
+    [items addObjectsFromArray:self.filteredBirthdays];
+    [items addObjectsFromArray:self.events];
+    return [items copy];
+}
+
 - (void)setBirthdays:(NSArray<DDHBirthday *> *)birthdays {
     _birthdays = birthdays;
     _filteredBirthdays = [birthdays filter:^BOOL(DDHBirthday * _Nonnull birthday) {
@@ -62,8 +72,10 @@
     _storage = [[DDHStorage alloc] init];
     [_storage createDatabaseIfNeeded];
     [_storage createPresentsDatabaseIfNeeded];
+    [_storage createEventsDatabaseIfNeeded];
 
     self.birthdays = [_storage birthdays];
+    self.events = [_storage events];
 
     _scene = [[DDHTimelineScene alloc] initWithSize:self.view.frame.size timelineDelegate:self];
 
@@ -87,12 +99,12 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    [self.scene updateForBirthdays:self.filteredBirthdays];
+    [self.scene updateForItems:[self allItems]];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self.scene updateWithSize:size];
-    [self.scene updateForBirthdays:self.filteredBirthdays];
+    [self.scene updateForItems:[self allItems]];
 }
 
 //- (BOOL)prefersStatusBarHidden {
@@ -108,11 +120,12 @@
         [self showTooManyBirthdaysAlert];
     }
 
-    [self setupNotificationsIfNeededWithCompletion:^{
+    __weak typeof(self)weakSelf = self;
+    [self setupItemNotificationsIfNeededForItems:self.filteredBirthdays withCompletion:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.scene updateForBirthdays:self.filteredBirthdays];
+            [weakSelf.scene updateForItems:weakSelf.filteredBirthdays];
 
-            UIButton *addButton = self.contentView.addButton;
+            UIButton *addButton = weakSelf.contentView.addButton;
             UIButtonConfiguration *buttonConfig = addButton.configuration;
             buttonConfig.showsActivityIndicator = NO;
             addButton.configuration = buttonConfig;
@@ -149,11 +162,32 @@
 
     self.birthdays = [self.birthdays arrayByAddingObject:birthday];
 
-    [self setupNotificationsIfNeededWithCompletion:^{
+    __weak typeof(self)weakSelf = self;
+    [self setupItemNotificationsIfNeededForItems:self.filteredBirthdays withCompletion:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.scene insertBirthday:birthday];
+            [weakSelf.scene insertItem:birthday];
 
-            UIButton *addButton = self.contentView.addButton;
+            UIButton *addButton = weakSelf.contentView.addButton;
+            UIButtonConfiguration *buttonConfig = addButton.configuration;
+            buttonConfig.showsActivityIndicator = NO;
+            addButton.configuration = buttonConfig;
+
+            [WidgetContentLoader reloadWidgetContent];
+        });
+    }];
+}
+
+- (void)addEvent:(DDHEvent *)event {
+    [self.storage insertEvent:event];
+
+    self.events = [self.events arrayByAddingObject:event];
+
+    __weak typeof(self)weakSelf = self;
+    [self setupItemNotificationsIfNeededForItems:self.events withCompletion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.scene insertItem:event];
+
+            UIButton *addButton = weakSelf.contentView.addButton;
             UIButtonConfiguration *buttonConfig = addButton.configuration;
             buttonConfig.showsActivityIndicator = NO;
             addButton.configuration = buttonConfig;
@@ -209,7 +243,7 @@
 //    }];
 //}
 
-- (void)setupNotificationsIfNeededWithCompletion:(void (^)(void))completionHandler {
+- (void)setupItemNotificationsIfNeededForItems:(NSArray<id<DDHNotificationRequestableProtocol>> *)items withCompletion:(void (^)(void))completionHandler {
     if ([[NSUserDefaults standardUserDefaults] notificationsActive]) {
         UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
         // Fetch the pending notification requests and only add a request if it is not already added.
@@ -220,9 +254,9 @@
                 [requestIds addObject:request.identifier];
             }
 
-            for (DDHBirthday *birthday in self.filteredBirthdays) {
+            for (id<DDHNotificationRequestableProtocol> item in items) {
 
-                UNNotificationRequest* request = [birthday notificationRequest];
+                UNNotificationRequest* request = [item notificationRequest];
                 if (NO == [requestIds containsObject:request.identifier]) {
                     [center addNotificationRequest:request withCompletionHandler:nil];
                 }
@@ -248,7 +282,7 @@
 
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays {
     [self.scene setNumberOfShownDays:numberOfShownDays];
-    [self.scene updateForBirthdays:self.filteredBirthdays];
+    [self.scene updateForItems:[self allItems]];
 }
 
 // MARK: - DDHTimelineSceneProtocol
@@ -260,16 +294,22 @@
     [self.feedbackGenerator selectionChanged];
 }
 
-- (void)scene:(SKScene *)scene didSelectDeleteForBirthdayWithUUID:(NSUUID *)uuid {
-    for (DDHBirthday *birthday in self.birthdays) {
-        if ([birthday.uuid isEqual:uuid]) {
-            [self.storage deleteBirthday:birthday];
+- (void)scene:(SKScene *)scene didSelectDeleteForItemWithUUID:(NSUUID *)uuid {
+    NSArray<id<DDHBalloonPresentableProtocol>> *items = [self allItems];
+    NSUInteger index = [items indexOfObjectPassingTest:^BOOL(id<DDHBalloonPresentableProtocol> _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        return [obj.uuid.UUIDString isEqualToString:uuid.UUIDString];
+    }];
 
-            self.birthdays = [self.storage birthdays];
+    id<DDHBalloonPresentableProtocol> item = items[index];
 
-            break;
-        }
+    if ([item isKindOfClass:[DDHBirthday class]]) {
+        [self.storage deleteBirthday:(DDHBirthday *)item];
+    } else {
+        [self.storage deleteEvent:(DDHEvent *)item];
     }
+
+    self.birthdays = [self.storage birthdays];
+    self.events = [self.storage events];
 }
 
 - (void)scene:(SKScene *)scene didSelectPresentsForBirthdayWithUUID:(NSUUID *)uuid {

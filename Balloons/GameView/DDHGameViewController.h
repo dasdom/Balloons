@@ -8,6 +8,7 @@
 #import <GameplayKit/GameplayKit.h>
 
 @class DDHBirthday;
+@class DDHEvent;
 @class DDHStorage;
 
 @protocol DDHGameViewControllerDelegate <NSObject>
@@ -24,4 +25,5 @@
 - (void)setNumberOfShownDays:(NSInteger)numberOfShownDays;
 - (void)updateWithBirthdays:(NSArray<DDHBirthday *> *)birthdays;
 - (void)addBirthday:(DDHBirthday *)birthday;
+- (void)addEvent:(DDHEvent *)event;
 @end

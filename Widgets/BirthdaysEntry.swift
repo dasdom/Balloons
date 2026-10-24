@@ -7,5 +7,5 @@ import WidgetKit
 
 struct BirthdaysEntry: TimelineEntry {
     var date: Date
-    let birthdays: [DDHBirthday]
+    let items: [DDHBalloonPresentableProtocol]
 }

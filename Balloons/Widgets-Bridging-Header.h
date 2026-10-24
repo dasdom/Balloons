@@ -11,5 +11,7 @@
 #import "DDHDateHelper.h"
 #import "DDHDisplayMonth.h"
 #import "NSFileManager+Extension.h"
+#import "DDHEvent.h"
+#import "DDHBalloonPresentableProtocol.h"
 
 #endif /* Widgets_Bridging_Header_h */

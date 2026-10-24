@@ -84,4 +84,21 @@
 
     return image;
 }
+
++ (UIImage *)imageWithText:(NSString *)text color:(UIColor *)color {
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    label.textColor = [UIColor labelColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text = text;
+
+    UIGraphicsImageRenderer *imageRenderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(50, 50)];
+    UIImage *image = [imageRenderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull rendererContext) {
+        [color setFill];
+        CGContextFillEllipseInRect(rendererContext.CGContext, CGRectMake(0, 0, 50, 50));
+
+        [label drawTextInRect:label.frame];
+    }];
+
+    return image;
+}
 @end
